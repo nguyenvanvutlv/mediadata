@@ -1,0 +1,1 @@
+package com.nvv.mediadata.data.service.firebaseimport com.google.firebase.analytics.FirebaseAnalyticsclass EventTracking {	companion object {		lateinit var analytics: FirebaseAnalytics	}}

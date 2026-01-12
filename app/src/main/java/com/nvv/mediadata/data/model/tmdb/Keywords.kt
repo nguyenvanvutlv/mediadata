@@ -1,0 +1,1 @@
+package com.nvv.mediadata.data.model.tmdbimport kotlinx.serialization.SerialNameimport kotlinx.serialization.Serializable@Serializabledata class Keywords(	@SerialName("keywords") val keywords: List<Genre> = emptyList(),)

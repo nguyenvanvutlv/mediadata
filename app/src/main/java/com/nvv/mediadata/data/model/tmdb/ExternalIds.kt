@@ -1,0 +1,1 @@
+package com.nvv.mediadata.data.model.tmdbimport kotlinx.serialization.SerialNameimport kotlinx.serialization.Serializable@Serializabledata class ExternalIds(	@SerialName("imdb_id") val imdb: String? = null,)

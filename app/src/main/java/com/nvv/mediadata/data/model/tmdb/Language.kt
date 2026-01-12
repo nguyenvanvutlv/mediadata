@@ -1,0 +1,1 @@
+package com.nvv.mediadata.data.model.tmdbimport kotlinx.serialization.SerialNameimport kotlinx.serialization.Serializable@Serializabledata class Language(	@SerialName("iso_3166_1") val code: String = "",	@SerialName("english_name") val name: String = "",	@SerialName("name") val native: String = "",)

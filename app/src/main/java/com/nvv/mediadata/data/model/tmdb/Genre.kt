@@ -1,0 +1,1 @@
+package com.nvv.mediadata.data.model.tmdbimport kotlinx.serialization.Serializable@Serializabledata class Genre(	val id: Int = -1,	val name: String = "")
