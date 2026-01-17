@@ -1,1 +1,0 @@
-package com.nvv.mediadata.data.model.tmdbimport kotlinx.serialization.SerialNameimport kotlinx.serialization.Serializable@Serializabledata class Company(	@SerialName("id") val id: Long = -1,	@SerialName("logo_path") val logo: String? = null,	@SerialName("name") val name: String = "",	@SerialName("origin_country") val originCountry: String = "",)

@@ -2,11 +2,9 @@ plugins {
 	alias(libs.plugins.android.application)
 	alias(libs.plugins.kotlin.android)
 	alias(libs.plugins.kotlin.compose)
-	id("com.google.gms.google-services")
 	alias(libs.plugins.hilt)
 	alias(libs.plugins.ksp)
-
-	alias(libs.plugins.google.firebase.crashlytics)
+//	alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -45,18 +43,31 @@ android {
 }
 
 dependencies {
-	/// FIREBASE
-	implementation(platform(libs.firebase.bom))
-	implementation(libs.firebase.analytics)
-	implementation(libs.firebase.crashlytics)
-	implementation(libs.firebase.database.ktx)
-	implementation(libs.firebase.auth)
-	implementation(libs.firebase.firestore)
-	// GOOGLE
-	implementation(libs.googleid)
-	implementation(libs.androidx.credentials)
-	implementation(libs.androidx.credentials.play.services.auth)
-
+	implementation(libs.androidx.compose.foundation)
+	// PLAYER
+	val media3 = "1.9.0"
+	implementation("androidx.media3:media3-session:$media3")
+	implementation("androidx.media3:media3-datasource:$media3")
+	implementation("androidx.media3:media3-decoder:$media3")
+	implementation("androidx.media3:media3-common:$media3")
+	implementation("androidx.media3:media3-container:$media3")
+	implementation("androidx.media3:media3-extractor:$media3")
+	implementation("androidx.media3:media3-exoplayer-dash:$media3") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
+	implementation("androidx.media3:media3-exoplayer-hls:$media3") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
+	implementation("androidx.media3:media3-exoplayer-smoothstreaming:$media3") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
+	implementation("androidx.media3:media3-exoplayer-rtsp:$media3") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
+	implementation(fileTree("libs") {
+		include("lib-*.aar")
+	})
+	implementation("androidx.recyclerview:recyclerview:1.3.2")
 	/// HILT
 	implementation(libs.hilt.android)
 	ksp(libs.hilt.android.compiler)
@@ -70,12 +81,10 @@ dependencies {
 	// LIFECIRLE
 	implementation(libs.androidx.lifecycle.viewmodel.compose)
 	// TIMBER
-	implementation("com.jakewharton.timber:timber:5.0.1")
+	implementation(libs.timber)
 	implementation(libs.androidx.material.icons.extended)
-
 	/// YOUTUBE PLAYER
-	implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0")
-
+	implementation(libs.ytb)
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.lifecycle.runtime.ktx)
 	implementation(libs.androidx.activity.compose)
