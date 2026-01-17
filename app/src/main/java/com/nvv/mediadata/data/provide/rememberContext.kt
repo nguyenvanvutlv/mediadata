@@ -1,1 +1,1 @@
-package com.nvv.mediadata.data.provideimport android.content.Contextimport androidx.compose.runtime.Composableimport androidx.compose.ui.platform.LocalContext@Composablefun rememberContext() : Context {	val context = LocalContext.current	return context}
+package com.nvv.mediadata.data.provideimport android.content.Contextimport androidx.compose.runtime.Composableimport androidx.compose.ui.platform.LocalContext@Composablefun rememberContext(): Context {	val context = LocalContext.current	return context}
