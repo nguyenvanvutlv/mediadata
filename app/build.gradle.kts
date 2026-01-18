@@ -81,6 +81,8 @@ dependencies {
 	implementation(libs.hilt.android)
 	ksp(libs.hilt.android.compiler)
 	implementation(libs.androidx.hilt.navigation.compose)
+	/// NAVIGATION ANIMATION
+	implementation(libs.androidx.navigation.compose)
 	/// IMAGE
 	implementation(libs.coil.compose)
 	/// COIL IMAGE AND GIF

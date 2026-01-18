@@ -31,14 +31,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.rounded.Audiotrack
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.PauseCircleFilled
 import androidx.compose.material.icons.rounded.PictureInPicture
+import androidx.compose.material.icons.rounded.PlayCircle
+import androidx.compose.material.icons.rounded.PlayCircleFilled
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,6 +71,7 @@ import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.view.core.findActivity
 import com.nvv.mediadata.view.core.padStartWith0
 import com.nvv.mediadata.view.core.seek.SeekerPlayer
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
@@ -68,7 +80,6 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun PlayerView(
 	modifier: Modifier = Modifier,
-	onBack: () -> Unit,
 ) {
 	val context = rememberContext()
 	val vm = rememberPlayerViewModel()
@@ -88,6 +99,12 @@ fun PlayerView(
 	var videoViewBounds by remember { mutableStateOf(Rect()) }
 	val isPipMode = rememberIsInPipMode()
 	var canPipMode by remember { mutableStateOf(true) }
+
+	var showAudioTracks by remember { mutableStateOf(false) }
+	var showSubtitleTracks by remember { mutableStateOf(false) }
+	var showSettings by remember { mutableStateOf(false) }
+	val sheetState = rememberModalBottomSheetState()
+
 	val onPipMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 		{
 			val params = PictureInPictureParams.Builder()
@@ -142,6 +159,8 @@ fun PlayerView(
 	}
 	BackHandler {
 		canPipMode = false
+		player?.pause()
+		vm.stop()
 	}
 	Surface(
 		Modifier.fillMaxSize()
@@ -156,47 +175,40 @@ fun PlayerView(
 				Modifier
 					.fillMaxSize()
 					.then(
-						if (videoPlayerState.isControlsVisible){
+						if (videoPlayerState.isControlsVisible) {
 							Modifier.background(Color.DarkGray.copy(alpha = 0.5f))
-						}else{
+						} else {
 							Modifier
 						}
 					)
-					.pointerInput(Unit) {
-						awaitEachGesture {
-							awaitFirstDown()
-							val longPressTimeout = viewConfiguration.longPressTimeoutMillis
-							var isLongPressTriggered = false
-							try {
-								withTimeout(longPressTimeout) {
-									waitForUpOrCancellation()
-								}
-							} catch (e: Exception) {
-								isLongPressTriggered = true
-								isFastForwarding = true
-								player?.playbackParameters = PlaybackParameters(2f)
-								while (true) {
-									val event = awaitPointerEvent()
-									if (event.changes.any { it.changedToUp() }) {
-										break
-									}
-								}
-							}
-							if (isLongPressTriggered) {
-								isFastForwarding = false
-								player?.playbackParameters = PlaybackParameters(1f)
-							}
-						}
-					}
 					.pointerInput(Unit) {
 						detectTapGestures(
 							onTap = {
 								if (videoPlayerState.isControlsVisible) {
 									videoPlayerState.hideControls()
-									return@detectTapGestures
+								} else {
+									videoPlayerState.showControls(isPlaying = state.isPlaying)
 								}
-								videoPlayerState.showControls(isPlaying = state.isPlaying)
 							},
+							onPress = { offset ->
+								val longPressTimeout = viewConfiguration.longPressTimeoutMillis
+								var isLongPress = false
+								try {
+									withTimeout(longPressTimeout) {
+										awaitRelease()
+									}
+								} catch (e: Exception) {
+									isLongPress = true
+									isFastForwarding = true
+									player?.playbackParameters = PlaybackParameters(2f)
+									awaitRelease()
+								} finally {
+									if (isLongPress) {
+										isFastForwarding = false
+										player?.playbackParameters = PlaybackParameters(1f)
+									}
+								}
+							}
 						)
 					}
 			) {
@@ -260,7 +272,7 @@ fun PlayerView(
 								onClick = {
 									canPipMode = false
 									player?.pause()
-									onBack()
+									vm.stop()
 								}
 							) {
 								Icon(
@@ -272,6 +284,18 @@ fun PlayerView(
 								)
 							}
 							Spacer(Modifier.weight(1f))
+							IconButton(
+								onClick = vm::aspect
+							) {
+								Icon(
+									imageVector = Icons.Rounded.AspectRatio,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(Modifier.width(10.dp))
 							CastButton(
 								modifier = Modifier.size(40.dp),
 							)
@@ -300,7 +324,28 @@ fun PlayerView(
 					enter = fadeIn(),
 					exit = fadeOut()
 				) {
-
+					Row(
+						modifier = Modifier.fillMaxWidth(),
+						horizontalArrangement = Arrangement.SpaceEvenly,
+						verticalAlignment = Alignment.CenterVertically
+					){
+						IconButton({
+							if (player?.isPlaying == true) {
+								player?.pause()
+							} else {
+								player?.play()
+							}
+						}) {
+							Icon(
+								imageVector = if (player?.isPlaying == true) Icons.Rounded.PauseCircleFilled
+								else Icons.Rounded.PlayCircleFilled,
+								contentDescription = null,
+								tint = Color.White,
+								modifier = Modifier
+									.size(80.dp)
+							)
+						}
+					}
 				}
 				/// BUFFER
 				AnimatedVisibility(
@@ -335,8 +380,7 @@ fun PlayerView(
 					) {
 						Spacer(Modifier.weight(1f))
 						Row(
-							modifier = Modifier
-								.fillMaxWidth()
+							modifier = Modifier.fillMaxWidth()
 								.padding(horizontal = 20.dp),
 							horizontalArrangement = Arrangement.SpaceBetween
 						) {
@@ -364,7 +408,155 @@ fun PlayerView(
 								.padding(horizontal = 16.dp, vertical = 10.dp),
 							interactionSource = interactionSource,
 						)
+						Row(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(horizontal = 20.dp),
+							horizontalArrangement = Arrangement.Start,
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							IconButton({
+								showSubtitleTracks = true
+							}) {
+								Icon(
+									imageVector = Icons.Rounded.Subtitles,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(
+								Modifier.width(20.dp)
+							)
+							IconButton({
+								showAudioTracks = true
+							}) {
+								Icon(
+									imageVector = Icons.Rounded.Audiotrack,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(
+								Modifier.width(20.dp)
+							)
+							IconButton({
+								showSettings = true
+							}) {
+								Icon(
+									imageVector = Icons.Rounded.Settings,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+						}
 						Spacer(Modifier.height(20.dp))
+					}
+				}
+				AnimatedVisibility(
+					showSettings,
+					Modifier, enter = slideInVertically(
+						initialOffsetY = { fullHeight -> fullHeight }
+					) + fadeIn(
+						initialAlpha = 0.3f
+					), exit = slideOutVertically(
+						targetOffsetY = { fullHeight -> fullHeight }
+					) + fadeOut()){
+					ModalBottomSheet(
+						onDismissRequest = { showSettings = false },
+						sheetState = sheetState
+					) {
+						Column(modifier = Modifier.padding(16.dp)) {
+							Text("Subtitle Settings", style = MaterialTheme.typography.titleLarge)
+							Spacer(Modifier.height(16.dp))
+
+							Text("Size: ${state.sizeSubtitle.toInt()}")
+							androidx.compose.material3.Slider(
+								value = state.sizeSubtitle,
+								onValueChange = { vm.updateSubtitleSize(it) },
+								valueRange = 10f..40f,
+								modifier = Modifier.fillMaxWidth()
+							)
+
+							Spacer(Modifier.height(16.dp))
+
+							Text("Position: ${(state.positionSubtitle * 100).toInt()}%")
+							androidx.compose.material3.Slider(
+								value = state.positionSubtitle,
+								onValueChange = { vm.updateSubtitlePosition(it) },
+								valueRange = 0f..0.5f,
+								modifier = Modifier.fillMaxWidth()
+							)
+
+							Spacer(Modifier.height(32.dp))
+						}
+					}
+				}
+				//// TRACK
+				AnimatedVisibility(
+					showAudioTracks,
+					Modifier, enter = slideInVertically(
+						initialOffsetY = { fullHeight -> fullHeight }
+					) + fadeIn(
+						initialAlpha = 0.3f
+					), exit = slideOutVertically(
+						targetOffsetY = { fullHeight -> fullHeight }
+					) + fadeOut()){
+					ModalBottomSheet(
+						onDismissRequest = { showAudioTracks = false },
+						sheetState = sheetState
+					) {
+						Column(modifier = Modifier.padding(16.dp)) {
+							Text("Select Audio Track", style = MaterialTheme.typography.titleLarge)
+							Spacer(Modifier.height(16.dp))
+							vm.getAudioTracks().forEachIndexed { index, track ->
+								ListItem(
+									headlineContent = { Text(track) },
+									modifier = Modifier.pointerInput(Unit) {
+										detectTapGestures(onTap = {
+											vm.selectAudioTrack(index)
+											showAudioTracks = false
+										})
+									},
+								)
+							}
+						}
+					}
+				}
+				AnimatedVisibility(
+					showSubtitleTracks,
+					Modifier, enter = slideInVertically(
+						initialOffsetY = { fullHeight -> fullHeight }
+					) + fadeIn(
+						initialAlpha = 0.3f
+					), exit = slideOutVertically(
+						targetOffsetY = { fullHeight -> fullHeight }
+					) + fadeOut()){
+					ModalBottomSheet(
+						onDismissRequest = { showSubtitleTracks = false },
+						sheetState = sheetState
+					) {
+						Column(modifier = Modifier.padding(16.dp)) {
+							Text("Select Subtitle", style = MaterialTheme.typography.titleLarge)
+							Spacer(Modifier.height(16.dp))
+
+							vm.getSubtitleTracks().forEachIndexed { index, track ->
+								ListItem(
+									headlineContent = { Text(track) },
+									modifier = Modifier.pointerInput(Unit) {
+										detectTapGestures(onTap = {
+											vm.selectSubtitleTrack(index)
+											showSubtitleTracks = false
+										})
+									},
+								)
+							}
+						}
 					}
 				}
 			}

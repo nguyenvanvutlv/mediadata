@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.nvv.mediadata.data.Destination
 import com.nvv.mediadata.view.file.LocalFileNavigation
+import com.nvv.mediadata.view.settings.SettingNavigation
 import com.nvv.mediadata.view.stream.StreamNavigation
 
 @Composable
@@ -23,6 +24,7 @@ fun AppNavHost(
 					Destination.LOCAL_FILE -> LocalFileNavigation()
 					Destination.AUDIO -> {}
 					Destination.NETWORKS -> StreamNavigation()
+					Destination.SETTINGS -> SettingNavigation()
 				}
 			}
 		}

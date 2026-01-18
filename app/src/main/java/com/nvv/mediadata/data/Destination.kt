@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class Destination(
@@ -15,4 +16,5 @@ enum class Destination(
 	LOCAL_FILE("local", "Local File", Icons.Rounded.Folder, "file"),
 	AUDIO("audio", "Audio", Icons.Rounded.Audiotrack, "audio"),
 	NETWORKS("network", "Network Stream", Icons.Rounded.Language, "network"),
+	SETTINGS("settings", "Settings", Icons.Rounded.Settings, "settings"),
 }

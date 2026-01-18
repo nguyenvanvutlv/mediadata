@@ -7,6 +7,8 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -68,15 +70,15 @@ class MainActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContent {
+			val startDestination = Destination.SETTINGS
 			val player = rememberPlayerViewModel()
 			val isPlay by player.isPlay.collectAsStateWithLifecycle()
 			val notificationViewModel = rememberNotificationViewModel()
 			val isOpenNotification by notificationViewModel.isOpen.collectAsStateWithLifecycle()
 			val messageNotification by notificationViewModel.message.collectAsStateWithLifecycle()
 			val navController = rememberNavController()
-			val startDestination = Destination.NETWORKS
+//			val startDestination = Destination.NETWORKS
 			var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
-			var isNavigationBarVisible by rememberSaveable { mutableStateOf(true) }
 			val snackBarHostState = remember { SnackbarHostState() }
 			LaunchedEffect(isOpenNotification) {
 				if (isOpenNotification) {
@@ -98,17 +100,27 @@ class MainActivity : AppCompatActivity() {
 				controller.show(WindowInsetsCompat.Type.statusBars())
 				controller.show(WindowInsetsCompat.Type.navigationBars())
 			}
+			LaunchedEffect(isPlay) {
+				if (!isPlay) {
+					WindowCompat.setDecorFitsSystemWindows(window, false)
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+						window.attributes.layoutInDisplayCutoutMode = WindowManager
+							.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+					}
+					val controller = WindowInsetsControllerCompat(window, window.decorView)
+					controller.systemBarsBehavior =
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+					controller.show(WindowInsetsCompat.Type.statusBars())
+					controller.show(WindowInsetsCompat.Type.navigationBars())
+				}
+			}
 			MediadataTheme {
 				Scaffold(
 					topBar = {
 						AnimatedVisibility(
-							(!isNavigationBarVisible && isPlay),
-							Modifier
-						) { }
-						AnimatedVisibility(
-							visible = (isNavigationBarVisible && !isPlay),
-							enter = slideInVertically(initialOffsetY = { it }),
-							exit = slideOutVertically(targetOffsetY = { it }),
+							visible = !isPlay,
+							enter = slideInVertically(initialOffsetY = { -it }),
+							exit = slideOutVertically(targetOffsetY = { -it }),
 						) {
 							DefaultTopbar(
 								destination = Destination.entries[selectedDestination]
@@ -117,11 +129,7 @@ class MainActivity : AppCompatActivity() {
 					},
 					bottomBar = {
 						AnimatedVisibility(
-							(!isNavigationBarVisible && isPlay),
-							Modifier
-						) { }
-						AnimatedVisibility(
-							visible = (isNavigationBarVisible && !isPlay),
+							visible = !isPlay,
 							enter = slideInVertically(initialOffsetY = { it }),
 							exit = slideOutVertically(targetOffsetY = { it }),
 						) {
@@ -165,31 +173,16 @@ class MainActivity : AppCompatActivity() {
 					}
 				}
 				AnimatedVisibility(
-					isPlay,
-					Modifier
-						.fillMaxSize()
-						.background(Color.Black)
+					visible = isPlay,
+					modifier = Modifier.fillMaxSize(),
+					enter = fadeIn(),
+					exit = fadeOut()
 				) {
-					LaunchedEffect(Unit) {
-
-					}
 					PlayerView(
-						Modifier
+						modifier = Modifier
 							.fillMaxSize()
-							.background(Color.Black)
-					) {
-						WindowCompat.setDecorFitsSystemWindows(window, false)
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-							window.attributes.layoutInDisplayCutoutMode = WindowManager
-								.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-						}
-						val controller =
-							WindowInsetsControllerCompat(window, window.decorView)
-						controller.systemBarsBehavior =
-							WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-						controller.show(WindowInsetsCompat.Type.statusBars())
-						controller.show(WindowInsetsCompat.Type.navigationBars())
-					}
+							.background(Color.Black),
+					)
 				}
 			}
 		}

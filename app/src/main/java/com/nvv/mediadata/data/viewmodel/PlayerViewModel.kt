@@ -11,12 +11,17 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.nvv.mediadata.data.model.PlaybackState
+import com.nvv.mediadata.data.model.TrackModel
+import com.nvv.mediadata.data.model.VideoScaleMode
+import com.nvv.mediadata.data.model.exoLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -221,6 +226,114 @@ class PlayerViewModel @Inject constructor(
 		_player.value?.let { p ->
 			val newPosition = (progress * p.duration).toLong()
 			p.seekTo(newPosition.coerceAtLeast(0L))
+		}
+	}
+
+	fun getAudioTracks(): List<String> {
+		val player = _player.value ?: return emptyList()
+		val tracks = mutableListOf<String>()
+		val currentTracks = player.currentTracks
+		for (group in currentTracks.groups) {
+			if (group.type == C.TRACK_TYPE_AUDIO) {
+				for (i in 0 until group.length) {
+					val format = group.getTrackFormat(i)
+					tracks.add(format.language ?: "Unknown")
+				}
+			}
+		}
+		return tracks
+	}
+
+	fun getSubtitleTracks(): List<String> {
+		val player = _player.value ?: return emptyList()
+		val tracks = mutableListOf<String>()
+		val currentTracks = player.currentTracks
+		for (group in currentTracks.groups) {
+			if (group.type == C.TRACK_TYPE_TEXT) {
+				for (i in 0 until group.length) {
+					val format = group.getTrackFormat(i)
+					tracks.add(format.language ?: "Unknown")
+				}
+			}
+		}
+		return tracks
+	}
+
+	fun selectAudioTrack(index: Int) {
+		val player = _player.value ?: return
+		val currentTracks = player.currentTracks
+		var count = 0
+		for (group in currentTracks.groups) {
+			if (group.type == C.TRACK_TYPE_AUDIO) {
+				if (count == index) {
+					player.trackSelectionParameters = player.trackSelectionParameters
+						.buildUpon()
+						.setOverrideForType(
+							androidx.media3.common.TrackSelectionOverride(
+								group.mediaTrackGroup,
+								0
+							)
+						)
+						.build()
+					return
+				}
+				count++
+			}
+		}
+	}
+
+	fun selectSubtitleTrack(index: Int) {
+		val player = _player.value ?: return
+		val currentTracks = player.currentTracks
+		var count = 0
+		for (group in currentTracks.groups) {
+			if (group.type == C.TRACK_TYPE_TEXT) {
+				if (count == index) {
+					player.trackSelectionParameters = player.trackSelectionParameters
+						.buildUpon()
+						.setOverrideForType(
+							androidx.media3.common.TrackSelectionOverride(
+								group.mediaTrackGroup,
+								0
+							)
+						)
+						.build()
+					return
+				}
+				count++
+			}
+		}
+	}
+
+	fun updateSubtitleSize(size: Float) {
+		_state.update { it.copy(sizeSubtitle = size) }
+	}
+
+	fun updateSubtitlePosition(position: Float) {
+		_state.update { it.copy(positionSubtitle = position) }
+	}
+
+	fun aspect() {
+		val newAspect = when (this.state.value.scaleMode) {
+			VideoScaleMode.BEST_FIT -> VideoScaleMode.FIT_SCREEN
+			VideoScaleMode.FIT_SCREEN -> VideoScaleMode.FILL
+			VideoScaleMode.FILL -> VideoScaleMode.RATIO_16_9
+			VideoScaleMode.RATIO_16_9 -> VideoScaleMode.RATIO_4_3
+			VideoScaleMode.RATIO_4_3 -> VideoScaleMode.ORIGINAL
+			VideoScaleMode.ORIGINAL -> VideoScaleMode.BEST_FIT
+		}
+		this._state.update {
+			it.copy(
+				scaleMode = newAspect
+			)
+		}
+	}
+
+	fun stop() {
+		_isPlay.value = false
+		_player.value?.let { p ->
+			p.stop()
+			p.clearMediaItems()
 		}
 	}
 

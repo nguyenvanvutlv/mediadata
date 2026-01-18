@@ -22,7 +22,8 @@ data class PlaybackState(
 	var duration: Long = 0,
 	var mimeType: String? = null,
 
-
+	var subtitles: List<TrackModel> = emptyList(),
+	var audios: List<TrackModel> = emptyList(),
 	val sizeSubtitle: Float = 20f,
 	val positionSubtitle: Float = 0.1f,
 	var scaleMode: VideoScaleMode = VideoScaleMode.FILL,
