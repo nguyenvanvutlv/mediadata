@@ -1,1 +1,130 @@
-package com.nvv.mediadata.view.playerimport android.content.pm.ActivityInfoimport android.graphics.Colorimport android.os.Buildimport android.util.TypedValueimport android.view.Viewimport android.view.ViewGroupimport android.view.WindowInsetsimport android.view.WindowInsetsControllerimport androidx.compose.foundation.layout.fillMaxSizeimport androidx.compose.runtime.Composableimport androidx.compose.runtime.DisposableEffectimport androidx.compose.runtime.LaunchedEffectimport androidx.compose.runtime.getValueimport androidx.compose.ui.Modifierimport androidx.compose.ui.viewinterop.AndroidViewimport androidx.lifecycle.Lifecycleimport androidx.lifecycle.LifecycleEventObserverimport androidx.lifecycle.compose.LocalLifecycleOwnerimport androidx.lifecycle.compose.collectAsStateWithLifecycleimport androidx.media3.ui.CaptionStyleCompatimport androidx.media3.ui.PlayerViewimport com.nvv.mediadata.data.provide.rememberContextimport com.nvv.mediadata.data.provide.rememberPlayerViewModelimport com.nvv.mediadata.view.core.findActivity@Composablefun SurfacePlayer(	modifier: Modifier = Modifier,	onPipMode: () -> Unit = {},) {	val vm = rememberPlayerViewModel()	val p by vm.player.collectAsStateWithLifecycle()	val state by vm.state.collectAsStateWithLifecycle()	val context = rememberContext()	val activity = context.findActivity()	val window = activity?.window	val lifecycleOwner = LocalLifecycleOwner.current	val hideSystemBars = {		window?.let {			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {				it.insetsController?.apply {					hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())					systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE				}			} else {				@Suppress("DEPRECATION")				it.decorView.systemUiVisibility = (						View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY								or View.SYSTEM_UI_FLAG_FULLSCREEN								or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION						)			}		}	}	LaunchedEffect(Unit) {		hideSystemBars()	}	AndroidView(		modifier = modifier			.fillMaxSize(),		factory = {			PlayerView(context).apply {				useController = false				player = p				resizeMode = state.scaleMode.scaleType				setShutterBackgroundColor(Color.TRANSPARENT)				setKeepContentOnPlayerReset(true)				layoutParams = ViewGroup.LayoutParams(					ViewGroup.LayoutParams.MATCH_PARENT,					ViewGroup.LayoutParams.MATCH_PARENT				)			}		},		update = { view ->			if (view.player != p) {				view.player = p			}			view.resizeMode = state.scaleMode.scaleType			val subView = view.subtitleView			val style = CaptionStyleCompat(				Color.WHITE,				Color.TRANSPARENT,				Color.TRANSPARENT,				CaptionStyleCompat.EDGE_TYPE_OUTLINE,				Color.BLACK,				null			)			subView?.setStyle(style)			subView?.setFixedTextSize(				TypedValue.COMPLEX_UNIT_SP,				state.sizeSubtitle			)			subView?.setBottomPaddingFraction(state.positionSubtitle)		}	)	DisposableEffect(Unit) {		activity?.requestedOrientation =			ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE		val observer = LifecycleEventObserver { _, event ->			when (event) {				Lifecycle.Event.ON_RESUME -> {					hideSystemBars()				}				Lifecycle.Event.ON_START -> {					p.playWhenReady = true					p.prepare()				}				Lifecycle.Event.ON_STOP -> {					p.playWhenReady = false				}				Lifecycle.Event.ON_PAUSE -> {					//onPipMode()				}				else -> Unit			}		}		lifecycleOwner.lifecycle.addObserver(observer)		onDispose {			activity?.requestedOrientation =				ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED			lifecycleOwner.lifecycle.removeObserver(observer)		}	}}
+package com.nvv.mediadata.view.player
+
+import android.content.pm.ActivityInfo
+import android.graphics.Color
+import android.os.Build
+import android.util.TypedValue
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.ui.CaptionStyleCompat
+import androidx.media3.ui.PlayerView
+import com.nvv.mediadata.data.provide.rememberContext
+import com.nvv.mediadata.data.provide.rememberPlayerViewModel
+import com.nvv.mediadata.view.core.findActivity
+
+@Composable
+fun SurfacePlayer(
+	modifier: Modifier = Modifier,
+	onPipMode: () -> Unit = {},
+) {
+	val vm = rememberPlayerViewModel()
+	val p by vm.player.collectAsStateWithLifecycle()
+	val state by vm.state.collectAsStateWithLifecycle()
+	val context = rememberContext()
+	val activity = context.findActivity()
+	val window = activity?.window
+	val lifecycleOwner = LocalLifecycleOwner.current
+	val hideSystemBars = {
+		window?.let {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+				it.insetsController?.apply {
+					hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+					systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+				}
+			} else {
+				@Suppress("DEPRECATION")
+				it.decorView.systemUiVisibility = (
+						View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+								or View.SYSTEM_UI_FLAG_FULLSCREEN
+								or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+						)
+			}
+		}
+	}
+	LaunchedEffect(Unit) {
+		hideSystemBars()
+	}
+	AndroidView(
+		modifier = modifier
+			.fillMaxSize(),
+		factory = {
+			PlayerView(context).apply {
+				useController = false
+				player = p
+				resizeMode = state.scaleMode.scaleType
+				setShutterBackgroundColor(Color.BLACK)
+				setKeepContentOnPlayerReset(true)
+				layoutParams = ViewGroup.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT
+				)
+			}
+		},
+		update = { view ->
+			if (view.player != p) {
+				view.player = p
+			}
+			view.resizeMode = state.scaleMode.scaleType
+			val subView = view.subtitleView
+			val style = CaptionStyleCompat(
+				Color.WHITE,
+				Color.TRANSPARENT,
+				Color.TRANSPARENT,
+				CaptionStyleCompat.EDGE_TYPE_OUTLINE,
+				Color.BLACK,
+				null
+			)
+			subView?.setStyle(style)
+			subView?.setFixedTextSize(
+				TypedValue.COMPLEX_UNIT_SP,
+				state.sizeSubtitle
+			)
+			subView?.setBottomPaddingFraction(state.positionSubtitle)
+		}
+	)
+	DisposableEffect(Unit) {
+		activity?.requestedOrientation =
+			ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+		val observer = LifecycleEventObserver { _, event ->
+			when (event) {
+				Lifecycle.Event.ON_RESUME -> {
+					hideSystemBars()
+				}
+
+				Lifecycle.Event.ON_START -> {
+					p?.playWhenReady = true
+					p?.prepare()
+				}
+
+				Lifecycle.Event.ON_STOP -> {
+					p?.playWhenReady = false
+				}
+
+				Lifecycle.Event.ON_PAUSE -> {
+					//onPipMode()
+				}
+
+				else -> Unit
+			}
+		}
+		lifecycleOwner.lifecycle.addObserver(observer)
+		onDispose {
+			activity?.requestedOrientation =
+				ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+			lifecycleOwner.lifecycle.removeObserver(observer)
+		}
+	}
+}

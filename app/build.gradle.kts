@@ -44,14 +44,23 @@ android {
 
 dependencies {
 	implementation(libs.androidx.compose.foundation)
+	implementation(libs.androidx.appcompat.resources)
+	implementation(libs.androidx.appcompat)
 	// PLAYER
 	val media3 = "1.9.0"
+	implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
 	implementation("androidx.media3:media3-session:$media3")
 	implementation("androidx.media3:media3-datasource:$media3")
 	implementation("androidx.media3:media3-decoder:$media3")
 	implementation("androidx.media3:media3-common:$media3")
 	implementation("androidx.media3:media3-container:$media3")
 	implementation("androidx.media3:media3-extractor:$media3")
+	implementation("androidx.mediarouter:mediarouter:1.8.1") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
+	implementation("androidx.media3:media3-cast:${media3}") {
+		exclude(group = "androidx.media3", module = "media3-exoplayer")
+	}
 	implementation("androidx.media3:media3-exoplayer-dash:$media3") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}

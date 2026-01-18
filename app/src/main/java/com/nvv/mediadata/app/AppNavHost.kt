@@ -21,6 +21,7 @@ fun AppNavHost(
 			composable(destination.route) {
 				when (destination) {
 					Destination.LOCAL_FILE -> LocalFileNavigation()
+					Destination.AUDIO -> {}
 					Destination.NETWORKS -> StreamNavigation()
 				}
 			}
