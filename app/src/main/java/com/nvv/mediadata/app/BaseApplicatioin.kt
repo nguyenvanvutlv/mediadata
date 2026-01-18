@@ -1,1 +1,20 @@
-package com.nvv.mediadata.appimport android.app.Applicationimport androidx.annotation.OptInimport com.nvv.mediadata.BuildConfigimport dagger.hilt.android.HiltAndroidAppimport dagger.hilt.android.UnstableApiimport timber.log.Timber@OptIn(UnstableApi::class)@HiltAndroidAppclass BaseApplication : Application() {	override fun onCreate() {		super.onCreate()		/// create logger timber		if (BuildConfig.DEBUG) {			Timber.plant(Timber.DebugTree())		}	}}
+package com.nvv.mediadata.app
+
+import android.app.Application
+import androidx.annotation.OptIn
+import com.nvv.mediadata.BuildConfig
+import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.UnstableApi
+import timber.log.Timber
+
+@OptIn(UnstableApi::class)
+@HiltAndroidApp
+class BaseApplication : Application() {
+	override fun onCreate() {
+		super.onCreate()
+		/// create logger timber
+		if (BuildConfig.DEBUG) {
+			Timber.plant(Timber.DebugTree())
+		}
+	}
+}

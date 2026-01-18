@@ -26,14 +26,12 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
-
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
 	@ApplicationContext private val context: Context,
 ) : ViewModel() {
 	private var _isPlay = MutableStateFlow(false)
 	val isPlay = _isPlay.asStateFlow()
-
 
 	private val _player = MutableStateFlow<Player?>(null)
 	val player = _player.asStateFlow()
@@ -58,7 +56,7 @@ class PlayerViewModel @Inject constructor(
 				Uri.parse(this)
 
 			else ->
-				Uri.fromFile(File(this)) // local path
+				Uri.fromFile(File(this))
 		}
 	}
 
@@ -72,7 +70,7 @@ class PlayerViewModel @Inject constructor(
 				controller.addListener(createListener())
 				syncStateWithController(controller)
 			} catch (e: Exception) {
-				Timber.e(e, "Can't Connect MediaController")
+				Timber.e(e)
 			}
 		}, MoreExecutors.directExecutor())
 	}
@@ -96,7 +94,8 @@ class PlayerViewModel @Inject constructor(
 		return object : Player.Listener {
 			override fun onEvents(player: Player, events: Player.Events) {
 				if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED) ||
-					events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
+					events.contains(Player.EVENT_IS_PLAYING_CHANGED)
+				) {
 
 					val isPlaying = player.isPlaying
 					_state.update {
@@ -139,34 +138,49 @@ class PlayerViewModel @Inject constructor(
 		val mimeType = when {
 			lastSegment.contains(".m3u8") || lastSegment.contains(".m3u") ->
 				MimeTypes.APPLICATION_M3U8
+
 			lastSegment.contains(".mpd") ->
 				MimeTypes.APPLICATION_MPD
+
 			lastSegment.contains(".ism") ->
 				MimeTypes.APPLICATION_SS
+
 			lastSegment.contains(".mp4") || lastSegment.contains(".m4v") ->
 				MimeTypes.VIDEO_MP4
+
 			lastSegment.contains(".mkv") ->
 				MimeTypes.APPLICATION_MATROSKA
+
 			lastSegment.contains(".webm") ->
 				MimeTypes.VIDEO_WEBM
+
 			lastSegment.contains(".mov") ->
 				MimeTypes.VIDEO_QUICK_TIME
+
 			lastSegment.contains(".avi") ->
 				MimeTypes.VIDEO_AVI
+
 			lastSegment.contains(".flv") ->
 				MimeTypes.VIDEO_FLV
+
 			lastSegment.contains(".ts") ->
 				MimeTypes.VIDEO_MP2T
+
 			lastSegment.contains(".mp3") ->
 				MimeTypes.AUDIO_MPEG
+
 			lastSegment.contains(".aac") ->
 				MimeTypes.AUDIO_AAC
+
 			lastSegment.contains(".m4a") ->
 				MimeTypes.AUDIO_MP4
+
 			lastSegment.contains(".flac") ->
 				MimeTypes.AUDIO_FLAC
+
 			lastSegment.contains(".wav") ->
 				MimeTypes.AUDIO_WAV
+
 			lastSegment.contains(".ogg") ->
 				MimeTypes.AUDIO_OGG
 
@@ -186,7 +200,6 @@ class PlayerViewModel @Inject constructor(
 			}
 			.build()
 	}
-
 
 	fun setURLs(links: List<String>) {
 		val mediaItems = links.map { buildMediaItem(it) }
@@ -218,18 +231,3 @@ class PlayerViewModel @Inject constructor(
 		MediaController.releaseFuture(controllerFuture)
 	}
 }
-//	fun aspect() {
-//		val newAspect = when (this.state.value.scaleMode) {
-//			VideoScaleMode.BEST_FIT -> VideoScaleMode.FIT_SCREEN
-//			VideoScaleMode.FIT_SCREEN -> VideoScaleMode.FILL
-//			VideoScaleMode.FILL -> VideoScaleMode.RATIO_16_9
-//			VideoScaleMode.RATIO_16_9 -> VideoScaleMode.RATIO_4_3
-//			VideoScaleMode.RATIO_4_3 -> VideoScaleMode.ORIGINAL
-//			VideoScaleMode.ORIGINAL -> VideoScaleMode.BEST_FIT
-//		}
-//		this._state.update {
-//			it.copy(
-//				scaleMode = newAspect
-//			)
-//		}
-//	}

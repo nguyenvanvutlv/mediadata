@@ -7,6 +7,8 @@ import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
@@ -35,20 +37,24 @@ class PlaybackService : MediaSessionService() {
 	private lateinit var castPlayer: CastPlayer
 	private lateinit var castContext: CastContext
 	private var sessionManagerListener: SessionManagerListener<CastSession>? = null
+
 	private fun initializePlayer() {
 		val renderersFactory = DefaultRenderersFactory(this)
 			.setEnableDecoderFallback(true)
 			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
 		val trackSelector = DefaultTrackSelector(this)
 		val loadControl = DefaultLoadControl.Builder()
-			.setBufferDurationsMs(minBuffer,
+			.setBufferDurationsMs(
+				minBuffer,
 				maxBuffer,
 				bufferForPlayback,
-				bufferForPlaybackAfterRebuffer)
+				bufferForPlaybackAfterRebuffer
+			)
 			.setBackBuffer(30_000, false)
 			.build()
 		val dataSourceFactory = DefaultDataSource.Factory(
-			this, DefaultHttpDataSource.Factory())
+			this, DefaultHttpDataSource.Factory()
+		)
 		player = ExoPlayer.Builder(this)
 			.setRenderersFactory(renderersFactory)
 			.setTrackSelector(trackSelector)
@@ -65,7 +71,8 @@ class PlaybackService : MediaSessionService() {
 			.build()
 		val intent = packageManager.getLaunchIntentForPackage(packageName)
 		val pendingIntent = PendingIntent.getActivity(
-			this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+			this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+		)
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(pendingIntent)
 			.build()
@@ -79,9 +86,8 @@ class PlaybackService : MediaSessionService() {
 			castPlayer = CastPlayer.Builder(this).build()
 			setupCastListener(castContext)
 		} catch (e: Exception) {
-			Timber.e(e, "Can't get cast on this device")
+			Timber.e(e)
 		}
-
 	}
 
 	private fun setupCastListener(castContext: CastContext) {
@@ -89,12 +95,15 @@ class PlaybackService : MediaSessionService() {
 			override fun onSessionStarted(session: CastSession, sessionId: String) {
 				swapPlayer(castPlayer)
 			}
+
 			override fun onSessionEnded(session: CastSession, error: Int) {
 				swapPlayer(player)
 			}
+
 			override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
 				swapPlayer(castPlayer)
 			}
+
 			override fun onSessionStarting(session: CastSession) {}
 			override fun onSessionStartFailed(session: CastSession, error: Int) {}
 			override fun onSessionEnding(session: CastSession) {}
@@ -119,24 +128,45 @@ class PlaybackService : MediaSessionService() {
 		for (i in 0 until oldPlayer.mediaItemCount) {
 			val oldItem = oldPlayer.getMediaItemAt(i)
 			val builder = oldItem.buildUpon()
-			val tracks = oldPlayer.currentTracks
-			var detectedMimeType: String? = null
-			for (group in tracks.groups) {
-				if (group.type == C.TRACK_TYPE_VIDEO && group.isSelected) {
-					detectedMimeType = group.getTrackFormat(0).sampleMimeType
-					break
+
+			if (i == currentItemIndex) {
+				val tracks = oldPlayer.currentTracks
+				var videoMime: String? = null
+				var audioMime: String? = null
+				for (group in tracks.groups) {
+					if (group.isSelected) {
+						val format = group.getTrackFormat(0)
+						val detectedMime = format.containerMimeType ?: format.sampleMimeType
+						if (group.type == C.TRACK_TYPE_VIDEO) {
+							videoMime = detectedMime
+						} else if (group.type == C.TRACK_TYPE_AUDIO) {
+							audioMime = detectedMime
+						}
+					}
+				}
+
+				val finalMime = when {
+					videoMime?.contains("avc") == true || videoMime?.contains("h264") == true || videoMime?.contains("mp4") == true -> MimeTypes.VIDEO_MP4
+					videoMime?.contains("hevc") == true || videoMime?.contains("h265") == true -> MimeTypes.VIDEO_MP4
+					videoMime?.contains("vp9") == true || videoMime?.contains("webm") == true -> MimeTypes.VIDEO_WEBM
+					videoMime?.contains("matroska") == true || videoMime?.contains("x-matroska") == true -> "video/x-matroska"
+					audioMime?.contains("mpeg") == true || audioMime?.contains("mp3") == true -> MimeTypes.AUDIO_MPEG
+					audioMime?.contains("aac") == true -> MimeTypes.AUDIO_AAC
+					else -> oldItem.localConfiguration?.mimeType
+				}
+
+				if (finalMime != null) {
+					builder.setMimeType(finalMime)
+				} else if (oldItem.localConfiguration?.uri?.toString()?.startsWith("http") == true) {
+					builder.setMimeType(MimeTypes.VIDEO_MP4)
 				}
 			}
-			if (detectedMimeType != null) {
-				val containerMimeType = when {
-					detectedMimeType.contains("avc") || detectedMimeType.contains("h264") -> "video/mp4"
-					detectedMimeType.contains("hevc") || detectedMimeType.contains("h265") -> "video/mp4"
-					detectedMimeType.contains("vp9") -> "video/webm"
-					detectedMimeType.contains("matroska") -> "video/x-matroska"
-					else -> detectedMimeType
-				}
-				builder.setMimeType(containerMimeType)
-			}
+
+			val metadata = oldItem.mediaMetadata.buildUpon()
+				.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
+				.build()
+			builder.setMediaMetadata(metadata)
+
 			mediaItems.add(builder.build())
 		}
 		oldPlayer.stop()
