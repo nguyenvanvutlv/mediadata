@@ -46,9 +46,6 @@ MP4, MOV, WebM, MKV, Ogg, MPEG-TS, MPEG-PS, FLV, AVI
 ### Streaming Protocols
 DASH, HLS, SmoothStreaming, RTSP
 
-### Subtitle Formats
-SRT, SSA/ASS, TTML, VTT, DVB
-
 ## How to Use
 
 ### Playing Local Files
@@ -124,7 +121,6 @@ This application is designed to comply with:
 
 - **Minimum**: Android 8.0 (API 26)
 - **Recommended**: Android 10+ for optimal performance
-- **Android TV**: Fully compatible with Android TV devices
 - **Storage**: Variable based on cached content
 - **Internet**: Required for network streaming features
 
