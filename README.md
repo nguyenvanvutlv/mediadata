@@ -1,18 +1,17 @@
 # MediaData Player
 
-A powerful Android download manager and video player based on [Media3](https://github.com/androidx/media), compatible with Android 8+ and Android TV.
+A powerful Android video player based on [Media3](https://github.com/androidx/media), compatible with Android 8+ and Android TV.
 
-MediaData Player helps you download videos directly to your device as files, also features an advanced integrated player that supports almost all 
-modern formats and seamless TV casting.
+MediaData Player lets you stream videos directly to your device, and it integrates an advanced player that supports most modern formats and provides smooth TV streaming.
 
 ## Key Features
 
-*   **Fast Video Downloader**: Quickly download videos directly to local storage and manage your download list with ease.
 *   **Comprehensive Codec Support**: Built with the latest Media3 library, supporting high-end audio formats (AC3, DTS, TrueHD, etc.) and video codecs (H.264, H.265, AV1, etc.).
 *   **Cast to TV**: Cast video and audio to your TV (Google Cast) with automatic format (MimeType) detection to ensure the best possible playback quality.
 *   **Picture in Picture (PiP)**: Continue watching your videos in a small window while using other apps.
 *   **Perfect Sync**: Optimized audio-to-video synchronization, with full support for Bluetooth earphones and speakers.
 *   **Smart Controls**: Horizontal swipe to seek, and vertical swipe for brightness (left) and volume (right) adjustments.
+*   **Fast Video Downloader**: Quickly download videos directly to local storage and manage your download list with ease.
 
 ## Supported Formats
 
