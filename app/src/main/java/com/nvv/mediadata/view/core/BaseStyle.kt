@@ -1,1 +1,0 @@
-package com.nvv.mediadata.view.coreimport androidx.compose.ui.text.TextStyleimport androidx.compose.ui.text.style.Hyphensimport androidx.compose.ui.text.style.LineBreakimport androidx.compose.ui.text.style.TextAlignval baseStyle = TextStyle(	textAlign = TextAlign.Justify,	lineBreak = LineBreak.Paragraph,	hyphens = Hyphens.Auto)
