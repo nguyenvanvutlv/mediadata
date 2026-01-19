@@ -4,7 +4,6 @@ plugins {
 	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.hilt)
 	alias(libs.plugins.ksp)
-//	alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -17,15 +16,19 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 1
-		versionName = "1.0"
+		versionCode = 100
+		versionName = "1.0.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
 
 	buildTypes {
 		release {
-			isMinifyEnabled = false
+			isDebuggable = false
+			isJniDebuggable = false
+			isPseudoLocalesEnabled = false
+			isMinifyEnabled = true
+			isShrinkResources = true
 			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 		}
 	}

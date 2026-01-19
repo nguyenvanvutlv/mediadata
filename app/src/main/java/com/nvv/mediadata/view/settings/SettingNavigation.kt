@@ -47,6 +47,9 @@ fun SettingNavigation(){
 		composable(route = "settings/language"){
 			SettingLanguage(navController)
 		}
+		composable(route = "settings/cast"){
+			CastSetting(navController)
+		}
 		composable(route = "settings/theme"){
 			SettingTheme()
 		}

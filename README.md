@@ -1,8 +1,9 @@
-# Downloader Manager
+# Downloader Player
 
-A powerful Android download manager and video player based on [Media3](https://github.com/androidx/media), compatible with Android 6+ and Android TV.
+A powerful Android download manager and video player based on [Media3](https://github.com/androidx/media), compatible with Android 8+ and Android TV.
 
-Downloader Manager not only helps you download videos directly to your device as files but also features an advanced integrated player that supports almost all modern formats and seamless TV casting.
+Downloader Player helps you download videos directly to your device as files, also features an advanced integrated player that supports almost all 
+modern formats and seamless TV casting.
 
 ## Key Features
 

@@ -307,10 +307,12 @@ class PlayerViewModel @Inject constructor(
 
 	fun updateSubtitleSize(size: Float) {
 		_state.update { it.copy(sizeSubtitle = size) }
+		Settings.setSubtitleSize(context, size)
 	}
 
 	fun updateSubtitlePosition(position: Float) {
 		_state.update { it.copy(positionSubtitle = position) }
+		Settings.setSubtitlePosition(context, position)
 	}
 
 	fun aspect() {
@@ -327,6 +329,7 @@ class PlayerViewModel @Inject constructor(
 				scaleMode = newAspect
 			)
 		}
+		Settings.setScaleMode(context, newAspect)
 	}
 
 	fun stop() {

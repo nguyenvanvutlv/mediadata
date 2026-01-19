@@ -168,9 +168,7 @@ fun PlayerView(
 		Box(
 			Modifier.fillMaxSize()
 		) {
-			SurfacePlayer(modifier) {
-				onPipMode()
-			}
+			SurfacePlayer(modifier, isPipMode)
 			Box(
 				Modifier
 					.fillMaxSize()

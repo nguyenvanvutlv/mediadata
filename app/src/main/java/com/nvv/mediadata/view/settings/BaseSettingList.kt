@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.ArrowForwardIos
+import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +56,31 @@ fun BaseSettingList(
 						},
 						onClick = {
 							navController.navigate("settings/language")
+						}
+					)
+				}
+				item{
+					ItemNavigation(
+						leading = {
+							Icon(
+								imageVector = Icons.Rounded.Cast,
+								contentDescription = null
+							)
+						},
+						trailing = {
+							Icon(
+								imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
+								contentDescription = null
+							)
+						},
+						headline = {
+							Text(
+								text = "Cast setting",
+								style = MaterialTheme.typography.titleMedium
+							)
+						},
+						onClick = {
+							navController.navigate("settings/cast")
 						}
 					)
 				}

@@ -8,7 +8,16 @@ enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
 	FILL("Fill", AspectRatioFrameLayout.RESIZE_MODE_ZOOM),
 	RATIO_16_9("16:9", AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH),
 	RATIO_4_3("4:3", AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT),
-	ORIGINAL("Original", AspectRatioFrameLayout.RESIZE_MODE_FIT)
+	ORIGINAL("Original", AspectRatioFrameLayout.RESIZE_MODE_FIT);
+
+	companion object {
+		fun fromString(data: String) : VideoScaleMode {
+			VideoScaleMode.entries.forEach { v ->
+				if (v.displayName == data) return v
+			}
+			return FILL
+		}
+	}
 }
 
 data class PlaybackState(

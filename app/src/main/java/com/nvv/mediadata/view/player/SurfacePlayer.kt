@@ -28,7 +28,7 @@ import com.nvv.mediadata.view.core.findActivity
 @Composable
 fun SurfacePlayer(
 	modifier: Modifier = Modifier,
-	onPipMode: () -> Unit = {},
+	isPipMode: Boolean = false,
 ) {
 	val vm = rememberPlayerViewModel()
 	val p by vm.player.collectAsStateWithLifecycle()
@@ -77,8 +77,8 @@ fun SurfacePlayer(
 			if (view.player != p) {
 				view.player = p
 			}
-			view.resizeMode = state.scaleMode.scaleType
 			val subView = view.subtitleView
+			view.resizeMode = state.scaleMode.scaleType
 			val style = CaptionStyleCompat(
 				Color.WHITE,
 				Color.TRANSPARENT,
@@ -88,11 +88,13 @@ fun SurfacePlayer(
 				null
 			)
 			subView?.setStyle(style)
-			subView?.setFixedTextSize(
-				TypedValue.COMPLEX_UNIT_SP,
-				state.sizeSubtitle
-			)
-			subView?.setBottomPaddingFraction(state.positionSubtitle)
+			if (!isPipMode) {
+				subView?.setFixedTextSize(
+					TypedValue.COMPLEX_UNIT_SP,
+					state.sizeSubtitle
+				)
+				subView?.setBottomPaddingFraction(state.positionSubtitle)
+			}
 		}
 	)
 	DisposableEffect(Unit) {
@@ -103,20 +105,16 @@ fun SurfacePlayer(
 				Lifecycle.Event.ON_RESUME -> {
 					hideSystemBars()
 				}
-
 				Lifecycle.Event.ON_START -> {
 					p?.playWhenReady = true
 					p?.prepare()
 				}
-
 				Lifecycle.Event.ON_STOP -> {
 					p?.playWhenReady = false
 				}
-
 				Lifecycle.Event.ON_PAUSE -> {
 					//onPipMode()
 				}
-
 				else -> Unit
 			}
 		}
