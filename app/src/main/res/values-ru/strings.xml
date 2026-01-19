@@ -8,12 +8,12 @@
     <string name="file_name_title">Имя файла (необязательно)</string>
     <string name="stream_url_label">URL потока</string>
     <string name="file_name_placeholder">Мое видео</string>
-    <string name="download_finished">Загрузка завершена</string>
+    <string name="download_finished">Сохранение завершено</string>
     <string name="saved_successfully">Успешно сохранено: %1$s</string>
-    <string name="download_failed">Загрузка не удалась</string>
-    <string name="error_occurred_during_download">Произошла ошибка во время загрузки</string>
-    <string name="failed_to_save_downloaded_file">Не удалось сохранить загруженный файл</string>
-    <string name="download_status_channel_name">Статус загрузки</string>
+    <string name="download_failed">Сохранение не удалось</string>
+    <string name="error_occurred_during_download">Произошла ошибка при сохранении</string>
+    <string name="failed_to_save_downloaded_file">Не удалось сохранить медиафайл</string>
+    <string name="download_status_channel_name">Статус сохранения</string>
     <string name="notification_title_error">Ошибка</string>
     <string name="privacy_policy_title">Политика конфиденциальности</string>
     <string name="privacy_policy_content">MediaData Player стремится защищать конфиденциальность пользователей. В этой политике описаны наши методы обработки данных приложением.\n\n1. Конфиденциальность данных: Мы не собираем, не передаем и не храним личную информацию, историю просмотров или медиаконтент. Все данные обрабатываются локально на вашем устройстве.\n\n2. Локальное хранилище: Приложению требуется доступ к хранилищу вашего устройства исключительно для сохранения загруженных файлов и воспроизведения локальных медиафайлов по вашему запросу.\n\n3. Отсутствие отслеживания: Мы не используем сторонние SDK для отслеживания или аналитики, которые контролируют вашу личную активность.\n\n4. Обновления: Мы можем время от времени обновлять эту политику. Продолжение использования приложения означает согласие с этими условиями.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">Используя эту функцию, вы соглашаетесь с нашими Условиями использования и подтверждаете, что несете единоличную ответственность за доступный контент.</string>
     <string name="network_stream_title">Сетевой поток</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Скачать видео</string>
+    <string name="download_button">Сохранить медиа</string>
     <string name="back_button">Назад</string>
     <string name="fast_forward_label">Скорость 2X &gt;&gt;</string>
     <string name="subtitle_settings_title">Настройки субтитров</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Воспроизведение потоков из интернета</string>
     <string name="stream_audio_title">Аудио поток</string>
     <string name="stream_audio_description">Воспроизведение музыки из интернета</string>
-    <string name="stream_downloads_title">Загрузки</string>
-    <string name="stream_downloads_description">Скачивание файлов на устройство</string>
+    <string name="stream_downloads_title">Сохранить медиа</string>
+    <string name="stream_downloads_description">Сохранение медиа в локальное хранилище</string>
     <string name="delete_file_title">Удалить файл</string>
     <string name="delete_file_message">Вы уверены, что хотите удалить этот файл? Это действие нельзя отменить.</string>
     <string name="delete_button">Удалить</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Сейчас играет</string>
     <string name="unknown_artist">Неизвестный исполнитель</string>
     <string name="unknown_title">Аудио поток</string>
+    <string name="about">О приложении</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

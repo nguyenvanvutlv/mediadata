@@ -8,12 +8,12 @@
     <string name="file_name_title">Dateiname (Optional)</string>
     <string name="stream_url_label">Stream-URL</string>
     <string name="file_name_placeholder">Mein Video</string>
-    <string name="download_finished">Download abgeschlossen</string>
+    <string name="download_finished">Speichern abgeschlossen</string>
     <string name="saved_successfully">Erfolgreich gespeichert: %1$s</string>
-    <string name="download_failed">Download fehlgeschlagen</string>
-    <string name="error_occurred_during_download">Beim Download ist ein Fehler aufgetreten</string>
-    <string name="failed_to_save_downloaded_file">Heruntergeladene Datei konnte nicht gespeichert werden</string>
-    <string name="download_status_channel_name">Download-Status</string>
+    <string name="download_failed">Speichern fehlgeschlagen</string>
+    <string name="error_occurred_during_download">Beim Speichern ist ein Fehler aufgetreten</string>
+    <string name="failed_to_save_downloaded_file">Mediendatei konnte nicht gespeichert werden</string>
+    <string name="download_status_channel_name">Speicherstatus</string>
     <string name="notification_title_error">Fehler</string>
     <string name="privacy_policy_title">Datenschutzerklärung</string>
     <string name="privacy_policy_content">MediaData Player verpflichtet sich, die Privatsphäre der Nutzer zu schützen. Diese Richtlinie beschreibt unsere Praktiken in Bezug auf die von der Anwendung verarbeiteten Daten.\n\n1. Datenschutz: Wir sammeln, übertragen oder speichern keine persönlichen Informationen, Browserverläufe oder Medieninhalte. Alle von der App verarbeiteten Daten verbleiben ausschließlich auf Ihrem lokalen Gerät.\n\n2. Lokaler Speicher: Die App benötigt Zugriff auf Ihren Gerätespeicher ausschließlich zum Speichern heruntergeladener Dateien und zum Abspielen lokaler Medien auf Ihren Wunsch.\n\n3. Kein Tracking: Wir verwenden keine Tracking- oder Analyse-SDKs von Drittanbietern, die Ihre persönlichen Aktivitäten überwachen.\n\n4. Aktualisierungen: Wir können diese Richtlinie von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung der App gilt als Zustimmung zu diesen Bedingungen.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">Durch die Nutzung dieser Funktion erklären Sie sich mit unseren Nutzungsbedingungen einverstanden und erkennen an, dass Sie für die von Ihnen aufgerufenen Inhalte allein verantwortlich sind.</string>
     <string name="network_stream_title">Netzwerk-Stream</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Video herunterladen</string>
+    <string name="download_button">Medien speichern</string>
     <string name="back_button">Zurück</string>
     <string name="fast_forward_label">2X Geschwindigkeit &gt;&gt;</string>
     <string name="subtitle_settings_title">Untertitel-Einstellungen</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Streams aus dem Internet abspielen</string>
     <string name="stream_audio_title">Audio-Stream</string>
     <string name="stream_audio_description">Musik aus dem Internet abspielen</string>
-    <string name="stream_downloads_title">Downloads</string>
-    <string name="stream_downloads_description">Dateien auf Ihr Gerät herunterladen</string>
+    <string name="stream_downloads_title">Medien speichern</string>
+    <string name="stream_downloads_description">Medien im lokalen Speicher speichern</string>
     <string name="delete_file_title">Datei löschen</string>
     <string name="delete_file_message">Möchten Sie diese Datei wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="delete_button">Löschen</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Wird abgespielt</string>
     <string name="unknown_artist">Unbekannter Künstler</string>
     <string name="unknown_title">Audio-Stream</string>
+    <string name="about">Über</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

@@ -8,12 +8,12 @@
     <string name="file_name_title">File Name (Optional)</string>
     <string name="stream_url_label">Stream URL</string>
     <string name="file_name_placeholder">My Video</string>
-    <string name="download_finished">Download Finished</string>
+    <string name="download_finished">Save Complete</string>
     <string name="saved_successfully">Saved successfully: %1$s</string>
-    <string name="download_failed">Download failed</string>
-    <string name="error_occurred_during_download">An error occurred during download</string>
-    <string name="failed_to_save_downloaded_file">Failed to save downloaded file</string>
-    <string name="download_status_channel_name">Download Status</string>
+    <string name="download_failed">Save failed</string>
+    <string name="error_occurred_during_download">An error occurred while saving</string>
+    <string name="failed_to_save_downloaded_file">Failed to save media file</string>
+    <string name="download_status_channel_name">Save Status</string>
     <string name="notification_title_error">Error</string>
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy_content">MediaData Player is committed to protecting user privacy. This policy outlines our practices regarding data handled by the application.\n\n1. Data Privacy: We do not collect, transmit, or store any personal information, browsing history, or media content. All data processed by the app remains strictly on your local device.\n\n2. Local Storage: The app requires access to your device storage solely to save downloaded files and play local media as requested by you.\n\n3. No Tracking: We do not use any third-party tracking or analytics SDKs that monitor your personal activity.\n\n4. Updates: We may update this policy from time to time. Continued use of the app constitutes acceptance of these terms.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">By using this feature, you agree to our Terms of Service and acknowledge that you are solely responsible for the content you access.</string>
     <string name="network_stream_title">Network Stream</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Download Video</string>
+    <string name="download_button">Save Media</string>
     <string name="back_button">Back</string>
     <string name="fast_forward_label">2X Speed &gt;&gt;</string>
     <string name="subtitle_settings_title">Subtitle Settings</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Play streams from the internet</string>
     <string name="stream_audio_title">Audio stream</string>
     <string name="stream_audio_description">Play audio music from the internet</string>
-    <string name="stream_downloads_title">Downloads</string>
-    <string name="stream_downloads_description">Download files to your device</string>
+    <string name="stream_downloads_title">Save Media</string>
+    <string name="stream_downloads_description">Save media to local storage</string>
     <string name="delete_file_title">Delete File</string>
     <string name="delete_file_message">Are you sure you want to delete this file? This action cannot be undone.</string>
     <string name="delete_button">Delete</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Now Playing</string>
     <string name="unknown_artist">Unknown Artist</string>
     <string name="unknown_title">Audio Stream</string>
+    <string name="about">About</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

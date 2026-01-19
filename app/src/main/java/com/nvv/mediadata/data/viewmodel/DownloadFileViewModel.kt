@@ -27,7 +27,7 @@ class DownloadFileViewModel @Inject constructor(
 
 		val request = DownloadManager.Request(link.toUri())
 			.setTitle(fileName)
-			.setDescription("Downloading video...")
+			.setDescription("Saving media...")
 			.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 			.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
 			.setAllowedOverMetered(true)

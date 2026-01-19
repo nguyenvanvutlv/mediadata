@@ -8,12 +8,12 @@
     <string name="file_name_title">ファイル名（任意）</string>
     <string name="stream_url_label">ストリームURL</string>
     <string name="file_name_placeholder">マイビデオ</string>
-    <string name="download_finished">ダウンロード完了</string>
+    <string name="download_finished">保存完了</string>
     <string name="saved_successfully">正常に保存されました: %1$s</string>
-    <string name="download_failed">ダウンロードに失敗しました</string>
-    <string name="error_occurred_during_download">ダウンロード中にエラーが発生しました</string>
-    <string name="failed_to_save_downloaded_file">ダウンロードしたファイルの保存に失敗しました</string>
-    <string name="download_status_channel_name">ダウンロード状況</string>
+    <string name="download_failed">保存に失敗しました</string>
+    <string name="error_occurred_during_download">保存中にエラーが発生しました</string>
+    <string name="failed_to_save_downloaded_file">メディアファイルの保存に失敗しました</string>
+    <string name="download_status_channel_name">保存状況</string>
     <string name="notification_title_error">エラー</string>
     <string name="privacy_policy_title">プライバシーポリシー</string>
     <string name="privacy_policy_content">MediaData Playerは、ユーザーのプライバシー保護に取り組んでいます。このポリシーでは、本アプリが扱うデータに関する実務の概要を説明します。\n\n1. データのプライバシー：個人情報、閲覧履歴、またはメディアコンテンツを収集、送信、または保存することはありません。アプリで処理されるすべてのデータは、お客様のローカルデバイスに厳重に保管されます。\n\n2. ローカルストレージ：アプリは、ダウンロードしたファイルを保存し、お客様の要求に応じてローカルメディアを再生するためだけに、デバイスのストレージへのアクセスを必要とします。\n\n3. トラッキングなし：お客様の個人的な活動を監視するサードパーティのトラッキングまたは分析SDKは使用していません。\n\n4. アップデート：このポリシーは随時更新される可能性があります。アプリの継続的な使用は、これらの条件への同意を構成します。</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">この機能を使用することにより、利用規約に同意し、アクセスするコンテンツに対して全責任を負うことを認めるものとします。</string>
     <string name="network_stream_title">ネットワークストリーム</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">ビデオをダウンロード</string>
+    <string name="download_button">メディアを保存</string>
     <string name="back_button">戻る</string>
     <string name="fast_forward_label">2X スピード &gt;&gt;</string>
     <string name="subtitle_settings_title">字幕設定</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">インターネットからストリームを再生</string>
     <string name="stream_audio_title">オーディオストリーム</string>
     <string name="stream_audio_description">インターネットから音楽を再生</string>
-    <string name="stream_downloads_title">ダウンロード</string>
-    <string name="stream_downloads_description">ファイルをデバイスにダウンロード</string>
+    <string name="stream_downloads_title">メディアを保存</string>
+    <string name="stream_downloads_description">メディアをローカルストレージに保存</string>
     <string name="delete_file_title">ファイルを削除</string>
     <string name="delete_file_message">このファイルを削除してもよろしいですか？この操作は元に戻せません。</string>
     <string name="delete_button">削除</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">再生中</string>
     <string name="unknown_artist">不明なアーティスト</string>
     <string name="unknown_title">オーディオストリーム</string>
+    <string name="about">アプリについて</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

@@ -8,12 +8,12 @@
     <string name="file_name_title">文件名（可选）</string>
     <string name="stream_url_label">串流 URL</string>
     <string name="file_name_placeholder">我的视频</string>
-    <string name="download_finished">下载完成</string>
+    <string name="download_finished">保存完成</string>
     <string name="saved_successfully">保存成功：%1$s</string>
-    <string name="download_failed">下载失败</string>
-    <string name="error_occurred_during_download">下载过程中出现错误</string>
-    <string name="failed_to_save_downloaded_file">保存下载的文件失败</string>
-    <string name="download_status_channel_name">下载状态</string>
+    <string name="download_failed">保存失败</string>
+    <string name="error_occurred_during_download">保存过程中出现错误</string>
+    <string name="failed_to_save_downloaded_file">保存媒体文件失败</string>
+    <string name="download_status_channel_name">保存状态</string>
     <string name="notification_title_error">错误</string>
     <string name="privacy_policy_title">隐私政策</string>
     <string name="privacy_policy_content">MediaData Player 致力于保护用户隐私。本政策概述了我们对应用程序处理的数据的处理方式。\n\n1. 数据隐私：我们不会收集、传输或存储任何个人信息、浏览历史或媒体内容。应用程序处理的所有数据都严格保留在您的本地设备上。\n\n2. 本地存储：应用程序需要访问您的设备存储，仅用于根据您的要求保存下载的文件并播放本地媒体。\n\n3. 无追踪：我们不使用任何监控您个人活动的第三方追踪或分析 SDK。\n\n4. 更新：我们可能会不时更新此政策。继续使用该应用程序即表示接受这些条款。</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">通过使用此功能，您同意我们的服务条款并承认您对所访问的内容承担全部责任。</string>
     <string name="network_stream_title">网络串流</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">下载视频</string>
+    <string name="download_button">保存媒体</string>
     <string name="back_button">返回</string>
     <string name="fast_forward_label">2X 速度 &gt;&gt;</string>
     <string name="subtitle_settings_title">字幕设置</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">从互联网播放串流</string>
     <string name="stream_audio_title">音频串流</string>
     <string name="stream_audio_description">从互联网播放音乐</string>
-    <string name="stream_downloads_title">下载</string>
-    <string name="stream_downloads_description">下载文件到设备</string>
+    <string name="stream_downloads_title">保存媒体</string>
+    <string name="stream_downloads_description">保存媒体到本地存储</string>
     <string name="delete_file_title">删除文件</string>
     <string name="delete_file_message">您确定要删除此文件吗？此操作无法撤消。</string>
     <string name="delete_button">删除</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">正在播放</string>
     <string name="unknown_artist">未知艺术家</string>
     <string name="unknown_title">音频串流</string>
+    <string name="about">关于</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

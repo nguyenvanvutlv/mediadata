@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
-import androidx.compose.material.icons.automirrored.rounded.Rule
-import androidx.compose.material.icons.rounded.PrivacyTip
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,8 +27,7 @@ fun BaseSettingList(
 	navController: NavController
 ){
 	val subtitleDisplay = stringResource(R.string.subtitle_display)
-	val privacyDisplay = stringResource(R.string.privacy_policy_title)
-	val termsDisplay = stringResource(R.string.terms_title)
+	val aboutDisplay = stringResource(R.string.about)
 	Surface(
 		modifier = Modifier.fillMaxSize()
 	) {
@@ -69,7 +67,7 @@ fun BaseSettingList(
 					ItemNavigation(
 						leading = {
 							Icon(
-								imageVector = Icons.Rounded.PrivacyTip,
+								imageVector = Icons.Rounded.Info,
 								contentDescription = null
 							)
 						},
@@ -81,37 +79,19 @@ fun BaseSettingList(
 						},
 						headline = {
 							Text(
-								text = privacyDisplay,
+								text = aboutDisplay,
 								style = MaterialTheme.typography.titleMedium
 							)
 						},
-						onClick = {
-							navController.navigate("settings/privacy")
-						}
-					)
-				}
-				item{
-					ItemNavigation(
-						leading = {
-							Icon(
-								imageVector = Icons.AutoMirrored.Rounded.Rule,
-								contentDescription = null
-							)
-						},
-						trailing = {
-							Icon(
-								imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-								contentDescription = null
-							)
-						},
-						headline = {
+						supportingContent = {
 							Text(
-								text = termsDisplay,
-								style = MaterialTheme.typography.titleMedium
+								text = "Version, License & Open Source",
+								style = MaterialTheme.typography.bodySmall,
+								color = MaterialTheme.colorScheme.primary
 							)
 						},
 						onClick = {
-							navController.navigate("settings/terms")
+							navController.navigate("settings/about")
 						}
 					)
 				}

@@ -8,12 +8,12 @@
     <string name="file_name_title">Nome do Arquivo (Opcional)</string>
     <string name="stream_url_label">URL do Stream</string>
     <string name="file_name_placeholder">Meu Vídeo</string>
-    <string name="download_finished">Download concluído</string>
+    <string name="download_finished">Salvamento concluído</string>
     <string name="saved_successfully">Salvo com sucesso: %1$s</string>
-    <string name="download_failed">Falha no download</string>
-    <string name="error_occurred_during_download">Ocorreu um erro durante o download</string>
-    <string name="failed_to_save_downloaded_file">Falha ao salvar o arquivo baixado</string>
-    <string name="download_status_channel_name">Status do Download</string>
+    <string name="download_failed">Falha ao salvar</string>
+    <string name="error_occurred_during_download">Ocorreu um erro ao salvar</string>
+    <string name="failed_to_save_downloaded_file">Falha ao salvar arquivo de mídia</string>
+    <string name="download_status_channel_name">Status de Salvamento</string>
     <string name="notification_title_error">Erro</string>
     <string name="privacy_policy_title">Política de Privacidade</string>
     <string name="privacy_policy_content">O MediaData Player está comprometido em proteger a privacidade do usuário. Esta política descreve nossas práticas em relação aos dados tratados pelo aplicativo.\n\n1. Privacidade de Dados: Não coletamos, transmitimos ou armazenamos nenhuma informação pessoal, histórico de navegação ou conteúdo de mídia. Todos os dados processados pelo aplicativo permanecem estritamente no seu dispositivo local.\n\n2. Armazenamento Local: O aplicativo requer acesso ao armazenamento do seu dispositivo exclusivamente para salvar arquivos baixados e reproduzir mídia local conforme solicitado por você.\n\n3. Sem Rastreamento: Não usamos nenhum SDK de rastreamento ou análise de terceiros que monitore sua atividade pessoal.\n\n4. Atualizações: Podemos atualizar esta política de tempos em tempos. O uso continuado do aplicativo constitui a aceitação destes termos.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">Ao usar este recurso, você concorda com nossos Termos de Serviço e reconhece que é o único responsável pelo conteúdo que acessa.</string>
     <string name="network_stream_title">Stream de Rede</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Baixar Vídeo</string>
+    <string name="download_button">Salvar Mídia</string>
     <string name="back_button">Voltar</string>
     <string name="fast_forward_label">Velocidade 2X &gt;&gt;</string>
     <string name="subtitle_settings_title">Configurações de Legendas</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Reproduzir transmissões da internet</string>
     <string name="stream_audio_title">Transmissão de áudio</string>
     <string name="stream_audio_description">Reproduzir música da internet</string>
-    <string name="stream_downloads_title">Downloads</string>
-    <string name="stream_downloads_description">Baixar arquivos para seu dispositivo</string>
+    <string name="stream_downloads_title">Salvar Mídia</string>
+    <string name="stream_downloads_description">Salvar mídia no armazenamento local</string>
     <string name="delete_file_title">Excluir arquivo</string>
     <string name="delete_file_message">Tem certeza de que deseja excluir este arquivo? Esta ação não pode ser desfeita.</string>
     <string name="delete_button">Excluir</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Tocando agora</string>
     <string name="unknown_artist">Artista desconhecido</string>
     <string name="unknown_title">Transmissão de áudio</string>
+    <string name="about">Sobre</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

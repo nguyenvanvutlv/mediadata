@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Audiotrack
-import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -111,7 +111,7 @@ fun BaseStreamNavigation(
 					ItemNavigation(
 						leading = {
 							Icon(
-								imageVector = Icons.Rounded.Download,
+								imageVector = Icons.Rounded.Save,
 								contentDescription = null,
 								modifier = Modifier.size(30.dp)
 							)

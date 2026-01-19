@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardBackspace
-import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -158,7 +158,7 @@ fun DownloadStream(
 						verticalAlignment = Alignment.CenterVertically
 					){
 						Icon(
-							imageVector = Icons.Rounded.Download,
+							imageVector = Icons.Rounded.Save,
 							contentDescription = null,
 							modifier = Modifier.size(30.dp)
 						)

@@ -29,8 +29,9 @@ MediaData Player is a **neutral technical tool** designed for playing local medi
 
 ### Local File Management
 - **File Browser**: Access and organize media stored on your device
-- **Storage Management**: Download network content to user-designated folders
+- **Storage Management**: Save network media to user-designated folders
 - **Format Recognition**: Automatic media type detection and metadata parsing
+- **File Operations**: Delete and manage your local media collection
 
 ## Supported Media Formats
 
@@ -60,6 +61,15 @@ DASH, HLS, SmoothStreaming, RTSP
 
 **Note**: You must have legal authorization to access any network content. This app does not provide, recommend, or facilitate access to any content sources.
 
+### Saving Network Media
+1. Go to "Save Media" section
+2. Enter the media URL
+3. Optionally provide a custom filename
+4. Select save location (one-time folder permission)
+5. Tap "Save Media" to save to local storage
+
+**Note**: Only save content you have legal rights to. This is a management tool for your personal media library.
+
 ### Casting to TV
 1. Ensure your device and TV are on the same Wi-Fi network
 2. Tap the Cast icon in the player
@@ -77,9 +87,11 @@ Long-press the subtitle button in the player for quick access.
 
 ## Required Permissions
 
-- **INTERNET**: Required for network streaming functionality
+- **INTERNET**: Required for network streaming and saving media functionality
 - **FOREGROUND_SERVICE_MEDIA_PLAYBACK**: Maintains playback during casting and background operation
-- **Storage Access**: Required only for reading/writing user-selected local media files
+- **POST_NOTIFICATIONS**: Shows save progress and playback control notifications
+- **WAKE_LOCK**: Prevents device sleep during media playback
+- **Storage Access**: Required only for reading/writing user-selected local media files (folders you explicitly grant access to)
 
 ## Privacy & Data Policy
 
@@ -126,7 +138,11 @@ This application is designed to comply with:
 
 ## Support & Contact
 
-For technical support, feature requests, or policy inquiries, please visit our support channels.
+For technical support, feature requests, or policy inquiries:
+- **GitHub Issues**: [Repository URL]
+- **Email**: [Your support email]
+- **Privacy Policy**: [GitHub Pages URL]/privacy-policy.html
+- **Terms of Service**: [GitHub Pages URL]/terms-of-service.html
 
 ## License
 

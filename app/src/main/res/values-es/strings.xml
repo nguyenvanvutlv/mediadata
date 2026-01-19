@@ -8,12 +8,12 @@
     <string name="file_name_title">Nombre del archivo (Opcional)</string>
     <string name="stream_url_label">URL de la transmisión</string>
     <string name="file_name_placeholder">Mi Vídeo</string>
-    <string name="download_finished">Descarga finalizada</string>
+    <string name="download_finished">Guardado completo</string>
     <string name="saved_successfully">Guardado con éxito: %1$s</string>
-    <string name="download_failed">Descarga fallida</string>
-    <string name="error_occurred_during_download">Ocurrió un error durante la descarga</string>
-    <string name="failed_to_save_downloaded_file">Error al guardar el archivo descargado</string>
-    <string name="download_status_channel_name">Estado de la descarga</string>
+    <string name="download_failed">Error al guardar</string>
+    <string name="error_occurred_during_download">Ocurrió un error al guardar</string>
+    <string name="failed_to_save_downloaded_file">Error al guardar archivo multimedia</string>
+    <string name="download_status_channel_name">Estado de guardado</string>
     <string name="notification_title_error">Error</string>
     <string name="privacy_policy_title">Política de Privacidad</string>
     <string name="privacy_policy_content">MediaData Player se compromete a proteger la privacidad del usuario. Esta política describe nuestras prácticas con respecto a los datos manejados por la aplicación.\n\n1. Privacidad de datos: No recopilamos, transmitimos ni almacenamos ninguna información personal, historial de navegación o contenido multimedia. Todos los datos procesados por la aplicación permanecen estrictamente en su dispositivo local.\n\n2. Almacenamiento local: La aplicación requiere acceso al almacenamiento de su dispositivo únicamente para guardar archivos descargados y reproducir medios locales según lo solicite.\n\n3. Sin seguimiento: No utilizamos ningún SDK de seguimiento o análisis de terceros que monitoree su actividad personal.\n\n4. Actualizaciones: Podemos actualizar esta política de vez en cuando. El uso continuado de la aplicación constituye la aceptación de estos términos.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">Al utilizar esta función, acepta nuestros Términos de servicio y reconoce que es el único responsable del contenido al que accede.</string>
     <string name="network_stream_title">Transmisión de red</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Descargar vídeo</string>
+    <string name="download_button">Guardar media</string>
     <string name="back_button">Atrás</string>
     <string name="fast_forward_label">Velocidad 2X &gt;&gt;</string>
     <string name="subtitle_settings_title">Configuración de subtítulos</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Reproducir transmisiones desde internet</string>
     <string name="stream_audio_title">Transmisión de audio</string>
     <string name="stream_audio_description">Reproducir música desde internet</string>
-    <string name="stream_downloads_title">Descargas</string>
-    <string name="stream_downloads_description">Descargar archivos a tu dispositivo</string>
+    <string name="stream_downloads_title">Guardar media</string>
+    <string name="stream_downloads_description">Guardar media en almacenamiento local</string>
     <string name="delete_file_title">Eliminar archivo</string>
     <string name="delete_file_message">¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.</string>
     <string name="delete_button">Eliminar</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Reproduciendo ahora</string>
     <string name="unknown_artist">Artista desconocido</string>
     <string name="unknown_title">Transmisión de audio</string>
+    <string name="about">Acerca de</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

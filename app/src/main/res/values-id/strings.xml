@@ -8,12 +8,12 @@
     <string name="file_name_title">Nama File (Opsional)</string>
     <string name="stream_url_label">URL Stream</string>
     <string name="file_name_placeholder">Video Saya</string>
-    <string name="download_finished">Unduhan selesai</string>
+    <string name="download_finished">Penyimpanan selesai</string>
     <string name="saved_successfully">Berhasil disimpan: %1$s</string>
-    <string name="download_failed">Unduhan gagal</string>
-    <string name="error_occurred_during_download">Terjadi kesalahan saat mengunduh</string>
-    <string name="failed_to_save_downloaded_file">Gagal menyimpan file yang diunduh</string>
-    <string name="download_status_channel_name">Status Unduhan</string>
+    <string name="download_failed">Penyimpanan gagal</string>
+    <string name="error_occurred_during_download">Terjadi kesalahan saat menyimpan</string>
+    <string name="failed_to_save_downloaded_file">Gagal menyimpan file media</string>
+    <string name="download_status_channel_name">Status Penyimpanan</string>
     <string name="notification_title_error">Kesalahan</string>
     <string name="privacy_policy_title">Kebijakan Privasi</string>
     <string name="privacy_policy_content">MediaData Player berkomitmen untuk melindungi privasi pengguna. Kebijakan ini menguraikan praktik kami terkait data yang ditangani oleh aplikasi.\n\n1. Privasi Data: Kami tidak mengumpulkan, mengirimkan, atau menyimpan informasi pribadi apa pun, riwayat penjelajahan, atau konten media. Semua data yang diproses oleh aplikasi tetap berada di perangkat lokal Anda.\n\n2. Penyimpanan Lokal: Aplikasi memerlukan akses ke penyimpanan perangkat Anda semata-mata untuk menyimpan file yang diunduh dan memutar media lokal sesuai permintaan Anda.\n\n3. Tanpa Pelacakan: Kami tidak menggunakan SDK pelacakan atau analitik pihak ketiga mana pun yang memantau aktivitas pribadi Anda.\n\n4. Pembaruan: Kami dapat memperbarui kebijakan ini dari waktu ke waktu. Penggunaan aplikasi yang berkelanjutan merupakan penerimaan atas persyaratan ini.</string>
@@ -23,7 +23,7 @@
     <string name="network_disclaimer">Dengan menggunakan fitur ini, Anda menyetujui Ketentuan Layanan kami dan mengakui bahwa Anda bertanggung jawab penuh atas konten yang Anda akses.</string>
     <string name="network_stream_title">Stream Jaringan</string>
     <string name="network_url_placeholder">https://example.com/video.mkv</string>
-    <string name="download_button">Unduh Video</string>
+    <string name="download_button">Simpan Media</string>
     <string name="back_button">Kembali</string>
     <string name="fast_forward_label">Kecepatan 2X &gt;&gt;</string>
     <string name="subtitle_settings_title">Pengaturan Subtitle</string>
@@ -35,8 +35,8 @@
     <string name="stream_network_description">Putar stream dari internet</string>
     <string name="stream_audio_title">Stream audio</string>
     <string name="stream_audio_description">Putar musik dari internet</string>
-    <string name="stream_downloads_title">Unduhan</string>
-    <string name="stream_downloads_description">Unduh file ke perangkat Anda</string>
+    <string name="stream_downloads_title">Simpan Media</string>
+    <string name="stream_downloads_description">Simpan media ke penyimpanan lokal</string>
     <string name="delete_file_title">Hapus file</string>
     <string name="delete_file_message">Apakah Anda yakin ingin menghapus file ini? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="delete_button">Hapus</string>
@@ -44,4 +44,8 @@
     <string name="now_playing">Sedang diputar</string>
     <string name="unknown_artist">Artis tidak diketahui</string>
     <string name="unknown_title">Stream audio</string>
+    <string name="about">Tentang</string>
+    <string name="short_detail">A media player tool for local and network media</string>
+    <string name="privacy_policy_support_content">No data collection • No tracking</string>
+    <string name="term_support_content">User responsibilities and legal terms</string>
 </resources>

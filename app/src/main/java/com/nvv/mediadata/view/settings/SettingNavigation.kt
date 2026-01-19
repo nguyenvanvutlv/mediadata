@@ -56,5 +56,8 @@ fun SettingNavigation(){
 		composable(route = "settings/terms"){
 			TermsOfService(navController)
 		}
+		composable(route = "settings/about"){
+			AboutScreen(navController)
+		}
 	}
 }
