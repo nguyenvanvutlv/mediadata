@@ -15,20 +15,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nvv.mediadata.R
+import com.nvv.mediadata.data.provide.rememberContext
+import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.view.core.ItemNavigation
+import java.util.Locale
 
 @Composable
 fun BaseSettingList(
 	navController: NavController
 ){
+	val context = rememberContext()
 	val subtitleDisplay = stringResource(R.string.subtitle_display)
 	val languageDisplay = stringResource(R.string.language_display)
+	val currentLanguageCode = Settings.getLanguages(context)
+	val currentLanguageName = remember(currentLanguageCode) {
+		val locale = Locale.forLanguageTag(currentLanguageCode)
+		locale.getDisplayName(locale).replaceFirstChar { it.uppercase() }
+	}
 	Surface(
 		modifier = Modifier.fillMaxSize()
 	) {
@@ -57,6 +67,13 @@ fun BaseSettingList(
 							Text(
 								text = languageDisplay,
 								style = MaterialTheme.typography.titleMedium
+							)
+						},
+						supportingContent = {
+							Text(
+								text = currentLanguageName,
+								style = MaterialTheme.typography.bodySmall,
+								color = MaterialTheme.colorScheme.primary
 							)
 						},
 						onClick = {

@@ -2,9 +2,13 @@ package com.nvv.mediadata.data.viewmodel
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.OptIn
 import android.graphics.Color as AndroidColor
 import com.nvv.mediadata.data.model.VideoScaleMode
+import androidx.core.content.edit
+import androidx.media3.common.util.UnstableApi
 
+@OptIn(UnstableApi::class)
 class Settings {
 	companion object {
 		private const val APPLICATION_ID = "com.nvv.mediadata"
@@ -32,7 +36,7 @@ class Settings {
 		}
 
 		fun setLanguages(context: Context, languages: String) {
-			getSharedPreferences(context).edit().putString(LANGUAGES, languages).apply()
+			getSharedPreferences(context).edit { putString(LANGUAGES, languages) }
 		}
 
 		fun getSubtitleSize(context: Context) : Float {
@@ -40,7 +44,7 @@ class Settings {
 		}
 
 		fun setSubtitleSize(context: Context, size: Float) {
-			getSharedPreferences(context).edit().putFloat(SUBTITLE_SIZE, size).apply()
+			getSharedPreferences(context).edit { putFloat(SUBTITLE_SIZE, size) }
 		}
 
 		fun getSubtitlePosition(context: Context) : Float {
@@ -48,7 +52,7 @@ class Settings {
 		}
 
 		fun setSubtitlePosition(context: Context, position: Float) {
-			getSharedPreferences(context).edit().putFloat(SUBTITLE_POSITION, position).apply()
+			getSharedPreferences(context).edit { putFloat(SUBTITLE_POSITION, position) }
 		}
 
 		fun getScaleMode(context: Context) : VideoScaleMode {
@@ -59,7 +63,7 @@ class Settings {
 		}
 
 		fun setScaleMode(context: Context, mode: VideoScaleMode) {
-			getSharedPreferences(context).edit().putString(SCALE_MODE, mode.displayName).apply()
+			getSharedPreferences(context).edit { putString(SCALE_MODE, mode.displayName) }
 		}
 
 		fun getColor(context: Context) : AndroidColor {
@@ -69,7 +73,7 @@ class Settings {
 		}
 
 		fun setColor(context: Context, color: AndroidColor) {
-			getSharedPreferences(context).edit().putInt(SUBTITLE_COLOR, color.toArgb()).apply()
+			getSharedPreferences(context).edit { putInt(SUBTITLE_COLOR, color.toArgb()) }
 		}
 
 		fun getBackgroundColorOpacity(context: Context) : Int {
@@ -77,7 +81,7 @@ class Settings {
 		}
 
 		fun setBackgroundColorOpacity(context: Context, opacity: Int) {
-			getSharedPreferences(context).edit().putInt(BACKGROUND_COLOR_OPACITY, opacity).apply()
+			getSharedPreferences(context).edit { putInt(BACKGROUND_COLOR_OPACITY, opacity) }
 		}
 
 		fun getPath(context: Context): String {
@@ -85,7 +89,7 @@ class Settings {
 		}
 
 		fun setPath(context: Context, path: String) {
-			getSharedPreferences(context).edit().putString(FOLDER, path).apply()
+			getSharedPreferences(context).edit { putString(FOLDER, path) }
 		}
 	}
 }

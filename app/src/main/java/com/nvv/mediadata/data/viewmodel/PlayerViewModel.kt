@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -14,6 +15,7 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
@@ -30,7 +32,9 @@ import kotlinx.coroutines.flow.update
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import androidx.core.net.toUri
 
+@OptIn(UnstableApi::class)
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
 	@ApplicationContext private val context: Context,
@@ -58,7 +62,7 @@ class PlayerViewModel @Inject constructor(
 					startsWith("https://", true) ||
 					startsWith("content://", true) ||
 					startsWith("file://", true) ->
-				Uri.parse(this)
+				this.toUri()
 
 			else ->
 				Uri.fromFile(File(this))
@@ -219,6 +223,7 @@ class PlayerViewModel @Inject constructor(
 				sizeSubtitle = Settings.getSubtitleSize(context),
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
+				scaleMode = Settings.getScaleMode(context)
 			)
 		}
 	}
@@ -227,6 +232,11 @@ class PlayerViewModel @Inject constructor(
 		if (index !in _items.value.indices) return
 		_isPlay.value = true
 		_player.value?.let { p ->
+			val preferredLang = Settings.getLanguages(context)
+			p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
+				.setPreferredAudioLanguage(preferredLang)
+				.setPreferredTextLanguage(preferredLang)
+				.build()
 			p.seekTo(index, 0L)
 			p.prepare()
 			p.play()
@@ -277,6 +287,10 @@ class PlayerViewModel @Inject constructor(
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_AUDIO) {
 				if (count == index) {
+					val language = group.getTrackFormat(0).language
+					if (language != null) {
+						Settings.setLanguages(context, language)
+					}
 					player.trackSelectionParameters = player.trackSelectionParameters
 						.buildUpon()
 						.setOverrideForType(
@@ -300,6 +314,10 @@ class PlayerViewModel @Inject constructor(
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_TEXT) {
 				if (count == index) {
+					val language = group.getTrackFormat(0).language
+					if (language != null) {
+						Settings.setLanguages(context, language)
+					}
 					player.trackSelectionParameters = player.trackSelectionParameters
 						.buildUpon()
 						.setOverrideForType(

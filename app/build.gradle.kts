@@ -16,8 +16,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 100
-		versionName = "1.0.0"
+		versionCode = 101
+		versionName = "1.0.1"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
@@ -79,8 +79,8 @@ dependencies {
 	implementation(fileTree("libs") {
 		include("lib-*.aar")
 	})
-	implementation("androidx.recyclerview:recyclerview:1.3.2")
-	implementation("androidx.documentfile:documentfile:1.0.1")
+	implementation("androidx.recyclerview:recyclerview:1.4.0")
+	implementation("androidx.documentfile:documentfile:1.1.0")
 	/// HILT
 	implementation(libs.hilt.android)
 	ksp(libs.hilt.android.compiler)

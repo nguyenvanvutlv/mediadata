@@ -2,6 +2,7 @@ package com.nvv.mediadata.data.viewmodel
 
 import android.app.PendingIntent
 import android.content.Context
+import androidx.annotation.OptIn
 import androidx.media3.cast.CastPlayer
 import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.AudioAttributes
@@ -10,6 +11,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -31,6 +33,7 @@ const val bufferForPlaybackAfterRebuffer = 3_000
 const val maxBuffer = 30_000
 const val minBuffer = 6_000
 
+@OptIn(UnstableApi::class)
 class PlaybackService : MediaSessionService() {
 	private var mediaSession: MediaSession? = null
 	lateinit var player: ExoPlayer
@@ -68,6 +71,11 @@ class PlaybackService : MediaSessionService() {
 				true
 			)
 			.setHandleAudioBecomingNoisy(true)
+			.build()
+		val preferredLang = Settings.getLanguages(this)
+		player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+			.setPreferredAudioLanguage(preferredLang)
+			.setPreferredTextLanguage(preferredLang)
 			.build()
 		val intent = packageManager.getLaunchIntentForPackage(packageName)
 		val pendingIntent = PendingIntent.getActivity(

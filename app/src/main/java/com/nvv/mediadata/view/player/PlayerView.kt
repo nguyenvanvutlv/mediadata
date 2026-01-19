@@ -105,8 +105,7 @@ fun PlayerView(
 	var showSettings by remember { mutableStateOf(false) }
 	val sheetState = rememberModalBottomSheetState()
 
-	val onPipMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-		{
+	val onPipMode = {
 			val params = PictureInPictureParams.Builder()
 				.setAspectRatio(Rational(16, 9))
 				.setSourceRectHint(videoViewBounds)
@@ -115,11 +114,6 @@ fun PlayerView(
 				context.findActivity()?.enterPictureInPictureMode(params)
 			}
 		}
-	} else {
-		{
-
-		}
-	}
 	LaunchedEffect(state.position) {
 		if (!isSeeking) {
 			v = state.position.toFloat() / max(1f, state.duration.toFloat())

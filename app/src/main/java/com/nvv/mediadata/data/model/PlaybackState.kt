@@ -1,8 +1,11 @@
 package com.nvv.mediadata.data.model
 
 import android.graphics.Color
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 
+@UnstableApi
 enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
 	BEST_FIT("Best Fit", AspectRatioFrameLayout.RESIZE_MODE_FIT),
 	FIT_SCREEN("Fit Screen", AspectRatioFrameLayout.RESIZE_MODE_FILL),
@@ -21,6 +24,7 @@ enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
 	}
 }
 
+@OptIn(UnstableApi::class)
 data class PlaybackState(
 	val startWith: Long = 0,
 	val buffer: Int = 0,

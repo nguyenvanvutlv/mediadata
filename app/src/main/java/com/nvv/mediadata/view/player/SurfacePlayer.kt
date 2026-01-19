@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,11 +17,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.alpha
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.ui.PlayerView
 import com.nvv.mediadata.data.provide.rememberContext
@@ -28,6 +29,7 @@ import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.view.core.findActivity
 import kotlin.math.roundToInt
 
+@OptIn(UnstableApi::class)
 @Composable
 fun SurfacePlayer(
 	modifier: Modifier = Modifier,
