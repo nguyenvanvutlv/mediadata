@@ -1,41 +1,160 @@
 # MediaData Player
 
-A powerful Android video player based on [Media3](https://github.com/androidx/media), compatible with Android 8+ and Android TV.
+A professional media player application for Android, built on [Media3](https://github.com/androidx/media) framework. Compatible with Android 8+ and Android TV.
 
-MediaData Player lets you stream videos directly to your device, and it integrates an advanced player that supports most modern formats and provides smooth TV streaming.
+## Overview
+
+MediaData Player is a **neutral technical tool** designed for playing local media files and streaming content from legitimate sources. This application provides advanced playback capabilities while maintaining full compliance with content policies and copyright regulations.
+
+**Important Notice**: This app is a media player only. It does not host, provide, or facilitate access to any copyrighted content. Users are solely responsible for ensuring they have legal rights to access and play any content through this application.
 
 ## Key Features
 
-*   **Comprehensive Codec Support**: Built with the latest Media3 library, supporting high-end audio formats (AC3, DTS, TrueHD, etc.) and video codecs (H.264, H.265, AV1, etc.).
-*   **Cast to TV**: Cast video and audio to your TV (Google Cast) with automatic format (MimeType) detection to ensure the best possible playback quality.
-*   **Picture in Picture (PiP)**: Continue watching your videos in a small window while using other apps.
-*   **Perfect Sync**: Optimized audio-to-video synchronization, with full support for Bluetooth earphones and speakers.
-*   **Smart Controls**: Horizontal swipe to seek, and vertical swipe for brightness (left) and volume (right) adjustments.
-*   **Fast Video Downloader**: Quickly download videos directly to local storage and manage your download list with ease.
+### Media Playback
+- **Advanced Player**: Built on Media3 (ExoPlayer) with hardware acceleration support
+- **Multiple Format Support**: Comprehensive codec compatibility for modern media formats
+- **Picture-in-Picture**: Continue watching in a small window while multitasking
+- **Audio Synchronization**: Optimized timing with Bluetooth device support
+- **Subtitle Support**: Customizable text, size, color, and position
 
-## Supported Formats
+### Casting & Connectivity
+- **Google Cast Integration**: Stream to compatible TV devices on your network
+- **Automatic Format Detection**: Optimized codec delivery for best playback quality
+- **Network Stream Playback**: Play content from direct media URLs (user-provided)
 
-*   **Video**: H.263, H.264 AVC, H.265 HEVC, MPEG-4 SP, VP8, VP9, AV1.
-*   **Audio**: Vorbis, Opus, FLAC, ALAC, PCM/WAVE, MP1, MP2, MP3, AMR, AAC, AC-3, E-AC-3, DTS, DTS-HD, TrueHD, etc.
-*   **Containers**: MP4, MOV, WebM, MKV, Ogg, MPEG-TS, FLV, AVI.
-*   **Streaming**: DASH, HLS, SmoothStreaming, RTSP.
-*   **Subtitles**: SRT, SSA/ASS, TTML, VTT, DVB.
+### User Controls
+- **Gesture Controls**: Swipe horizontally to seek, vertically for brightness/volume
+- **Playback Speed**: Adjustable playback rates
+- **Audio/Subtitle Selection**: Easy track switching during playback
+
+### Local File Management
+- **File Browser**: Access and organize media stored on your device
+- **Storage Management**: Download network content to user-designated folders
+- **Format Recognition**: Automatic media type detection and metadata parsing
+
+## Supported Media Formats
+
+### Video Codecs
+H.263, H.264 (AVC), H.265 (HEVC), MPEG-4 SP, VP8, VP9, AV1
+
+### Audio Codecs
+Vorbis, Opus, FLAC, ALAC, PCM/WAVE, MP1, MP2, MP3, AMR, AAC, AC-3, E-AC-3, DTS, DTS-HD, TrueHD
+
+### Containers
+MP4, MOV, WebM, MKV, Ogg, MPEG-TS, MPEG-PS, FLV, AVI
+
+### Streaming Protocols
+DASH, HLS, SmoothStreaming, RTSP
+
+### Subtitle Formats
+SRT, SSA/ASS, TTML, VTT, DVB
 
 ## How to Use
 
-### Download and Play
-MediaData Player is designed to handle direct streaming links. When you open a video link from a browser or another app, select MediaData Player to start downloading or playing immediately.
+### Playing Local Files
+1. Navigate to the "Local Files" section
+2. Select the folder containing your media
+3. Tap any file to begin playback
+
+### Network Streaming
+1. Go to "Network Stream" section
+2. Enter a direct media URL (must be a valid stream link)
+3. Tap "Play" to start streaming
+
+**Note**: You must have legal authorization to access any network content. This app does not provide, recommend, or facilitate access to any content sources.
 
 ### Casting to TV
-Tap the Cast icon on the player to search for devices on the same Wi-Fi network. The app automatically analyzes the video's codec to ensure your TV can play both video and audio perfectly.
+1. Ensure your device and TV are on the same Wi-Fi network
+2. Tap the Cast icon in the player
+3. Select your target device from the list
+4. Playback will transfer to your TV automatically
 
-### Customize Subtitles
-You can change subtitle size, color, and font in your device's system **Caption preferences** (usually under *Accessibility*). Long-press the subtitle button on the player for quick access to these settings.
+### Customizing Subtitles
+Access your device's **Caption preferences** under System Settings > Accessibility to customize:
+- Text size and color
+- Background opacity
+- Font style
+- Edge type
 
-## Permissions
-*   **INTERNET**: Required to download and stream videos.
-*   **FOREGROUND_SERVICE_MEDIA_PLAYBACK**: Required to maintain playback in the background or during Casting.
-*   **WRITE_EXTERNAL_STORAGE**: Required to save downloaded video files to your device.
+Long-press the subtitle button in the player for quick access.
 
-## Technology
-This project is built on Jetpack Media3 (ExoPlayer), taking full advantage of hardware and software decoding capabilities on modern Android devices.
+## Required Permissions
+
+- **INTERNET**: Required for network streaming functionality
+- **FOREGROUND_SERVICE_MEDIA_PLAYBACK**: Maintains playback during casting and background operation
+- **Storage Access**: Required only for reading/writing user-selected local media files
+
+## Privacy & Data Policy
+
+**MediaData Player respects your privacy**:
+- **No Data Collection**: We do not collect, store, or transmit any personal information
+- **No Tracking**: No analytics, advertisements, or third-party tracking SDKs
+- **Local Processing**: All operations occur on your device
+- **No Content Storage**: We do not host or provide any media content
+- **Transparent Permissions**: Only essential permissions required for core functionality
+
+For complete details, see our [Privacy Policy](#privacy-policy) and [Terms of Service](#terms-of-service).
+
+## User Responsibility
+
+By using MediaData Player, you acknowledge and agree that:
+
+1. **Legal Compliance**: You are responsible for ensuring you have legal rights to all content accessed through this application
+2. **Copyright Respect**: You will not use this tool to access, download, or distribute copyrighted material without proper authorization
+3. **Content Source**: You must provide your own legitimate content sources and streaming URLs
+4. **No Liability**: The developer is not responsible for user actions or content accessed through this application
+
+## Technology Stack
+
+- **Media3 (ExoPlayer)**: Google's advanced media playback library
+- **Jetpack Compose**: Modern Android UI toolkit
+- **Kotlin**: Primary development language
+- **Hardware Acceleration**: Leverages device codecs for efficient playback
+- **Material Design 3**: Follows Google's latest design guidelines
+
+## Compliance & Policies
+
+This application is designed to comply with:
+- Google Play Developer Program Policies
+- Digital Millennium Copyright Act (DMCA)
+- International copyright laws and regulations
+- User privacy protection standards
+
+## System Requirements
+
+- **Minimum**: Android 8.0 (API 26)
+- **Recommended**: Android 10+ for optimal performance
+- **Android TV**: Fully compatible with Android TV devices
+- **Storage**: Variable based on cached content
+- **Internet**: Required for network streaming features
+
+## Support & Contact
+
+For technical support, feature requests, or policy inquiries, please visit our support channels.
+
+## License
+
+Copyright 2026 Vũ Nguyễn Văn
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+### Third-Party Libraries
+
+This project uses the following open-source libraries:
+- **Media3 (ExoPlayer)** - Apache License 2.0
+- **Jetpack Compose** - Apache License 2.0
+- **Kotlin** - Apache License 2.0
+
+---
+
+**Disclaimer**: MediaData Player is a neutral media playback tool. It does not host, provide, endorse, or facilitate access to any specific content. All content accessed through this application is provided by users themselves. The developers bear no responsibility for content accessed, downloaded, or shared through this application. Users must comply with all applicable laws and respect intellectual property rights.

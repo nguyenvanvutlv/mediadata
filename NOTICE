@@ -1,0 +1,38 @@
+MediaData Player
+Copyright 2026 Vũ Nguyễn Văn
+
+This product includes software developed by Vũ Nguyễn Văn.
+
+This software contains code derived from the following projects:
+
+================================================================================
+
+Media3 (ExoPlayer)
+https://github.com/androidx/media
+Copyright (C) Google LLC
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Jetpack Compose
+https://developer.android.com/jetpack/compose
+Copyright (C) The Android Open Source Project
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Kotlin Programming Language
+https://kotlinlang.org/
+Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Android Gradle Plugin
+Copyright (C) The Android Open Source Project
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+For full license texts, please see the LICENSE file in the root directory
+of this project or visit http://www.apache.org/licenses/LICENSE-2.0
