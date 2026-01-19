@@ -8,7 +8,7 @@ import com.nvv.mediadata.data.model.VideoScaleMode
 class Settings {
 	companion object {
 		private const val APPLICATION_ID = "com.nvv.mediadata"
-
+		private const val FOLDER = "folder"
 		private const val LANGUAGES = "languages"
 		private const val CAST_INDEX = "cast_index"
 
@@ -78,6 +78,14 @@ class Settings {
 
 		fun setBackgroundColorOpacity(context: Context, opacity: Int) {
 			getSharedPreferences(context).edit().putInt(BACKGROUND_COLOR_OPACITY, opacity).apply()
+		}
+
+		fun getPath(context: Context): String {
+			return getSharedPreferences(context).getString(FOLDER, "") ?: ""
+		}
+
+		fun setPath(context: Context, path: String) {
+			getSharedPreferences(context).edit().putString(FOLDER, path).apply()
 		}
 	}
 }

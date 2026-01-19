@@ -80,6 +80,7 @@ dependencies {
 		include("lib-*.aar")
 	})
 	implementation("androidx.recyclerview:recyclerview:1.3.2")
+	implementation("androidx.documentfile:documentfile:1.0.1")
 	/// HILT
 	implementation(libs.hilt.android)
 	ksp(libs.hilt.android.compiler)

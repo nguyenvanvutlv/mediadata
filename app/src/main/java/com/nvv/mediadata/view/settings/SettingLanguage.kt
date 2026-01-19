@@ -1,5 +1,6 @@
 package com.nvv.mediadata.view.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
@@ -56,12 +57,15 @@ fun SettingLanguage(
 					}
 				},
 				modifier = Modifier
-					.windowInsetsPadding(
-						WindowInsets.displayCutout.union(WindowInsets.statusBars)
-					)
 			)
 		},
-
+		modifier = Modifier
+			.windowInsetsPadding(
+				WindowInsets.displayCutout.union(WindowInsets.statusBars)
+			),
+		bottomBar = {
+			AnimatedVisibility(true, Modifier) { }
+		}
 	) {
 		Surface(
 			Modifier.fillMaxSize().padding(it)

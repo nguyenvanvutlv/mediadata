@@ -21,6 +21,7 @@ fun AppNavHost(
 		Destination.entries.forEach { destination ->
 			composable(destination.route) {
 				when (destination) {
+					Destination.LOCAL_FILE -> LocalFileNavigation()
 					Destination.NETWORKS -> StreamNavigation()
 					Destination.SETTINGS -> SettingNavigation()
 				}

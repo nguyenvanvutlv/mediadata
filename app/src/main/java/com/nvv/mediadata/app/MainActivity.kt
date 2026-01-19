@@ -1,10 +1,14 @@
 package com.nvv.mediadata.app
 
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -13,6 +17,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -40,8 +46,11 @@ import androidx.navigation.compose.rememberNavController
 import com.downloader.PRDownloader
 import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.Destination
+import com.nvv.mediadata.data.provide.rememberContext
+import com.nvv.mediadata.data.provide.rememberFileViewModel
 import com.nvv.mediadata.data.provide.rememberNotificationViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
+import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.ui.theme.MediadataTheme
 import com.nvv.mediadata.view.core.KeepScreenOn
 import com.nvv.mediadata.view.player.PlayerView
@@ -80,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 		setContent {
 			KeepScreenOn()
 			val startDestination = Destination.NETWORKS
+			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()
 			val isPlay by player.isPlay.collectAsStateWithLifecycle()
 			val notificationViewModel = rememberNotificationViewModel()
@@ -88,6 +98,19 @@ class MainActivity : AppCompatActivity() {
 			val navController = rememberNavController()
 			var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 			val snackBarHostState = remember { SnackbarHostState() }
+			val context = rememberContext()
+			val launcherSelectFolder = rememberLauncherForActivityResult(
+				contract = ActivityResultContracts.OpenDocumentTree()
+			) { uri: Uri? ->
+				uri?.let {
+					context.contentResolver.takePersistableUriPermission(
+						uri,
+						Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+					)
+					Settings.setPath(context, uri.toString())
+					fileViewModel.setPath(uri)
+				}
+			}
 			LaunchedEffect(isOpenNotification) {
 				if (isOpenNotification) {
 					snackBarHostState.showSnackbar(messageNotification)
@@ -107,6 +130,13 @@ class MainActivity : AppCompatActivity() {
 					WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 				controller.show(WindowInsetsCompat.Type.statusBars())
 				controller.show(WindowInsetsCompat.Type.navigationBars())
+				try {
+					fileViewModel.setPath(
+						Settings.getPath(context).toUri()
+					)
+				}catch(e: Exception){
+
+				}
 			}
 			LaunchedEffect(isPlay) {
 				if (!isPlay) {
@@ -131,7 +161,10 @@ class MainActivity : AppCompatActivity() {
 							exit = slideOutVertically(targetOffsetY = { -it }),
 						) {
 							DefaultTopbar(
-								destination = Destination.entries[selectedDestination]
+								destination = Destination.entries[selectedDestination],
+								openFolder = {
+									launcherSelectFolder.launch(null)
+								}
 							)
 						}
 					},
@@ -166,7 +199,8 @@ class MainActivity : AppCompatActivity() {
 					},
 					snackbarHost = {
 						SnackbarHost(snackBarHostState)
-					}
+					},
+					contentWindowInsets = WindowInsets(0, 0, 0, 0),
 				) {
 					Surface(
 						modifier = Modifier

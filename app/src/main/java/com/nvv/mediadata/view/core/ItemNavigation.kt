@@ -12,12 +12,14 @@ fun ItemNavigation(
 	leading: @Composable () -> Unit = {},
 	trailing: @Composable () -> Unit = {},
 	headline: @Composable () -> Unit = {},
+	supportingContent: @Composable () -> Unit = {},
 	onClick: () -> Unit = {}
 ){
 	ListItem(
 		leadingContent = leading,
 		headlineContent = headline,
 		trailingContent = trailing,
+		supportingContent = supportingContent,
 		colors = ListItemDefaults.colors(
 			containerColor = MaterialTheme.colorScheme.surface
 		),
