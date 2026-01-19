@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediaData Player - Universal media player for Android with support for video, audio, streaming, and Google Cast">
+    <meta name="keywords" content="media player, video player, audio player, Android, streaming, cast, exoplayer">
+    <meta name="author" content="Vũ Nguyễn Văn">
+    <title>MediaData Player - Universal Media Player for Android</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            padding: 30px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Formats Section */
+        .formats {
+            padding: 80px 20px;
+            background: #f8f9fa;
+        }
+
+        .format-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .format-category {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .format-category h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .format-list {
+            color: #666;
+            line-height: 2;
+        }
+
+        /* Privacy Section */
+        .privacy-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .privacy-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .privacy-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .privacy-item {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .privacy-item-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Links Section */
+        .links-section {
+            padding: 60px 20px;
+            background: white;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .link-card:hover {
+            background: white;
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .link-icon {
+            font-size: 2em;
+            margin-right: 20px;
+        }
+
+        .link-content h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .link-content p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .tagline {
+                font-size: 1.1em;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .features-grid,
+            .format-categories {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card,
+        .format-category,
+        .privacy-item {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">🎬</div>
+            <h1>MediaData Player</h1>
+            <p class="tagline">Universal Media Player for Android</p>
+            <p style="font-size: 1.1em; margin-bottom: 30px; opacity: 0.9;">
+                Professional video and audio playback with Google Cast support
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/nguyenvanvutlv/mediadata" class="btn btn-primary" target="_blank">
+                    <span>📱</span> View on GitHub
+                </a>
+                <a href="https://github.com/nguyenvanvutlv/mediadata/releases" class="btn btn-secondary" target="_blank">
+                    <span>⬇️</span> Download APK
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">✨ Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎥</div>
+                    <h3>Video Playback</h3>
+                    <p>Professional video player powered by Media3 (ExoPlayer) with hardware acceleration, subtitle support, and gesture controls.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3>Audio Player</h3>
+                    <p>Beautiful audio player with Spotify-style interface, background playback, and audio queue management.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📡</div>
+                    <h3>Network Streaming</h3>
+                    <p>Stream content from direct URLs with support for DASH, HLS, and RTSP protocols.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📺</div>
+                    <h3>Google Cast</h3>
+                    <p>Cast videos and audio to your TV or Chromecast devices with full playback controls.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Download Manager</h3>
+                    <p>Download network media to local storage with progress notifications and resume capability.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Multi-Language</h3>
+                    <p>Full support for 13 languages including English, Vietnamese, Spanish, French, German, and more.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Material Design 3</h3>
+                    <p>Modern UI built with Jetpack Compose following Google's latest Material Design guidelines.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Customizable</h3>
+                    <p>Adjust subtitle size, color, position, playback speed, and more to your preferences.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3>File Management</h3>
+                    <p>Browse and manage your local media files with delete, rename, and organize features.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="formats">
+        <div class="container">
+            <h2 class="section-title">🎬 Supported Formats</h2>
+            <div class="format-categories">
+                <div class="format-category">
+                    <h3>Video Codecs</h3>
+                    <div class="format-list">
+                        H.264 (AVC)<br>
+                        H.265 (HEVC)<br>
+                        VP8, VP9<br>
+                        AV1<br>
+                        MPEG-4
+                    </div>
+                </div>
+
+                <div class="format-category">
+                    <h3>Audio Codecs</h3>
+                    <div class="format-list">
+                        MP3, AAC<br>
+                        FLAC, ALAC<br>
+                        Opus, Vorbis<br>
+                        AC-3, E-AC-3<br>
+                        DTS
+                    </div>
+                </div>
+
+                <div class="format-category">
+                    <h3>Containers</h3>
+                    <div class="format-list">
+                        MP4, MKV<br>
+                        WebM, AVI<br>
+                        MOV, FLV<br>
+                        3GP, TS<br>
+                        M4A, OGG
+                    </div>
+                </div>
+
+                <div class="format-category">
+                    <h3>Streaming</h3>
+                    <div class="format-list">
+                        DASH<br>
+                        HLS (m3u8)<br>
+                        SmoothStreaming<br>
+                        RTSP<br>
+                        HTTP(S) URLs
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="privacy-section">
+        <div class="container">
+            <div class="privacy-content">
+                <h2 class="section-title" style="color: white;">🔒 Privacy Focused</h2>
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    Your privacy matters. MediaData Player is designed with privacy as a core principle.
+                </p>
+                <div class="privacy-features">
+                    <div class="privacy-item">
+                        <div class="privacy-item-icon">🚫</div>
+                        <h4>No Data Collection</h4>
+                        <p>We don't collect any personal information</p>
+                    </div>
+                    <div class="privacy-item">
+                        <div class="privacy-item-icon">📊</div>
+                        <h4>No Analytics</h4>
+                        <p>No tracking or usage analytics</p>
+                    </div>
+                    <div class="privacy-item">
+                        <div class="privacy-item-icon">📢</div>
+                        <h4>No Ads</h4>
+                        <p>Completely ad-free experience</p>
+                    </div>
+                    <div class="privacy-item">
+                        <div class="privacy-item-icon">💻</div>
+                        <h4>Open Source</h4>
+                        <p>Code is transparent and auditable</p>
+                    </div>
+                </div>
+                <p style="margin-top: 30px;">
+                    <span class="badge">Apache License 2.0</span>
+                    <span class="badge">Free Forever</span>
+                    <span class="badge">No In-App Purchases</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="links-section">
+        <div class="container">
+            <h2 class="section-title">📄 Important Links</h2>
+            <div class="links-grid">
+                <a href="docs/privacy-policy.html" class="link-card">
+                    <div class="link-icon">🔐</div>
+                    <div class="link-content">
+                        <h3>Privacy Policy</h3>
+                        <p>How we protect your privacy</p>
+                    </div>
+                </a>
+
+                <a href="docs/terms-of-service.html" class="link-card">
+                    <div class="link-icon">📜</div>
+                    <div class="link-content">
+                        <h3>Terms of Service</h3>
+                        <p>User responsibilities and legal terms</p>
+                    </div>
+                </a>
+
+                <a href="https://github.com/nguyenvanvutlv/mediadata" class="link-card" target="_blank">
+                    <div class="link-icon">💻</div>
+                    <div class="link-content">
+                        <h3>Source Code</h3>
+                        <p>View on GitHub</p>
+                    </div>
+                </a>
+
+                <a href="https://github.com/nguyenvanvutlv/mediadata/issues" class="link-card" target="_blank">
+                    <div class="link-icon">🐛</div>
+                    <div class="link-content">
+                        <h3>Report Issues</h3>
+                        <p>Bug reports and feature requests</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <h3 style="margin-bottom: 20px;">MediaData Player</h3>
+            <p>A neutral media player tool for Android</p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                Built with Media3, Jetpack Compose, and Material Design 3
+            </p>
+            <div class="footer-links">
+                <a href="https://github.com/nguyenvanvutlv/mediadata" target="_blank">GitHub</a>
+                <a href="mailto:nguyenvanvu.tlvnvv@gmail.com">Contact</a>
+                <a href="docs/privacy-policy.html">Privacy</a>
+                <a href="docs/terms-of-service.html">Terms</a>
+            </div>
+            <p style="margin-top: 30px; opacity: 0.6; font-size: 0.9em;">
+                © 2026 Vũ Nguyễn Văn. Licensed under Apache License 2.0
+            </p>
+            <p style="margin-top: 10px; opacity: 0.6; font-size: 0.85em;">
+                <strong>Disclaimer:</strong> This app does not provide any content. Users are responsible for the content they access.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
