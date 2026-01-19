@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
 class DownloadFileViewModel @Inject constructor(
@@ -24,7 +25,7 @@ class DownloadFileViewModel @Inject constructor(
 			if (fromUrl.isNotBlank() && fromUrl != "download") fromUrl else "Untitled_${System.currentTimeMillis() / 1000}"
 		}
 
-		val request = DownloadManager.Request(Uri.parse(link))
+		val request = DownloadManager.Request(link.toUri())
 			.setTitle(fileName)
 			.setDescription("Downloading video...")
 			.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)

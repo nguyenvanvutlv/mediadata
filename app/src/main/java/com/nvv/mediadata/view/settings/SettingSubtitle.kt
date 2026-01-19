@@ -1,6 +1,11 @@
 package com.nvv.mediadata.view.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
+import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -30,6 +37,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,17 +47,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.view.core.ItemNavigation
 import com.nvv.mediadata.view.core.toAndroidColor
 import com.nvv.mediadata.view.core.toComposeColor
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingSubtitle(
-	navController: NavController
+	navController: NavController,
+	sub: NavController,
 ){
 	val context = rememberContext()
 	val subtitleDisplay = stringResource(R.string.subtitle_display)
@@ -69,8 +82,16 @@ fun SettingSubtitle(
 	var isOpenSubtitleBackgroundColorOpacity by remember { mutableStateOf(false) }
 	var currentSubtitleTextColor by remember { mutableStateOf(
 		Settings.getColor(context)) }
-	var currentBackgroundColorOpacity by remember { mutableStateOf(
-		Settings.getBackgroundColorOpacity(context)) }
+	var currentBackgroundColorOpacity by remember {
+		mutableIntStateOf(
+			Settings.getBackgroundColorOpacity(context))
+	}
+
+	val currentLanguageCode = Settings.getLanguages(context)
+	val currentLanguageName = remember(currentLanguageCode) {
+		val locale = Locale.forLanguageTag(currentLanguageCode)
+		locale.getDisplayName(locale).replaceFirstChar { it.uppercase() }
+	}
 	Scaffold(
 		topBar = {
 			CenterAlignedTopAppBar(
@@ -150,6 +171,32 @@ fun SettingSubtitle(
 							}
 						)
 					}
+					// SUBTITLE BACKGROUND COLOR
+					item{
+						ItemNavigation(
+							leading = {
+								Icon(
+									imageVector = Icons.Rounded.Subtitles,
+									contentDescription = null
+								)
+							},
+							trailing = {
+								Icon(
+									imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
+									contentDescription = null
+								)
+							},
+							headline = {
+								Text(
+									text = currentLanguageName,
+									style = MaterialTheme.typography.titleMedium
+								)
+							},
+							onClick = {
+								sub.navigate("settings/subtitle/language")
+							}
+						)
+					}
 				}
 
 				DropdownMenu(
@@ -200,6 +247,49 @@ fun SettingSubtitle(
 					}
 				}
 			}
+		}
+	}
+}
+
+
+@Composable
+fun SettingSubtitleNavigation(
+	navController: NavController
+){
+	val sub = rememberNavController()
+	NavHost(
+		navController = sub,
+		startDestination = "settings/subtitle",
+		enterTransition = {
+			slideInHorizontally(
+				initialOffsetX = { it },
+				animationSpec = tween(300)
+			) + fadeIn(animationSpec = tween(300))
+		},
+		exitTransition = {
+			slideOutHorizontally(
+				targetOffsetX = { -it / 3 },
+				animationSpec = tween(300)
+			) + fadeOut(animationSpec = tween(300))
+		},
+		popEnterTransition = {
+			slideInHorizontally(
+				initialOffsetX = { -it / 2 },
+				animationSpec = tween(300)
+			) + fadeIn(animationSpec = tween(300))
+		},
+		popExitTransition = {
+			slideOutHorizontally(
+				targetOffsetX = { it },
+				animationSpec = tween(300)
+			) + fadeOut(animationSpec = tween(300))
+		},
+	) {
+		composable(route = "settings/subtitle"){
+			SettingSubtitle(navController, sub)
+		}
+		composable(route = "settings/subtitle/language"){
+			SettingLanguageInSubtitle(sub)
 		}
 	}
 }

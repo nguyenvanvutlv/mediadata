@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MediaData Player</string>
+    <string name="subtitle_display">字幕设置</string>
+    <string name="language_display">语言</string>
+    <string name="leading_text_color">字幕文本颜色</string>
+    <string name="leading_background_color_opacity">背景透明度</string>
+    <string name="file_name_title">文件名（可选）</string>
+    <string name="stream_url_label">串流 URL</string>
+    <string name="file_name_placeholder">我的视频</string>
+    <string name="download_finished">下载完成</string>
+    <string name="saved_successfully">保存成功：%1$s</string>
+    <string name="download_failed">下载失败</string>
+    <string name="error_occurred_during_download">下载过程中出现错误</string>
+    <string name="failed_to_save_downloaded_file">保存下载的文件失败</string>
+    <string name="download_status_channel_name">下载状态</string>
+    <string name="notification_title_error">错误</string>
+    <string name="privacy_policy_title">隐私政策</string>
+    <string name="privacy_policy_content">MediaData Player 致力于保护用户隐私。本政策概述了我们对应用程序处理的数据的处理方式。\n\n1. 数据隐私：我们不会收集、传输或存储任何个人信息、浏览历史或媒体内容。应用程序处理的所有数据都严格保留在您的本地设备上。\n\n2. 本地存储：应用程序需要访问您的设备存储，仅用于根据您的要求保存下载的文件并播放本地媒体。\n\n3. 无追踪：我们不使用任何监控您个人活动的第三方追踪或分析 SDK。\n\n4. 更新：我们可能会不时更新此政策。继续使用该应用程序即表示接受这些条款。</string>
+    <string name="terms_title">服务条款</string>
+    <string name="terms_content">欢迎使用 MediaData Player。通过使用此应用程序，您同意遵守以下条款和条件：\n\n1. 工具使用：此应用程序是一个中立的技术工具，旨在播放本地媒体和管理个人文件。您负责确保您对使用此工具访问或下载的任何内容拥有合法权利。\n\n2. 用户责任：您同意不将该应用程序用于任何非法目的，包括但不限于未经授权下载受版权保护的材料。我们不托管或提供任何内容，也不对应用程序的任何滥用承担责任。\n\n3. 知识产权：与应用程序本身相关的所有商标和版权均属于开发者。我们尊重他人的知识产权，并希望用户也能这样做。\n\n4. 责任限制：应用程序按“原样”提供，没有任何保证。对于因使用或无法使用软件而引起的任何损害，我们概不负责。\n\n5. 禁止活动：禁止您尝试反编译、逆向工程或绕过应用程序的任何安全功能。</string>
+    <string name="play_button_label">播放</string>
+    <string name="network_disclaimer">通过使用此功能，您同意我们的服务条款并承认您对所访问的内容承担全部责任。</string>
+    <string name="network_stream_title">网络串流</string>
+    <string name="network_url_placeholder">https://example.com/video.mkv</string>
+    <string name="download_button">下载视频</string>
+    <string name="back_button">返回</string>
+    <string name="fast_forward_label">2X 速度 &gt;&gt;</string>
+    <string name="subtitle_settings_title">字幕设置</string>
+    <string name="subtitle_size_label">大小：%1$d</string>
+    <string name="subtitle_position_label">位置：%1$d%%</string>
+    <string name="audio_track_title">选择音频轨道</string>
+    <string name="subtitle_track_title">选择字幕</string>
+    <string name="stream_network_title">打开网络串流</string>
+    <string name="stream_network_description">从互联网播放串流</string>
+    <string name="stream_audio_title">音频串流</string>
+    <string name="stream_audio_description">从互联网播放音乐</string>
+    <string name="stream_downloads_title">下载</string>
+    <string name="stream_downloads_description">下载文件到设备</string>
+    <string name="delete_file_title">删除文件</string>
+    <string name="delete_file_message">您确定要删除此文件吗？此操作无法撤消。</string>
+    <string name="delete_button">删除</string>
+    <string name="cancel_button">取消</string>
+    <string name="now_playing">正在播放</string>
+    <string name="unknown_artist">未知艺术家</string>
+    <string name="unknown_title">音频串流</string>
+</resources>

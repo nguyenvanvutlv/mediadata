@@ -94,16 +94,14 @@ class FileProcessingWorker(
         val channelId = "download_status_channel"
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                applicationContext.getString(R.string.download_status_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+	    val channel = NotificationChannel(
+	        channelId,
+	        applicationContext.getString(R.string.download_status_channel_name),
+	        NotificationManager.IMPORTANCE_DEFAULT
+	    )
+	    notificationManager.createNotificationChannel(channel)
 
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
+	    val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)

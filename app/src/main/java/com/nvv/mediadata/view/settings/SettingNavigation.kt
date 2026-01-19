@@ -44,14 +44,17 @@ fun SettingNavigation(){
 		composable(route = "settings"){
 			BaseSettingList(navController)
 		}
-		composable(route = "settings/language"){
-			SettingLanguage(navController)
-		}
 		composable(route = "settings/subtitle"){
-			SettingSubtitle(navController)
+			SettingSubtitleNavigation(navController)
 		}
 		composable(route = "settings/theme"){
 			SettingTheme()
+		}
+		composable(route = "settings/privacy"){
+			PrivacyPolicy(navController)
+		}
+		composable(route = "settings/terms"){
+			TermsOfService(navController)
 		}
 	}
 }

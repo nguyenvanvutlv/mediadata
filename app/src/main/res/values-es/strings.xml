@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MediaData Player</string>
+    <string name="subtitle_display">Ajustes de subtítulos</string>
+    <string name="language_display">Idioma</string>
+    <string name="leading_text_color">Color del texto de subtítulos</string>
+    <string name="leading_background_color_opacity">Opacidad del fondo</string>
+    <string name="file_name_title">Nombre del archivo (Opcional)</string>
+    <string name="stream_url_label">URL de la transmisión</string>
+    <string name="file_name_placeholder">Mi Vídeo</string>
+    <string name="download_finished">Descarga finalizada</string>
+    <string name="saved_successfully">Guardado con éxito: %1$s</string>
+    <string name="download_failed">Descarga fallida</string>
+    <string name="error_occurred_during_download">Ocurrió un error durante la descarga</string>
+    <string name="failed_to_save_downloaded_file">Error al guardar el archivo descargado</string>
+    <string name="download_status_channel_name">Estado de la descarga</string>
+    <string name="notification_title_error">Error</string>
+    <string name="privacy_policy_title">Política de Privacidad</string>
+    <string name="privacy_policy_content">MediaData Player se compromete a proteger la privacidad del usuario. Esta política describe nuestras prácticas con respecto a los datos manejados por la aplicación.\n\n1. Privacidad de datos: No recopilamos, transmitimos ni almacenamos ninguna información personal, historial de navegación o contenido multimedia. Todos los datos procesados por la aplicación permanecen estrictamente en su dispositivo local.\n\n2. Almacenamiento local: La aplicación requiere acceso al almacenamiento de su dispositivo únicamente para guardar archivos descargados y reproducir medios locales según lo solicite.\n\n3. Sin seguimiento: No utilizamos ningún SDK de seguimiento o análisis de terceros que monitoree su actividad personal.\n\n4. Actualizaciones: Podemos actualizar esta política de vez en cuando. El uso continuado de la aplicación constituye la aceptación de estos términos.</string>
+    <string name="terms_title">Términos de Servicio</string>
+    <string name="terms_content">Bienvenido a MediaData Player. Al utilizar esta aplicación, acepta cumplir con los siguientes términos y condiciones:\n\n1. Uso de la herramienta: Esta aplicación es una herramienta técnica neutral destinada a la reproducción de medios locales y la gestión de archivos personales. Usted es responsable de asegurarse de tener el derecho legal sobre cualquier contenido al que acceda o descargue utilizando esta herramienta.\n\n2. Responsabilidad del usuario: Usted acepta no utilizar la aplicación para fines ilegales, incluidos, entre otros, la descarga no autorizada de material con derechos de autor. No alojamos ni proporcionamos ningún contenido y no somos responsables de ningún mal uso de la aplicación.\n\n3. Propiedad intelectual: Todas las marcas comerciales y derechos de autor relacionados con la propia aplicación pertenecen al desarrollador. Respetamos los derechos de propiedad intelectual de otros y esperamos que los usuarios hagan lo mismo.\n\n4. Limitación de responsabilidad: La aplicación se proporciona \"tal cual\" sin ninguna garantía. No seremos responsables de ningún daño que surja del uso o la imposibilidad de usar el software.\n\n5. Actividades prohibidas: Se le prohíbe intentar descompilar, realizar ingeniería inversa o eludir cualquier característica de seguridad de la aplicación.</string>
+    <string name="play_button_label">Reproducir</string>
+    <string name="network_disclaimer">Al utilizar esta función, acepta nuestros Términos de servicio y reconoce que es el único responsable del contenido al que accede.</string>
+    <string name="network_stream_title">Transmisión de red</string>
+    <string name="network_url_placeholder">https://example.com/video.mkv</string>
+    <string name="download_button">Descargar vídeo</string>
+    <string name="back_button">Atrás</string>
+    <string name="fast_forward_label">Velocidad 2X &gt;&gt;</string>
+    <string name="subtitle_settings_title">Configuración de subtítulos</string>
+    <string name="subtitle_size_label">Tamaño: %1$d</string>
+    <string name="subtitle_position_label">Posición: %1$d%%</string>
+    <string name="audio_track_title">Seleccionar pista de audio</string>
+    <string name="subtitle_track_title">Seleccionar subtítulo</string>
+    <string name="stream_network_title">Abrir transmisión de red</string>
+    <string name="stream_network_description">Reproducir transmisiones desde internet</string>
+    <string name="stream_audio_title">Transmisión de audio</string>
+    <string name="stream_audio_description">Reproducir música desde internet</string>
+    <string name="stream_downloads_title">Descargas</string>
+    <string name="stream_downloads_description">Descargar archivos a tu dispositivo</string>
+    <string name="delete_file_title">Eliminar archivo</string>
+    <string name="delete_file_message">¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.</string>
+    <string name="delete_button">Eliminar</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="now_playing">Reproduciendo ahora</string>
+    <string name="unknown_artist">Artista desconocido</string>
+    <string name="unknown_title">Transmisión de audio</string>
+</resources>

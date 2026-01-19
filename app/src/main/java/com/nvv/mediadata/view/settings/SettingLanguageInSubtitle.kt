@@ -1,5 +1,6 @@
 package com.nvv.mediadata.view.settings
 
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -30,8 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.view.core.ItemNavigation
@@ -39,7 +42,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingLanguage(
+fun SettingLanguageInSubtitle(
 	navController: NavController
 ){
 	val context = rememberContext()
@@ -58,7 +61,7 @@ fun SettingLanguage(
 		topBar = {
 			TopAppBar(
 				title = {
-					Text("Language")
+					Text(stringResource(R.string.language_display))
 				},
 				navigationIcon = {
 					IconButton({
@@ -69,8 +72,7 @@ fun SettingLanguage(
 							contentDescription = null
 						)
 					}
-				},
-				modifier = Modifier
+				}
 			)
 		},
 		modifier = Modifier

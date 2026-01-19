@@ -25,8 +25,15 @@ class LocalFileViewModel @Inject constructor(
 	val localState = _localState.asStateFlow()
 
 	fun deleteFile(file: DocumentFile) {
-		file.delete()
-
+		val success = file.delete()
+		if (success) {
+			// Refresh file list after deletion
+			_localState.update { state ->
+				state.copy(
+					files = state.files.filter { it.uri != file.uri }
+				)
+			}
+		}
 	}
 
 	fun setPath(path: Uri?) {

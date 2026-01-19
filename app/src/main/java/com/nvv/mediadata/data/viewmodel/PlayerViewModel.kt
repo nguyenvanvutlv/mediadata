@@ -243,6 +243,20 @@ class PlayerViewModel @Inject constructor(
 		}
 	}
 
+	fun selectAudioItem(index: Int) {
+		if (index !in _items.value.indices) return
+		_player.value?.let { p ->
+			val preferredLang = Settings.getLanguages(context)
+			p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
+				.setPreferredAudioLanguage(preferredLang)
+				.setPreferredTextLanguage(preferredLang)
+				.build()
+			p.seekTo(index, 0L)
+			p.prepare()
+			p.play()
+		}
+	}
+
 	fun seekTo(progress: Double) {
 		_player.value?.let { p ->
 			val newPosition = (progress * p.duration).toLong()

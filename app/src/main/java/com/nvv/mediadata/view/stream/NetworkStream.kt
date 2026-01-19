@@ -31,9 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 
 @Composable
@@ -43,6 +46,12 @@ fun NetworkStream(
 	var url by remember { mutableStateOf("") }
 	val player = rememberPlayerViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
+	
+	val streamUrlLabel = stringResource(R.string.stream_url_label)
+	val playButtonLabel = stringResource(R.string.play_button_label)
+	val networkDisclaimer = stringResource(R.string.network_disclaimer)
+	val urlPlaceholder = stringResource(R.string.network_url_placeholder)
+
 	Surface(
 		Modifier.fillMaxSize()
 	) {
@@ -58,9 +67,10 @@ fun NetworkStream(
 				OutlinedTextField(
 					value = url,
 					onValueChange = { n -> url = n },
+					label = { Text(streamUrlLabel) },
 					placeholder = {
 						Text(
-							"https://stream.mkv",
+							urlPlaceholder,
 							style = MaterialTheme.typography.bodyLarge.copy(
 								color = Color.DarkGray.copy(alpha = 0.3f)
 							),
@@ -77,7 +87,14 @@ fun NetworkStream(
 						localKeyword?.hide()
 					},
 				)
-				Spacer(Modifier.width(16.dp))
+				Text(
+					text = networkDisclaimer,
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					textAlign = TextAlign.Center,
+					modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+				)
+				Spacer(Modifier.height(16.dp))
 				Button(
 					onClick = {
 						localKeyword?.hide()
@@ -89,7 +106,7 @@ fun NetworkStream(
 					modifier = Modifier.fillMaxWidth(0.8f)
 				) {
 					Text(
-						"Play",
+						playButtonLabel,
 						style = MaterialTheme.typography.labelLarge
 					)
 				}
@@ -112,7 +129,7 @@ fun NetworkStream(
 						)
 						Spacer(Modifier.width(5.dp))
 						Text(
-							"Back",
+							stringResource(R.string.back_button),
 							style = MaterialTheme.typography.labelLarge
 						)
 					}

@@ -62,9 +62,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.PlaybackParameters
+import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberIsInPipMode
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
@@ -85,6 +87,11 @@ fun PlayerView(
 	val vm = rememberPlayerViewModel()
 	val player by vm.player.collectAsStateWithLifecycle()
 	val state by vm.state.collectAsStateWithLifecycle()
+	
+	val fastForwardLabel = stringResource(R.string.fast_forward_label)
+	val subtitleSettingsTitle = stringResource(R.string.subtitle_settings_title)
+	val audioTrackTitle = stringResource(R.string.audio_track_title)
+	val subtitleTrackTitle = stringResource(R.string.subtitle_track_title)
 	var v by remember {
 		mutableFloatStateOf(
 			state.position.toFloat() / max(1f, state.duration.toFloat())
@@ -226,7 +233,7 @@ fun PlayerView(
 						contentAlignment = Alignment.TopCenter
 					) {
 						Text(
-							text = "2X Speed >>",
+							text = fastForwardLabel,
 							color = Color.White,
 							modifier = Modifier
 								.padding(top = 32.dp)
@@ -464,10 +471,10 @@ fun PlayerView(
 						sheetState = sheetState
 					) {
 						Column(modifier = Modifier.padding(16.dp)) {
-							Text("Subtitle Settings", style = MaterialTheme.typography.titleLarge)
+							Text(subtitleSettingsTitle, style = MaterialTheme.typography.titleLarge)
 							Spacer(Modifier.height(16.dp))
 
-							Text("Size: ${state.sizeSubtitle.toInt()}")
+							Text(stringResource(R.string.subtitle_size_label, state.sizeSubtitle.toInt()))
 							androidx.compose.material3.Slider(
 								value = state.sizeSubtitle,
 								onValueChange = { vm.updateSubtitleSize(it) },
@@ -477,7 +484,7 @@ fun PlayerView(
 
 							Spacer(Modifier.height(16.dp))
 
-							Text("Position: ${(state.positionSubtitle * 100).toInt()}%")
+							Text(stringResource(R.string.subtitle_position_label, (state.positionSubtitle * 100).toInt()))
 							androidx.compose.material3.Slider(
 								value = state.positionSubtitle,
 								onValueChange = { vm.updateSubtitlePosition(it) },
@@ -504,7 +511,7 @@ fun PlayerView(
 						sheetState = sheetState
 					) {
 						Column(modifier = Modifier.padding(16.dp)) {
-							Text("Select Audio Track", style = MaterialTheme.typography.titleLarge)
+							Text(audioTrackTitle, style = MaterialTheme.typography.titleLarge)
 							Spacer(Modifier.height(16.dp))
 							vm.getAudioTracks().forEachIndexed { index, track ->
 								ListItem(
@@ -534,7 +541,7 @@ fun PlayerView(
 						sheetState = sheetState
 					) {
 						Column(modifier = Modifier.padding(16.dp)) {
-							Text("Select Subtitle", style = MaterialTheme.typography.titleLarge)
+							Text(subtitleTrackTitle, style = MaterialTheme.typography.titleLarge)
 							Spacer(Modifier.height(16.dp))
 
 							vm.getSubtitleTracks().forEachIndexed { index, track ->

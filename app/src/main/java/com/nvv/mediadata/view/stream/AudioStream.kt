@@ -1,9 +1,5 @@
 package com.nvv.mediadata.view.stream
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardBackspace
-import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,44 +33,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.nvv.mediadata.R
-import com.nvv.mediadata.data.provide.rememberContext
-import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
-import com.nvv.mediadata.data.provide.rememberFileViewModel
-import com.nvv.mediadata.data.viewmodel.Settings
+import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 
 @Composable
-fun DownloadStream(
-	navController: NavHostController,
+fun AudioStream(
+	navController: NavController
 ){
-	val fileNameTitle = stringResource(R.string.file_name_title)
-	val fileNamePlaceHolder = stringResource(R.string.file_name_placeholder)
+	var url by remember { mutableStateOf("") }
+	val player = rememberPlayerViewModel()
+	val localKeyword = LocalSoftwareKeyboardController.current
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
+	val playButtonLabel = stringResource(R.string.play_button_label)
 	val networkDisclaimer = stringResource(R.string.network_disclaimer)
 	val urlPlaceholder = stringResource(R.string.network_url_placeholder)
-	
-	val downloadViewModel = rememberDownloadFileViewModel()
-	val fileViewModel = rememberFileViewModel()
-	val context = rememberContext()
-	val launcherSelectFolder = rememberLauncherForActivityResult(
-		contract = ActivityResultContracts.OpenDocumentTree()
-	) { uri: Uri? ->
-		uri?.let {
-			context.contentResolver.takePersistableUriPermission(
-				uri,
-				Intent.FLAG_GRANT_READ_URI_PERMISSION or
-						Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-			)
-			Settings.setPath(context, uri.toString())
-			fileViewModel.setPath(uri)
-		}
-	}
-	var url by remember { mutableStateOf(
-		"") }
-	var title by remember { mutableStateOf("") }
-	val localKeyword = LocalSoftwareKeyboardController.current
 	Surface(
 		Modifier.fillMaxSize()
 	) {
@@ -99,33 +73,12 @@ fun DownloadStream(
 								color = Color.DarkGray.copy(alpha = 0.3f)
 							),
 							maxLines = 1,
-							overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+							overflow = TextOverflow.Ellipsis
 						)
 					},
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(top = 10.dp, start = 16.dp, end = 16.dp, bottom = 5.dp),
-					singleLine = true,
-					maxLines = 1,
-					keyboardActions = KeyboardActions {
-						localKeyword?.hide()
-					},
-				)
-				OutlinedTextField(
-					value = title,
-					onValueChange = { n -> title = n },
-					label = { Text(fileNameTitle) },
-					placeholder = {
-						Text(
-							fileNamePlaceHolder,
-							style = MaterialTheme.typography.bodyLarge.copy(
-								color = Color.DarkGray.copy(alpha = 0.3f)
-							)
-						)
-					},
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(top = 5.dp, start = 16.dp, end = 16.dp, bottom = 10.dp),
+						.padding(vertical = 10.dp, horizontal = 16.dp),
 					singleLine = true,
 					maxLines = 1,
 					keyboardActions = KeyboardActions {
@@ -143,31 +96,18 @@ fun DownloadStream(
 				Button(
 					onClick = {
 						localKeyword?.hide()
-						if (Settings.getPath(context).trim().isEmpty()){
-							launcherSelectFolder.launch(null)
-							return@Button
+						if (url.isNotBlank()) {
+							player.setURLs(listOf(url))
+							player.selectAudioItem(0)
+							navController.navigate("audio_player")
 						}
-						downloadViewModel.startDownloadFile(url, title.ifBlank { null })
-						navController.popBackStack()
 					},
 					modifier = Modifier.fillMaxWidth(0.8f)
 				) {
-					Row(
-						Modifier.fillMaxWidth(),
-						horizontalArrangement = Arrangement.Center,
-						verticalAlignment = Alignment.CenterVertically
-					){
-						Icon(
-							imageVector = Icons.Rounded.Download,
-							contentDescription = null,
-							modifier = Modifier.size(30.dp)
-						)
-						Spacer(Modifier.width(5.dp))
-						Text(
-							stringResource(R.string.download_button),
-							style = MaterialTheme.typography.labelLarge
-						)
-					}
+					Text(
+						playButtonLabel,
+						style = MaterialTheme.typography.labelLarge
+					)
 				}
 				Spacer(Modifier.weight(1f))
 				Button(

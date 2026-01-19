@@ -54,11 +54,13 @@ import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.ui.theme.MediadataTheme
 import com.nvv.mediadata.view.core.KeepScreenOn
 import com.nvv.mediadata.view.player.PlayerView
+import com.nvv.mediadata.view.stream.MiniAudioPlayer
 import com.nvv.mediadata.view.topbar.DefaultTopbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.compose.runtime.mutableStateOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
@@ -106,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		checkNotificationPermission()
 		setContent {
+			var videoUri by remember { mutableStateOf(intent?.data) }
 			KeepScreenOn()
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
@@ -118,6 +121,18 @@ class MainActivity : AppCompatActivity() {
 			var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 			val snackBarHostState = remember { SnackbarHostState() }
 			val context = rememberContext()
+			var isAudioPlaying by remember { mutableStateOf(false) }
+			LaunchedEffect(player.player.collectAsStateWithLifecycle().value) {
+				while (true) {
+					player.player.value?.let { p ->
+						val hasVideo = p.currentTracks.groups.any { group ->
+							group.type == androidx.media3.common.C.TRACK_TYPE_VIDEO
+						}
+						isAudioPlaying = (p.isPlaying || p.playbackState == androidx.media3.common.Player.STATE_READY) && !hasVideo
+					}
+					delay(500)
+				}
+			}
 			val launcherSelectFolder = rememberLauncherForActivityResult(
 				contract = ActivityResultContracts.OpenDocumentTree()
 			) { uri: Uri? ->
@@ -156,6 +171,11 @@ class MainActivity : AppCompatActivity() {
 				}catch(e: Exception){
 
 				}
+				if (videoUri != null){
+					player.setURLs(listOf(videoUri.toString()))
+					player.selectItem(0)
+					videoUri = null
+				}
 			}
 			LaunchedEffect(isPlay) {
 				if (!isPlay) {
@@ -188,32 +208,44 @@ class MainActivity : AppCompatActivity() {
 						}
 					},
 					bottomBar = {
-						AnimatedVisibility(
-							visible = !isPlay,
-							enter = slideInVertically(initialOffsetY = { it }),
-							exit = slideOutVertically(targetOffsetY = { it }),
-						) {
-							NavigationBar(
-								windowInsets = NavigationBarDefaults.windowInsets,
+						Box {
+							AnimatedVisibility(
+								visible = !isPlay,
+								enter = slideInVertically(initialOffsetY = { it }),
+								exit = slideOutVertically(targetOffsetY = { it }),
 							) {
-								Destination.entries.forEachIndexed { index, destination ->
-									NavigationBarItem(
-										selected = selectedDestination == index,
-										onClick = {
-											if (selectedDestination != index) {
-												navController.navigate(route = destination.route)
-												selectedDestination = index
-											}
-										},
-										icon = {
-											Icon(
-												destination.icon,
-												contentDescription = destination.contentDescription
-											)
-										},
-									)
+								NavigationBar(
+									windowInsets = NavigationBarDefaults.windowInsets,
+								) {
+									Destination.entries.forEachIndexed { index, destination ->
+										NavigationBarItem(
+											selected = selectedDestination == index,
+											onClick = {
+												if (selectedDestination != index) {
+													navController.navigate(route = destination.route)
+													selectedDestination = index
+												}
+											},
+											icon = {
+												Icon(
+													destination.icon,
+													contentDescription = destination.contentDescription
+												)
+											},
+										)
+									}
 								}
 							}
+							
+							MiniAudioPlayer(
+								visible = isAudioPlaying && !isPlay,
+								onNavigateToPlayer = {
+									if (selectedDestination != Destination.NETWORKS.ordinal) {
+										navController.navigate(Destination.NETWORKS.route)
+										selectedDestination = Destination.NETWORKS.ordinal
+									}
+								}
+							)
 						}
 					},
 					snackbarHost = {
