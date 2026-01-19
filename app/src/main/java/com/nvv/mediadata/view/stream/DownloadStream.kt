@@ -36,8 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
 import com.nvv.mediadata.data.provide.rememberFileViewModel
@@ -47,6 +49,9 @@ import com.nvv.mediadata.data.viewmodel.Settings
 fun DownloadStream(
 	navController: NavHostController,
 ){
+	val fileNameTitle = stringResource(R.string.file_name_title)
+	val fileNamePlaceHolder = stringResource(R.string.file_name_placeholder)
+	val streamUrlLabel = stringResource(R.string.stream_url_label)
 	val downloadViewModel = rememberDownloadFileViewModel()
 	val fileViewModel = rememberFileViewModel()
 	val context = rememberContext()
@@ -82,7 +87,7 @@ fun DownloadStream(
 				OutlinedTextField(
 					value = url,
 					onValueChange = { n -> url = n },
-					label = { Text("Stream URL") },
+					label = { Text(streamUrlLabel) },
 					placeholder = {
 						Text(
 							"https://stream.mkv",
@@ -105,10 +110,10 @@ fun DownloadStream(
 				OutlinedTextField(
 					value = title,
 					onValueChange = { n -> title = n },
-					label = { Text("File Name (Optional)") },
+					label = { Text(fileNameTitle) },
 					placeholder = {
 						Text(
-							"My Video",
+							fileNamePlaceHolder,
 							style = MaterialTheme.typography.bodyLarge.copy(
 								color = Color.DarkGray.copy(alpha = 0.3f)
 							)

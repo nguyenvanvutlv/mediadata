@@ -36,3 +36,4 @@ keystore/
 .kotlin/
 release/
 .DS_Store
+docs/

@@ -37,14 +37,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.Destination
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberFileViewModel
@@ -57,11 +57,35 @@ import com.nvv.mediadata.view.player.PlayerView
 import com.nvv.mediadata.view.topbar.DefaultTopbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import android.Manifest
+import android.content.pm.PackageManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 	private var pipModeListener: ((isInPipMode: Boolean) -> Unit)? = null
+	
+	private val requestPermissionLauncher = registerForActivityResult(
+		ActivityResultContracts.RequestPermission()
+	) { isGranted: Boolean ->
+		if (isGranted) {
+
+		} else {
+
+		}
+	}
+	private fun checkNotificationPermission() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (ContextCompat.checkSelfPermission(
+					this,
+					Manifest.permission.POST_NOTIFICATIONS
+				) != PackageManager.PERMISSION_GRANTED
+			) {
+				requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+			}
+		}
+	}
+
 	fun addOnPictureInPictureModeChangedListener(listener: (Boolean) -> Unit) {
 		pipModeListener = listener
 	}
@@ -80,12 +104,7 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		val configPRDownloader = PRDownloaderConfig.newBuilder()
-			.setReadTimeout(30_000)
-			.setConnectTimeout(30_000)
-			.setDatabaseEnabled(true)
-			.build()
-		PRDownloader.initialize(this, configPRDownloader)
+		checkNotificationPermission()
 		setContent {
 			KeepScreenOn()
 			val startDestination = Destination.NETWORKS

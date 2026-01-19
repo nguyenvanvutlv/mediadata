@@ -1,7 +1,17 @@
 <resources>
-    <string name="app_name">Downloader Player</string>
+    <string name="app_name">MediaData Player</string>
     <string name="subtitle_display">Subtitle Setting</string>
     <string name="language_display">Language</string>
     <string name="leading_text_color">Subtitle text color</string>
     <string name="leading_background_color_opacity">Background color opacity</string>
+    <string name="file_name_title">File Name (Optional)</string>
+    <string name="stream_url_label">Stream URL</string>
+    <string name="file_name_placeholder">My Video</string>
+    <string name="download_finished">Download Finished</string>
+    <string name="saved_successfully">Saved successfully: %1$s</string>
+    <string name="download_failed">Download failed</string>
+    <string name="error_occurred_during_download">An error occurred during download</string>
+    <string name="failed_to_save_downloaded_file">Failed to save downloaded file</string>
+    <string name="download_status_channel_name">Download Status</string>
+    <string name="notification_title_error">Error</string>
 </resources>

@@ -1,6 +1,5 @@
 [versions]
 agp = "8.13.2"
-ytb = "13.0.0"
 kotlin = "2.1.0"
 ksp = "2.1.0-1.0.29"
 # HILT
@@ -22,12 +21,11 @@ foundation = "1.10.1"
 appcompatResources = "1.7.1"
 appcompat = "1.7.1"
 navigation-compose = "2.8.5"
-prdownloader = "1.0.2"
+work = "2.10.0"
 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-ytb = { module = "com.pierfrancescosoffritti.androidyoutubeplayer:core", version.ref = "ytb" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -58,9 +56,8 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
-prdownloader = { module = "com.github.amitshekhariitbhu:PRDownloader", version.ref = "prdownloader" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
