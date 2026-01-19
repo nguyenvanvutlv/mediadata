@@ -64,7 +64,7 @@ fun DownloadStream(
 		}
 	}
 	var url by remember { mutableStateOf(
-		"https://dl-a10b-0860.mypikpak.com/download/?fid=dzAb3PY7fX_mtlo7t5Q9tDnSCrSQfHIpuzbNNGkP7XEAQhAN-aNzyuCw9RDolTGcsusJiv093TqEbUGUWV725WDoZzT-vUu_tJ2oJhKlEDU=&from=5&verno=3&prod=pikpak&expire=1768896127&g=61E352640997DF3B6A90E7DD977F01A88288F12B&ui=aJgD4HNLZR8dbfo1&t=0&ms=50400000&th=50400000&f=225806939&alt=0&us=0&hspu=&po=0&fileid=VO_BfI0wnhsxUp6tTFFJQwq3o2&userid=aJgD4HNLZR8dbfo1&pr=XQPkPvr9WWiIuMvELmrVeohtPvKl8DG3_2uxmakyO_c6AFhiIcGLYk9s0MPZV3TlroWSewoqTA6XcLSM0s6Gjh-_NNpC_NYwMiF75_OcaIUeJwxuvqmIHihAiNOx6ydFtmUaBG5djAKdKGlkgJxSIx6v00lHSkjRpldMOUqNO31Eii4wy9hkZJ9C8h2auy9kanc-z0Pz9f__wM-zo5Mi4uB6swAQveONOF0tamqP_sofy6awhtsqTE26s1U82zme1JfnXl3kJ8TBmyZmbjShRBQlM_gZLb5vd6iq-J_E_Uu78VMyLFvGBtCn0sYF1UxM5jU94LwxEcDqnxH3s35puVaZ0cRi00WzbNhO3997KEH4bvTiVGKTN7YL5XHUT4FXthn1hS8lbQZVt73Tkqx2ijuUMzbNUVgcW0wrGGyg0catPpQd5s_XeYntrZnsNEqX&sign=0E2852D591ED9886176AAA98060F6E4A") }
+		"") }
 	var title by remember { mutableStateOf("") }
 	val localKeyword = LocalSoftwareKeyboardController.current
 	Surface(

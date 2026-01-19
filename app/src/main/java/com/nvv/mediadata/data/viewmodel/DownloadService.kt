@@ -5,16 +5,12 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.documentfile.provider.DocumentFile
 import com.downloader.Error
 import com.downloader.OnDownloadListener
-import com.downloader.OnProgressListener
 import com.downloader.PRDownloader
-import com.downloader.Progress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -81,14 +77,9 @@ class DownloadService : Service() {
                 stopSelf()
                 return@launch
             }
-
-            val rawTitle = title
-            
-            val tempFileName = "temp_${System.currentTimeMillis()}.data"
+	        val tempFileName = "temp_${System.currentTimeMillis()}.data"
             val tempFile = File(cacheDir, tempFileName)
-            
             if (tempFile.exists()) tempFile.delete()
-
             downloadId = PRDownloader.download(url, tempFile.parent, tempFile.name)
                 .build()
                 .setOnProgressListener { progress ->
@@ -108,16 +99,14 @@ class DownloadService : Service() {
                     override fun onDownloadComplete() {
                         serviceScope.launch {
                             val extension = detectVideoExtension(tempFile)
-                            val safeTitle = rawTitle.replace("[^a-zA-Z0-9.\\- ]".toRegex(), "_")
+                            val safeTitle = title.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
                             val finalFileName = if (safeTitle.endsWith(extension, ignoreCase = true)) {
                                 safeTitle
                             } else {
                                 "$safeTitle$extension"
                             }
-                            
                             val uri = path.toUri()
                             val targetDir = DocumentFile.fromTreeUri(this@DownloadService, uri)
-                            
                             if (targetDir != null && targetDir.canWrite()) {
                                 val success = copyFileStream(this@DownloadService, tempFile, targetDir, finalFileName)
                                 if (success) {
