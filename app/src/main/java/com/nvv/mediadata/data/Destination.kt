@@ -13,8 +13,8 @@ enum class Destination(
 	val icon: ImageVector,
 	val contentDescription: String
 ) {
-	LOCAL_FILE("local", "Local File", Icons.Rounded.Folder, "file"),
-	AUDIO("audio", "Audio", Icons.Rounded.Audiotrack, "audio"),
+//	LOCAL_FILE("local", "Local File", Icons.Rounded.Folder, "file"),
+//	AUDIO("audio", "Audio", Icons.Rounded.Audiotrack, "audio"),
 	NETWORKS("network", "Network Stream", Icons.Rounded.Language, "network"),
 	SETTINGS("settings", "Settings", Icons.Rounded.Settings, "settings"),
 }

@@ -1,5 +1,6 @@
 package com.nvv.mediadata.data.model
 
+import android.graphics.Color
 import androidx.media3.ui.AspectRatioFrameLayout
 
 enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
@@ -21,19 +22,21 @@ enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
 }
 
 data class PlaybackState(
-	var startWith: Long = 0,
-	var buffer: Int = 0,
-	var isError: Boolean = false,
-	var messageError: String = "",
-	var isBuffering: Boolean = true,
-	var isPlaying: Boolean = false,
-	var position: Long = 0,
-	var duration: Long = 0,
-	var mimeType: String? = null,
+	val startWith: Long = 0,
+	val buffer: Int = 0,
+	val isError: Boolean = false,
+	val messageError: String = "",
+	val isBuffering: Boolean = true,
+	val isPlaying: Boolean = false,
+	val position: Long = 0,
+	val duration: Long = 0,
+	val mimeType: String? = null,
 
-	var subtitles: List<TrackModel> = emptyList(),
-	var audios: List<TrackModel> = emptyList(),
+	val subtitles: List<TrackModel> = emptyList(),
+	val audios: List<TrackModel> = emptyList(),
 	val sizeSubtitle: Float = 20f,
 	val positionSubtitle: Float = 0.1f,
-	var scaleMode: VideoScaleMode = VideoScaleMode.FILL,
+	val scaleMode: VideoScaleMode = VideoScaleMode.FILL,
+	val subtitleTextColor: Int = Color.WHITE,
+	val opacity: Int = 30,
 )

@@ -15,6 +15,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.alpha
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -24,6 +26,7 @@ import androidx.media3.ui.PlayerView
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.view.core.findActivity
+import kotlin.math.roundToInt
 
 @Composable
 fun SurfacePlayer(
@@ -79,9 +82,12 @@ fun SurfacePlayer(
 			}
 			val subView = view.subtitleView
 			view.resizeMode = state.scaleMode.scaleType
+			val opacity = 0.coerceAtLeast(
+				state.opacity.coerceAtMost(100));
+			val  alpha = (opacity * 255f / 100f).roundToInt();
 			val style = CaptionStyleCompat(
-				Color.WHITE,
-				Color.TRANSPARENT,
+				state.subtitleTextColor,
+				ColorUtils.setAlphaComponent(Color.BLACK, alpha),
 				Color.TRANSPARENT,
 				CaptionStyleCompat.EDGE_TYPE_OUTLINE,
 				Color.BLACK,

@@ -99,6 +99,8 @@ dependencies {
 	implementation(libs.androidx.material.icons.extended)
 	/// YOUTUBE PLAYER
 	implementation(libs.ytb)
+	/// DOWNLOADER
+	implementation(libs.prdownloader)
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.lifecycle.runtime.ktx)
 	implementation(libs.androidx.activity.compose)

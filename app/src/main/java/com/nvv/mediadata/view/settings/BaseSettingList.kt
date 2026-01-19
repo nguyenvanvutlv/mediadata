@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,14 +17,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nvv.mediadata.R
 import com.nvv.mediadata.view.core.ItemNavigation
 
 @Composable
 fun BaseSettingList(
 	navController: NavController
 ){
+	val subtitleDisplay = stringResource(R.string.subtitle_display)
+	val languageDisplay = stringResource(R.string.language_display)
 	Surface(
 		modifier = Modifier.fillMaxSize()
 	) {
@@ -50,7 +55,7 @@ fun BaseSettingList(
 						},
 						headline = {
 							Text(
-								text = "Language",
+								text = languageDisplay,
 								style = MaterialTheme.typography.titleMedium
 							)
 						},
@@ -63,7 +68,7 @@ fun BaseSettingList(
 					ItemNavigation(
 						leading = {
 							Icon(
-								imageVector = Icons.Rounded.Cast,
+								imageVector = Icons.Rounded.Subtitles,
 								contentDescription = null
 							)
 						},
@@ -75,12 +80,12 @@ fun BaseSettingList(
 						},
 						headline = {
 							Text(
-								text = "Cast setting",
+								text = subtitleDisplay,
 								style = MaterialTheme.typography.titleMedium
 							)
 						},
 						onClick = {
-							navController.navigate("settings/cast")
+							navController.navigate("settings/subtitle")
 						}
 					)
 				}

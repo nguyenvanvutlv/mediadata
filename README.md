@@ -25,7 +25,7 @@ modern formats and seamless TV casting.
 ## How to Use
 
 ### Download and Play
-Downloader Manager is designed to handle direct streaming links. When you open a video link from a browser or another app, select Downloader Manager to start downloading or playing immediately.
+Downloader Player is designed to handle direct streaming links. When you open a video link from a browser or another app, select Downloader Player to start downloading or playing immediately.
 
 ### Casting to TV
 Tap the Cast icon on the player to search for devices on the same Wi-Fi network. The app automatically analyzes the video's codec to ensure your TV can play both video and audio perfectly.

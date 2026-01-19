@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Downloader Player</string>
+    <string name="subtitle_display">Subtitle Setting</string>
+    <string name="language_display">Language</string>
+    <string name="leading_text_color">Subtitle text color</string>
+    <string name="leading_background_color_opacity">Background color opacity</string>
 </resources>

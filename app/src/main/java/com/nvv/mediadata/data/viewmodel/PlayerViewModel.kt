@@ -210,6 +210,17 @@ class PlayerViewModel @Inject constructor(
 		val mediaItems = links.map { buildMediaItem(it) }
 		_items.value = mediaItems
 		_player.value?.setMediaItems(mediaItems)
+		/// update state
+		_state.update {
+			it.copy(
+				position = 0L,
+				duration = 1L,
+
+				sizeSubtitle = Settings.getSubtitleSize(context),
+				positionSubtitle = Settings.getSubtitlePosition(context),
+				subtitleTextColor = Settings.getColor(context).toArgb(),
+			)
+		}
 	}
 
 	fun selectItem(index: Int) {

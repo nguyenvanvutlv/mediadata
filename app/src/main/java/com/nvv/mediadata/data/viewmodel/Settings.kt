@@ -2,6 +2,7 @@ package com.nvv.mediadata.data.viewmodel
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color as AndroidColor
 import com.nvv.mediadata.data.model.VideoScaleMode
 
 class Settings {
@@ -12,6 +13,8 @@ class Settings {
 		private const val CAST_INDEX = "cast_index"
 
 		//// player
+		private const val SUBTITLE_COLOR = "subtitle_color"
+		private const val BACKGROUND_COLOR_OPACITY = "background_color_opacity"
 		private const val SUBTITLE_SIZE = "subtitle_size"
 		private const val SUBTITLE_POSITION = "subtitle_position"
 		private const val SCALE_MODE = "scale_mode"
@@ -57,6 +60,24 @@ class Settings {
 
 		fun setScaleMode(context: Context, mode: VideoScaleMode) {
 			getSharedPreferences(context).edit().putString(SCALE_MODE, mode.displayName).apply()
+		}
+
+		fun getColor(context: Context) : AndroidColor {
+			return AndroidColor.valueOf(
+				getSharedPreferences(context).getInt(SUBTITLE_COLOR, AndroidColor.WHITE)
+			)
+		}
+
+		fun setColor(context: Context, color: AndroidColor) {
+			getSharedPreferences(context).edit().putInt(SUBTITLE_COLOR, color.toArgb()).apply()
+		}
+
+		fun getBackgroundColorOpacity(context: Context) : Int {
+			return getSharedPreferences(context).getInt(BACKGROUND_COLOR_OPACITY, 30)
+		}
+
+		fun setBackgroundColorOpacity(context: Context, opacity: Int) {
+			getSharedPreferences(context).edit().putInt(BACKGROUND_COLOR_OPACITY, opacity).apply()
 		}
 	}
 }

@@ -37,10 +37,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.downloader.PRDownloader
+import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.Destination
 import com.nvv.mediadata.data.provide.rememberNotificationViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.ui.theme.MediadataTheme
+import com.nvv.mediadata.view.core.KeepScreenOn
 import com.nvv.mediadata.view.player.PlayerView
 import com.nvv.mediadata.view.topbar.DefaultTopbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,15 +71,21 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		val configPRDownloader = PRDownloaderConfig.newBuilder()
+			.setReadTimeout(30_000)
+			.setConnectTimeout(30_000)
+			.setDatabaseEnabled(true)
+			.build()
+		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
-			val startDestination = Destination.SETTINGS
+			KeepScreenOn()
+			val startDestination = Destination.NETWORKS
 			val player = rememberPlayerViewModel()
 			val isPlay by player.isPlay.collectAsStateWithLifecycle()
 			val notificationViewModel = rememberNotificationViewModel()
 			val isOpenNotification by notificationViewModel.isOpen.collectAsStateWithLifecycle()
 			val messageNotification by notificationViewModel.message.collectAsStateWithLifecycle()
 			val navController = rememberNavController()
-//			val startDestination = Destination.NETWORKS
 			var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 			val snackBarHostState = remember { SnackbarHostState() }
 			LaunchedEffect(isOpenNotification) {
