@@ -4,7 +4,7 @@ A professional media player application for Android, built on [Media3](https://g
 
 ## Overview
 
-MediaData Player is a **neutral technical tool** designed for playing local media files and streaming content from legitimate sources. This application provides advanced playback capabilities while maintaining full compliance with content policies and copyright regulations.
+MediaData Player is a **technical tool** designed for playing local media files and streaming content from legitimate sources. This application provides advanced playback capabilities while maintaining full compliance with content policies and copyright regulations.
 
 **Important Notice**: This app is a media player only. It does not host, provide, or facilitate access to any copyrighted content. Users are solely responsible for ensuring they have legal rights to access and play any content through this application.
 
@@ -102,7 +102,7 @@ Long-press the subtitle button in the player for quick access.
 - **No Content Storage**: We do not host or provide any media content
 - **Transparent Permissions**: Only essential permissions required for core functionality
 
-For complete details, see our [Privacy Policy](#privacy-policy) and [Terms of Service](#terms-of-service).
+For complete details, see our [Privacy Policy](https://nguyenvanvutlv.github.io/mediadata/privacy-policy.html) and [Terms of Service](https://nguyenvanvutlv.github.io/mediadata/terms-of-service.html).
 
 ## User Responsibility
 
@@ -140,7 +140,7 @@ This application is designed to comply with:
 
 For technical support, feature requests, or policy inquiries:
 - **GitHub Issues**: [Issues](https://github.com/nguyenvanvutlv/mediadata/issues)
-- **Email**: [nguyenvanvu.tlvnvv@gmail.com](nguyenvanvu.tlvnvv@gmail.com)
+- **Email**: nguyenvanvu.tlvnvv@gmail.com
 - **Privacy Policy**: [PrivacyPolicy](https://nguyenvanvutlv.github.io/mediadata/privacy-policy.html)
 - **Terms of Service**: [TermsOfService](https://nguyenvanvutlv.github.io/mediadata/terms-of-service.html)
 
