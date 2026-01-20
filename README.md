@@ -139,10 +139,10 @@ This application is designed to comply with:
 ## Support & Contact
 
 For technical support, feature requests, or policy inquiries:
-- **GitHub Issues**: [Repository URL]
-- **Email**: [Your support email]
-- **Privacy Policy**: [GitHub Pages URL]/privacy-policy.html
-- **Terms of Service**: [GitHub Pages URL]/terms-of-service.html
+- **GitHub Issues**: [Issues](https://github.com/nguyenvanvutlv/mediadata/issues)
+- **Email**: [nguyenvanvu.tlvnvv@gmail.co](nguyenvanvu.tlvnvv@gmail.com)
+- **Privacy Policy**: [PrivacyPolicy](https://nguyenvanvutlv.github.io/mediadata/privacy-policy.html)
+- **Terms of Service**: [TermsOfService](https://nguyenvanvutlv.github.io/mediadata/terms-of-service.html)
 
 ## License
 
