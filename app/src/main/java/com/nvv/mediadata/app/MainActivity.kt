@@ -63,6 +63,8 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.C
+import androidx.media3.common.Player
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
@@ -129,9 +131,9 @@ class MainActivity : AppCompatActivity() {
 				while (true) {
 					player.player.value?.let { p ->
 						val hasVideo = p.currentTracks.groups.any { group ->
-							group.type == androidx.media3.common.C.TRACK_TYPE_VIDEO
+							group.type == C.TRACK_TYPE_VIDEO
 						}
-						isAudioPlaying = (p.isPlaying || p.playbackState == androidx.media3.common.Player.STATE_READY) && !hasVideo
+						isAudioPlaying = (p.isPlaying || p.playbackState == Player.STATE_READY) && !hasVideo
 					}
 					delay(500)
 				}
@@ -177,11 +179,16 @@ class MainActivity : AppCompatActivity() {
 				if (videoUri != null){
 					player.setURLs(listOf(videoUri.toString()))
 					player.selectItem(0)
-					videoUri = null
 				}
 			}
+			var hasPlayed by rememberSaveable { mutableStateOf(false) }
 			LaunchedEffect(isPlay) {
-				if (!isPlay) {
+				if (isPlay) {
+					hasPlayed = true
+				} else {
+					if (intent?.action == Intent.ACTION_VIEW && videoUri != null && hasPlayed) {
+						finish()
+					}
 					WindowCompat.setDecorFitsSystemWindows(window, false)
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 						window.attributes.layoutInDisplayCutoutMode = WindowManager

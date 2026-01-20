@@ -73,6 +73,7 @@ class PlaybackService : MediaSessionService() {
 				true
 			)
 			.setHandleAudioBecomingNoisy(true)
+			.setWakeMode(C.WAKE_MODE_NETWORK)
 			.build()
 		val preferredLang = Settings.getLanguages(this)
 		player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
@@ -147,7 +148,6 @@ class PlaybackService : MediaSessionService() {
 						needUpdate = true
 					}
 					if (!isTextSelected && firstTextGroup != null) {
-						Timber.tag("CAST_SUBTITLE").d("Found internal subtitle but none selected. Auto-enabling first text track.")
 						parametersBuilder.setOverrideForType(
 							TrackSelectionOverride(
 								firstTextGroup.mediaTrackGroup,
