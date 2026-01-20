@@ -140,7 +140,7 @@ This application is designed to comply with:
 
 For technical support, feature requests, or policy inquiries:
 - **GitHub Issues**: [Issues](https://github.com/nguyenvanvutlv/mediadata/issues)
-- **Email**: [nguyenvanvu.tlvnvv@gmail.co](nguyenvanvu.tlvnvv@gmail.com)
+- **Email**: [nguyenvanvu.tlvnvv@gmail.com](nguyenvanvu.tlvnvv@gmail.com)
 - **Privacy Policy**: [PrivacyPolicy](https://nguyenvanvutlv.github.io/mediadata/privacy-policy.html)
 - **Terms of Service**: [TermsOfService](https://nguyenvanvutlv.github.io/mediadata/terms-of-service.html)
 
