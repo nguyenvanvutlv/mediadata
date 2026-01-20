@@ -113,6 +113,7 @@ fun PlayerView(
 				context.findActivity()?.enterPictureInPictureMode(params)
 			}
 		}
+	val isCasting = player?.deviceInfo?.playbackType == androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE
 	LaunchedEffect(state.position) {
 		if (!isSeeking) {
 			v = state.position.toFloat() / max(1f, state.duration.toFloat())
@@ -142,13 +143,19 @@ fun PlayerView(
 
 				is DragInteraction.Stop, is DragInteraction.Cancel -> {
 					isSeeking = false
-					videoPlayerState.showControls(true)
+					if (!isCasting) {
+						videoPlayerState.showControls(true)
+					}
 				}
 			}
 		}
 	}
-	LaunchedEffect(Unit) {
-		videoPlayerState.showControls()
+	LaunchedEffect(Unit, isCasting) {
+		if (isCasting) {
+			videoPlayerState.showControls(isPlaying = false)
+		} else {
+			videoPlayerState.showControls()
+		}
 	}
 	BackHandler {
 		canPipMode = false
@@ -161,7 +168,7 @@ fun PlayerView(
 		Box(
 			Modifier.fillMaxSize()
 		) {
-			SurfacePlayer(modifier, isPipMode)
+			SurfacePlayer(modifier, isPipMode, isCasting)
 			Box(
 				Modifier
 					.fillMaxSize()
@@ -172,13 +179,17 @@ fun PlayerView(
 							Modifier
 						}
 					)
-					.pointerInput(Unit) {
+					.pointerInput(Unit, isCasting) {
 						detectTapGestures(
 							onTap = {
-								if (videoPlayerState.isControlsVisible) {
-									videoPlayerState.hideControls()
+								if (isCasting) {
+									videoPlayerState.showControls( isPlaying = false)
 								} else {
-									videoPlayerState.showControls(isPlaying = state.isPlaying)
+									if (videoPlayerState.isControlsVisible) {
+										videoPlayerState.hideControls()
+									} else {
+										videoPlayerState.showControls(isPlaying = state.isPlaying)
+									}
 								}
 							},
 							onPress = { offset ->

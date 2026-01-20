@@ -11,6 +11,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
@@ -92,6 +94,73 @@ class PlaybackService : MediaSessionService() {
 		try {
 			castContext = CastContext.getSharedInstance(this)
 			castPlayer = CastPlayer.Builder(this).build()
+			castPlayer.addListener(object : Player.Listener {
+				override fun onTracksChanged(tracks: Tracks) {
+					val groups = tracks.groups
+					// Audio Selection Logic
+					var isSupportedAudioSelected = false
+					var fallbackAudioGroup: Tracks.Group? = null
+					var fallbackAudioIndex = -1
+					var isTextSelected = false
+					var firstTextGroup: Tracks.Group? = null
+					var firstTextIndex = -1
+					for (group in groups) {
+						if (group.type == C.TRACK_TYPE_AUDIO) {
+							for (i in 0 until group.length) {
+								val isSelected = group.isTrackSelected(i)
+								val mime = group.getTrackFormat(i).sampleMimeType
+								val isSupported = mime == MimeTypes.AUDIO_AAC ||
+										mime == MimeTypes.AUDIO_MPEG ||
+										mime == MimeTypes.AUDIO_OPUS ||
+										mime == MimeTypes.AUDIO_VORBIS
+
+								if (isSelected && isSupported) {
+									isSupportedAudioSelected = true
+								}
+								if (fallbackAudioGroup == null && isSupported) {
+									fallbackAudioGroup = group
+									fallbackAudioIndex = i
+								}
+							}
+						} else if (group.type == C.TRACK_TYPE_TEXT) {
+							for (i in 0 until group.length) {
+								if (group.isTrackSelected(i)) {
+									isTextSelected = true
+								}
+								if (firstTextGroup == null) {
+									firstTextGroup = group
+									firstTextIndex = i
+								}
+							}
+						}
+					}
+
+					val parametersBuilder = castPlayer.trackSelectionParameters.buildUpon()
+					var needUpdate = false
+					if (!isSupportedAudioSelected && fallbackAudioGroup != null) {
+						parametersBuilder.setOverrideForType(
+							TrackSelectionOverride(
+								fallbackAudioGroup.mediaTrackGroup,
+								fallbackAudioIndex
+							)
+						)
+						needUpdate = true
+					}
+					if (!isTextSelected && firstTextGroup != null) {
+						Timber.tag("CAST_SUBTITLE").d("Found internal subtitle but none selected. Auto-enabling first text track.")
+						parametersBuilder.setOverrideForType(
+							TrackSelectionOverride(
+								firstTextGroup.mediaTrackGroup,
+								firstTextIndex
+							)
+						)
+						needUpdate = true
+					}
+					if (needUpdate) {
+						castPlayer.trackSelectionParameters = parametersBuilder.build()
+					}
+				}
+			})
 			setupCastListener(castContext)
 		} catch (e: Exception) {
 			Timber.e(e)
@@ -103,15 +172,12 @@ class PlaybackService : MediaSessionService() {
 			override fun onSessionStarted(session: CastSession, sessionId: String) {
 				swapPlayer(castPlayer)
 			}
-
 			override fun onSessionEnded(session: CastSession, error: Int) {
 				swapPlayer(player)
 			}
-
 			override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
 				swapPlayer(castPlayer)
 			}
-
 			override fun onSessionStarting(session: CastSession) {}
 			override fun onSessionStartFailed(session: CastSession, error: Int) {}
 			override fun onSessionEnding(session: CastSession) {}
@@ -153,16 +219,19 @@ class PlaybackService : MediaSessionService() {
 					}
 				}
 
+				val originalMime = oldItem.localConfiguration?.mimeType
 				val finalMime = when {
+					originalMime == MimeTypes.APPLICATION_MATROSKA || originalMime == "video/x-matroska" -> originalMime
+					originalMime == MimeTypes.VIDEO_WEBM -> originalMime
 					videoMime?.contains("avc") == true || videoMime?.contains("h264") == true || videoMime?.contains("mp4") == true -> MimeTypes.VIDEO_MP4
 					videoMime?.contains("hevc") == true || videoMime?.contains("h265") == true -> MimeTypes.VIDEO_MP4
 					videoMime?.contains("vp9") == true || videoMime?.contains("webm") == true -> MimeTypes.VIDEO_WEBM
 					videoMime?.contains("matroska") == true || videoMime?.contains("x-matroska") == true -> "video/x-matroska"
 					audioMime?.contains("mpeg") == true || audioMime?.contains("mp3") == true -> MimeTypes.AUDIO_MPEG
 					audioMime?.contains("aac") == true -> MimeTypes.AUDIO_AAC
-					else -> oldItem.localConfiguration?.mimeType
+					else -> originalMime
 				}
-
+				Timber.tag("MIME_TYPE").d(finalMime.toString())
 				if (finalMime != null) {
 					builder.setMimeType(finalMime)
 				} else if (oldItem.localConfiguration?.uri?.toString()?.startsWith("http") == true) {

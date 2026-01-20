@@ -169,4 +169,4 @@ This project uses the following open-source libraries:
 
 ---
 
-**Disclaimer**: MediaData Player is a neutral media playback tool. It does not host, provide, endorse, or facilitate access to any specific content. All content accessed through this application is provided by users themselves. The developers bear no responsibility for content accessed, downloaded, or shared through this application. Users must comply with all applicable laws and respect intellectual property rights.
+**Disclaimer**: MediaData Player is a media playback tool. It does not host, provide, endorse, or facilitate access to any specific content. All content accessed through this application is provided by users themselves. The developers bear no responsibility for content accessed, downloaded, or shared through this application. Users must comply with all applicable laws and respect intellectual property rights.
