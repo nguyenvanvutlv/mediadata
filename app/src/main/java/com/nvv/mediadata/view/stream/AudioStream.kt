@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nvv.mediadata.R
+import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 
 @Composable
@@ -45,6 +46,7 @@ fun AudioStream(
 ){
 	var url by remember { mutableStateOf("") }
 	val player = rememberPlayerViewModel()
+	val historyViewModel = rememberHistoryViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
 	val playButtonLabel = stringResource(R.string.play_button_label)
@@ -97,9 +99,10 @@ fun AudioStream(
 					onClick = {
 						localKeyword?.hide()
 						if (url.isNotBlank()) {
+							val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Audio Stream" }
+							historyViewModel.insertHistory(title, url)
 							player.setURLs(listOf(url))
 							player.selectAudioItem(0)
-							navController.navigate("audio_player")
 						}
 					},
 					modifier = Modifier.fillMaxWidth(0.8f)

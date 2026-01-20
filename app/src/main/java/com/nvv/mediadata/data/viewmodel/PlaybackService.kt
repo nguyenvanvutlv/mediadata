@@ -1,10 +1,8 @@
 package com.nvv.mediadata.data.viewmodel
 
 import android.app.PendingIntent
-import android.content.Context
 import androidx.annotation.OptIn
 import androidx.media3.cast.CastPlayer
-import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -14,7 +12,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -64,7 +61,8 @@ class PlaybackService : MediaSessionService() {
 			.setRenderersFactory(renderersFactory)
 			.setTrackSelector(trackSelector)
 			.setLoadControl(loadControl)
-			.setMediaSourceFactory(DefaultMediaSourceFactory(this).setDataSourceFactory(dataSourceFactory))
+			.setMediaSourceFactory(DefaultMediaSourceFactory(this)
+				.setDataSourceFactory(dataSourceFactory))
 			.setAudioAttributes(
 				AudioAttributes.Builder()
 					.setUsage(C.USAGE_MEDIA)
@@ -256,6 +254,20 @@ class PlaybackService : MediaSessionService() {
 
 	override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
 		return mediaSession
+	}
+
+	override fun onTaskRemoved(rootIntent: android.content.Intent?) {
+		player.let {
+			if (it.playWhenReady) {
+				it.pause()
+			}
+			it.stop()
+			it.release()
+		}
+		mediaSession?.release()
+		mediaSession = null
+		stopSelf()
+		super.onTaskRemoved(rootIntent)
 	}
 
 	override fun onDestroy() {

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.nvv.mediadata.R
+import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 
 @Composable
@@ -46,6 +47,7 @@ fun NetworkStream(
 	var url by remember { mutableStateOf(
 		"") }
 	val player = rememberPlayerViewModel()
+	val historyViewModel = rememberHistoryViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
 	
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
@@ -100,6 +102,8 @@ fun NetworkStream(
 					onClick = {
 						localKeyword?.hide()
 						if (url.isNotBlank()) {
+							val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Stream Link" }
+							historyViewModel.insertHistory(title, url)
 							player.setURLs(listOf(url))
 							player.selectItem(0)
 						}

@@ -48,4 +48,7 @@
     <string name="short_detail">A media player tool for local and network media</string>
     <string name="privacy_policy_support_content">No data collection • No tracking</string>
     <string name="term_support_content">User responsibilities and legal terms</string>
+    <string name="delete_history_title">Delete History</string>
+    <string name="delete_history_message">Are you sure you want to delete this link?</string>
+    <string name="search_history_title">Search history...</string>
 </resources>

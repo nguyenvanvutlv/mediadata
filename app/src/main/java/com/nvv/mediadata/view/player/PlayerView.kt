@@ -298,6 +298,21 @@ fun PlayerView(
 								)
 							}
 							Spacer(Modifier.width(10.dp))
+							IconButton(
+								onClick = {
+									vm.toggleVideo(false)
+									vm.setPlayMode(false) // Exit full player to show mini player
+								}
+							) {
+								Icon(
+									imageVector = Icons.Rounded.Audiotrack,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(Modifier.width(10.dp))
 							CastButton(
 								modifier = Modifier.size(40.dp),
 							)

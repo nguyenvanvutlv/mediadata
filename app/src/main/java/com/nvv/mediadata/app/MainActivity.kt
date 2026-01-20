@@ -130,10 +130,10 @@ class MainActivity : AppCompatActivity() {
 			LaunchedEffect(player.player.collectAsStateWithLifecycle().value) {
 				while (true) {
 					player.player.value?.let { p ->
-						val hasVideo = p.currentTracks.groups.any { group ->
-							group.type == C.TRACK_TYPE_VIDEO
+						val hasVideoSelected = p.currentTracks.groups.any { group ->
+							group.type == C.TRACK_TYPE_VIDEO && group.isSelected
 						}
-						isAudioPlaying = (p.isPlaying || p.playbackState == Player.STATE_READY) && !hasVideo
+						isAudioPlaying = (p.isPlaying || p.playbackState == Player.STATE_READY) && !hasVideoSelected
 					}
 					delay(500)
 				}
@@ -283,10 +283,8 @@ class MainActivity : AppCompatActivity() {
 					MiniAudioPlayer(
 						visible = isAudioPlaying && !isPlay,
 						onNavigateToPlayer = {
-							if (selectedDestination != Destination.NETWORKS.ordinal) {
-								navController.navigate(Destination.NETWORKS.route)
-								selectedDestination = Destination.NETWORKS.ordinal
-							}
+							player.toggleVideo(true)
+							player.setPlayMode(true)
 						},
 						modifier = Modifier
 							.align(androidx.compose.ui.Alignment.BottomCenter)

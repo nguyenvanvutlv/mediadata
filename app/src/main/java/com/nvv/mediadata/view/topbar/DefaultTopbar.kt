@@ -34,6 +34,9 @@ fun DefaultTopbar(
 						)
 					}
 				}
+				Destination.HISTORY -> {
+
+				}
 				Destination.NETWORKS -> {
 
 				}

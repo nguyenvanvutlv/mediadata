@@ -242,6 +242,7 @@ class PlayerViewModel @Inject constructor(
 		_player.value?.let { p ->
 			val preferredLang = Settings.getLanguages(context)
 			p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
+				.setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
 				.setPreferredAudioLanguage(preferredLang)
 				.setPreferredTextLanguage(preferredLang)
 				.build()
@@ -383,6 +384,19 @@ class PlayerViewModel @Inject constructor(
 			)
 		}
 		Settings.setScaleMode(context, newAspect)
+	}
+
+	fun toggleVideo(enabled: Boolean) {
+		_player.value?.let { p ->
+			p.trackSelectionParameters = p.trackSelectionParameters
+				.buildUpon()
+				.setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, !enabled)
+				.build()
+		}
+	}
+
+	fun setPlayMode(isPlay: Boolean) {
+		_isPlay.value = isPlay
 	}
 
 	fun stop() {

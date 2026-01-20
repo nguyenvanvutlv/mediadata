@@ -4,6 +4,7 @@ plugins {
 	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.hilt)
 	alias(libs.plugins.ksp)
+	id("androidx.room") version "2.7.1"
 }
 
 android {
@@ -46,12 +47,16 @@ android {
 		compose = true
 		buildConfig = true
 	}
+	room {
+		schemaDirectory("$projectDir/schemas")
+	}
 }
 
 dependencies {
 	implementation(libs.androidx.compose.foundation)
 	implementation(libs.androidx.appcompat.resources)
 	implementation(libs.androidx.appcompat)
+	implementation(libs.androidx.compose.foundation.layout)
 	// PLAYER
 	val media3 = "1.9.0"
 	implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
@@ -100,6 +105,15 @@ dependencies {
 	implementation(libs.androidx.lifecycle.viewmodel.compose)
 	// TIMBER
 	implementation(libs.timber)
+	//// ROOM DATABASE
+	implementation(libs.androidx.paging.common)
+	implementation(libs.androidx.room.paging)
+	implementation(libs.androidx.room.runtime)
+	ksp(libs.androidx.room.compiler)
+	implementation(libs.androidx.room.ktx)
+	implementation(libs.androidx.paging.compose)
+
+
 	implementation(libs.androidx.material.icons.extended)
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.lifecycle.runtime.ktx)
