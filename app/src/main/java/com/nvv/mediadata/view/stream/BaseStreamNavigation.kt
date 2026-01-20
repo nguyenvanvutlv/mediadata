@@ -135,7 +135,7 @@ fun BaseStreamNavigation(
 						)
 					}
 					){
-						navController.navigate("stream/download")
+						navController.navigate("stream/save")
 					}
 				}
 			}

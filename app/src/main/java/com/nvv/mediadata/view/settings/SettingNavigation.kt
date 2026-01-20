@@ -48,7 +48,7 @@ fun SettingNavigation(){
 			SettingSubtitleNavigation(navController)
 		}
 		composable(route = "settings/theme"){
-			SettingTheme()
+			SettingTheme(navController = navController, onThemeChanged = {})
 		}
 		composable(route = "settings/privacy"){
 			PrivacyPolicy(navController)

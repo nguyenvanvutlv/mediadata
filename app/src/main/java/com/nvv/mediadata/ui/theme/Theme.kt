@@ -26,14 +26,21 @@ private val LightColorScheme = lightColorScheme(
 fun MediadataTheme(
 	darkTheme: Boolean = isSystemInDarkTheme(),
 	dynamicColor: Boolean = true,
+	themeMode: com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode = com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.SYSTEM,
 	content: @Composable () -> Unit
 ) {
 	val colorScheme = when {
 		dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
 			val context = LocalContext.current
-			if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+			val isDark = when(themeMode) {
+				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.SYSTEM -> darkTheme
+				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.DARK -> true
+				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.LIGHT -> false
+			}
+			if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 		}
-
+		themeMode == com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.DARK -> DarkColorScheme
+		themeMode == com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.LIGHT -> LightColorScheme
 		darkTheme -> DarkColorScheme
 		else -> LightColorScheme
 	}

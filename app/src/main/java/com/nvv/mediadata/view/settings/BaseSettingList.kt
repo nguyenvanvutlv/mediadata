@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +43,7 @@ fun BaseSettingList(
 					ItemNavigation(
 						leading = {
 							Icon(
-								imageVector = Icons.Rounded.Subtitles,
+								imageVector = androidx.compose.material.icons.Icons.Rounded.Subtitles,
 								contentDescription = null
 							)
 						},
@@ -60,6 +61,38 @@ fun BaseSettingList(
 						},
 						onClick = {
 							navController.navigate("settings/subtitle")
+						}
+					)
+				}
+				item{
+					ItemNavigation(
+						leading = {
+							Icon(
+								imageVector = Icons.Rounded.Palette,
+								contentDescription = null
+							)
+						},
+						trailing = {
+							Icon(
+								imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
+								contentDescription = null
+							)
+						},
+						headline = {
+							Text(
+								text = "Theme",
+								style = MaterialTheme.typography.titleMedium
+							)
+						},
+						supportingContent = {
+							Text(
+								text = "Light / Dark / System",
+								style = MaterialTheme.typography.bodySmall,
+								color = MaterialTheme.colorScheme.primary
+							)
+						},
+						onClick = {
+							navController.navigate("settings/theme")
 						}
 					)
 				}

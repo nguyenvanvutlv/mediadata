@@ -22,6 +22,11 @@ class Settings {
 		private const val SUBTITLE_SIZE = "subtitle_size"
 		private const val SUBTITLE_POSITION = "subtitle_position"
 		private const val SCALE_MODE = "scale_mode"
+		private const val THEME_MODE = "theme_mode"
+
+		enum class ThemeMode {
+			SYSTEM, LIGHT, DARK
+		}
 
 
 		private fun getSharedPreferences(context: Context): SharedPreferences {
@@ -90,6 +95,19 @@ class Settings {
 
 		fun setPath(context: Context, path: String) {
 			getSharedPreferences(context).edit { putString(FOLDER, path) }
+		}
+
+		fun getThemeMode(context: Context): ThemeMode {
+			val modeName = getSharedPreferences(context).getString(THEME_MODE, ThemeMode.SYSTEM.name)
+			return try {
+				ThemeMode.valueOf(modeName ?: ThemeMode.SYSTEM.name)
+			} catch (e: Exception) {
+				ThemeMode.SYSTEM
+			}
+		}
+
+		fun setThemeMode(context: Context, mode: ThemeMode) {
+			getSharedPreferences(context).edit { putString(THEME_MODE, mode.name) }
 		}
 	}
 }

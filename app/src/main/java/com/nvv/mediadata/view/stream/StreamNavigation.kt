@@ -71,8 +71,8 @@ fun StreamNavigation() {
 				navController
 			)
 		}
-		composable(route = "stream/download") {
-			DownloadStream(navController)
+		composable(route = "stream/save") {
+			SaveFileStream(navController)
 		}
 		composable(route = "stream/network") {
 			NetworkStream(navController)

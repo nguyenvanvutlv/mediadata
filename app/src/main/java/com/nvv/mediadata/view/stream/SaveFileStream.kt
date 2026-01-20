@@ -47,7 +47,7 @@ import com.nvv.mediadata.data.provide.rememberFileViewModel
 import com.nvv.mediadata.data.viewmodel.Settings
 
 @Composable
-fun DownloadStream(
+fun SaveFileStream(
 	navController: NavHostController,
 ){
 	val fileNameTitle = stringResource(R.string.file_name_title)

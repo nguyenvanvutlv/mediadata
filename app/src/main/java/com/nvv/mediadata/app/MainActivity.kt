@@ -60,7 +60,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
@@ -121,6 +123,7 @@ class MainActivity : AppCompatActivity() {
 			var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 			val snackBarHostState = remember { SnackbarHostState() }
 			val context = rememberContext()
+			var themeMode by remember { mutableStateOf(Settings.getThemeMode(context)) }
 			var isAudioPlaying by remember { mutableStateOf(false) }
 			LaunchedEffect(player.player.collectAsStateWithLifecycle().value) {
 				while (true) {
@@ -191,24 +194,39 @@ class MainActivity : AppCompatActivity() {
 					controller.show(WindowInsetsCompat.Type.navigationBars())
 				}
 			}
-			MediadataTheme {
-				Scaffold(
-					topBar = {
-						AnimatedVisibility(
-							visible = !isPlay,
-							enter = slideInVertically(initialOffsetY = { -it }),
-							exit = slideOutVertically(targetOffsetY = { -it }),
-						) {
-							DefaultTopbar(
-								destination = Destination.entries[selectedDestination],
-								openFolder = {
-									launcherSelectFolder.launch(null)
-								}
-							)
-						}
-					},
-					bottomBar = {
-						Box {
+			val listener = remember {
+				android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+					if (key == "theme_mode") {
+						themeMode = Settings.getThemeMode(context)
+					}
+				}
+			}
+			DisposableEffect(Unit) {
+				val prefs = context.getSharedPreferences("com.nvv.mediadata", MODE_PRIVATE)
+				prefs.registerOnSharedPreferenceChangeListener(listener)
+				onDispose {
+					prefs.unregisterOnSharedPreferenceChangeListener(listener)
+				}
+			}
+
+			MediadataTheme(themeMode = themeMode) {
+				Box(modifier = Modifier.fillMaxSize()) {
+					Scaffold(
+						topBar = {
+							AnimatedVisibility(
+								visible = !isPlay,
+								enter = slideInVertically(initialOffsetY = { -it }),
+								exit = slideOutVertically(targetOffsetY = { -it }),
+							) {
+								DefaultTopbar(
+									destination = Destination.entries[selectedDestination],
+									openFolder = {
+										launcherSelectFolder.launch(null)
+									}
+								)
+							}
+						},
+						bottomBar = {
 							AnimatedVisibility(
 								visible = !isPlay,
 								enter = slideInVertically(initialOffsetY = { it }),
@@ -236,46 +254,50 @@ class MainActivity : AppCompatActivity() {
 									}
 								}
 							}
-							
-							MiniAudioPlayer(
-								visible = isAudioPlaying && !isPlay,
-								onNavigateToPlayer = {
-									if (selectedDestination != Destination.NETWORKS.ordinal) {
-										navController.navigate(Destination.NETWORKS.route)
-										selectedDestination = Destination.NETWORKS.ordinal
-									}
-								}
-							)
-						}
-					},
-					snackbarHost = {
-						SnackbarHost(snackBarHostState)
-					},
-					contentWindowInsets = WindowInsets(0, 0, 0, 0),
-				) {
-					Surface(
-						modifier = Modifier
-							.fillMaxSize()
-							.padding(it),
+						},
+						snackbarHost = {
+							SnackbarHost(snackBarHostState)
+						},
+						contentWindowInsets = WindowInsets(0, 0, 0, 0),
 					) {
-						Box(
-							Modifier.fillMaxSize()
+						Surface(
+							modifier = Modifier
+								.fillMaxSize()
+								.padding(it),
 						) {
-							AppNavHost(navController, startDestination)
+							Box(
+								Modifier.fillMaxSize()
+							) {
+								AppNavHost(navController, startDestination)
+							}
 						}
 					}
-				}
-				AnimatedVisibility(
-					visible = isPlay,
-					modifier = Modifier.fillMaxSize(),
-					enter = fadeIn(),
-					exit = fadeOut()
-				) {
-					PlayerView(
+					
+					MiniAudioPlayer(
+						visible = isAudioPlaying && !isPlay,
+						onNavigateToPlayer = {
+							if (selectedDestination != Destination.NETWORKS.ordinal) {
+								navController.navigate(Destination.NETWORKS.route)
+								selectedDestination = Destination.NETWORKS.ordinal
+							}
+						},
 						modifier = Modifier
-							.fillMaxSize()
-							.background(Color.Black),
+							.align(androidx.compose.ui.Alignment.BottomCenter)
+							.padding(bottom = 80.dp) 
 					)
+
+					AnimatedVisibility(
+						visible = isPlay,
+						modifier = Modifier.fillMaxSize(),
+						enter = fadeIn(),
+						exit = fadeOut()
+					) {
+						PlayerView(
+							modifier = Modifier
+								.fillMaxSize()
+								.background(Color.Black),
+						)
+					}
 				}
 			}
 		}

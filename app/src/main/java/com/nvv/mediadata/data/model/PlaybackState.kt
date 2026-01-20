@@ -43,4 +43,5 @@ data class PlaybackState(
 	val scaleMode: VideoScaleMode = VideoScaleMode.FILL,
 	val subtitleTextColor: Int = Color.WHITE,
 	val opacity: Int = 30,
+	val speed: Float = 1f
 )

@@ -43,7 +43,8 @@ import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 fun NetworkStream(
 	navController: NavHostController,
 ) {
-	var url by remember { mutableStateOf("") }
+	var url by remember { mutableStateOf(
+		"") }
 	val player = rememberPlayerViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
 	

@@ -2,12 +2,19 @@ package com.nvv.mediadata.view.file
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.FolderOff
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -15,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -87,53 +95,97 @@ fun LocalFileNavigation() {
 	Surface(
 		Modifier.fillMaxSize()
 	) {
-		Box(
+		Column(
 			Modifier.fillMaxSize()
-		){
-			LazyColumn(
-				modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
-				verticalArrangement = Arrangement.spacedBy(8.dp),
-				horizontalAlignment = Alignment.CenterHorizontally
-			) {
-				itemsIndexed(files.files) { index, file ->
-					Card(
+		) {
+			OutlinedTextField(
+				value = files.searchQuery,
+				onValueChange = { fileViewModel.onSearchQueryChanged(it) },
+				modifier = Modifier.fillMaxWidth()
+					.padding(16.dp),
+				placeholder = { Text("Search files...") },
+				leadingIcon = {
+					Icon(Icons.Default.Search, contentDescription = null)
+				},
+				singleLine = true,
+				shape = RoundedCornerShape(12.dp)
+			)
+
+			Box(
+				Modifier.weight(1f)
+			){
+				if (files.files.isEmpty()) {
+					Column(
 						modifier = Modifier.fillMaxSize(),
-						elevation = CardDefaults.cardElevation(
-							defaultElevation = 2.dp
-						),
-						colors = CardDefaults.cardColors(
-							containerColor = MaterialTheme.colorScheme.surfaceVariant
-						)
+						verticalArrangement = Arrangement.Center,
+						horizontalAlignment = Alignment.CenterHorizontally
 					) {
-						ItemNavigation(
-							leading = {},
-							headline = {
-								ScrollableText(
-									file.name.toString(),
-									modifier = Modifier
+						Icon(
+							imageVector = Icons.Rounded.FolderOff,
+							contentDescription = null,
+							modifier = Modifier.size(64.dp),
+							tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+						)
+						Spacer(modifier = Modifier.height(16.dp))
+						Text(
+							text = "No files found",
+							style = MaterialTheme.typography.titleMedium,
+							color = MaterialTheme.colorScheme.onSurfaceVariant
+						)
+						Spacer(modifier = Modifier.height(8.dp))
+						Text(
+							text = if (files.searchQuery.isNotEmpty()) "Try a different search query" else "This folder is empty",
+							style = MaterialTheme.typography.bodyMedium,
+							color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+						)
+					}
+				} else {
+					LazyColumn(
+						modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+						verticalArrangement = Arrangement.spacedBy(8.dp),
+						horizontalAlignment = Alignment.CenterHorizontally
+					) {
+						itemsIndexed(files.files) { index, file ->
+							Card(
+								modifier = Modifier.fillMaxSize(),
+								elevation = CardDefaults.cardElevation(
+									defaultElevation = 2.dp
+								),
+								colors = CardDefaults.cardColors(
+									containerColor = MaterialTheme.colorScheme.surfaceVariant
 								)
-							},
-							trailing = {
-								IconButton(
-									onClick = {
-										fileToDelete = file
-										showDeleteDialog = true
+							) {
+								ItemNavigation(
+									leading = {},
+									headline = {
+										ScrollableText(
+											file.name.toString(),
+											modifier = Modifier
+										)
+									},
+									trailing = {
+										IconButton(
+											onClick = {
+												fileToDelete = file
+												showDeleteDialog = true
+											}
+										) {
+											Icon(
+												imageVector = Icons.Rounded.Delete,
+												contentDescription = deleteButton,
+												tint = MaterialTheme.colorScheme.error,
+												modifier = Modifier.size(24.dp)
+											)
+										}
 									}
-								) {
-									Icon(
-										imageVector = Icons.Rounded.Delete,
-										contentDescription = deleteButton,
-										tint = MaterialTheme.colorScheme.error,
-										modifier = Modifier.size(24.dp)
+								){
+									val link = file.uri.toString()
+									playViewModel.setURLs(
+										links = listOf(link)
 									)
+									playViewModel.selectItem(0)
 								}
 							}
-						){
-							val link = file.uri.toString()
-							playViewModel.setURLs(
-								links = listOf(link)
-							)
-							playViewModel.selectItem(0)
 						}
 					}
 				}

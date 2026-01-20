@@ -33,6 +33,7 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import androidx.core.net.toUri
+import androidx.media3.common.PlaybackParameters
 
 @OptIn(UnstableApi::class)
 @HiltViewModel
@@ -219,12 +220,19 @@ class PlayerViewModel @Inject constructor(
 			it.copy(
 				position = 0L,
 				duration = 1L,
-
+				speed = 1f, // Default speed
 				sizeSubtitle = Settings.getSubtitleSize(context),
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
 				scaleMode = Settings.getScaleMode(context)
 			)
+		}
+	}
+	
+	fun setPlaybackSpeed(speed: Float) {
+		_player.value?.let { p ->
+			p.playbackParameters = PlaybackParameters(speed)
+			_state.update { it.copy(speed = speed) }
 		}
 	}
 
@@ -350,11 +358,13 @@ class PlayerViewModel @Inject constructor(
 
 	fun updateSubtitleSize(size: Float) {
 		_state.update { it.copy(sizeSubtitle = size) }
+		Timber.tag("size").d(size.toString())
 		Settings.setSubtitleSize(context, size)
 	}
 
 	fun updateSubtitlePosition(position: Float) {
 		_state.update { it.copy(positionSubtitle = position) }
+		Timber.tag("position").d(position.toString())
 		Settings.setSubtitlePosition(context, position)
 	}
 

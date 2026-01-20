@@ -8,6 +8,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -46,10 +48,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -87,11 +87,7 @@ fun PlayerView(
 	val vm = rememberPlayerViewModel()
 	val player by vm.player.collectAsStateWithLifecycle()
 	val state by vm.state.collectAsStateWithLifecycle()
-	
 	val fastForwardLabel = stringResource(R.string.fast_forward_label)
-	val subtitleSettingsTitle = stringResource(R.string.subtitle_settings_title)
-	val audioTrackTitle = stringResource(R.string.audio_track_title)
-	val subtitleTrackTitle = stringResource(R.string.subtitle_track_title)
 	var v by remember {
 		mutableFloatStateOf(
 			state.position.toFloat() / max(1f, state.duration.toFloat())
@@ -106,11 +102,7 @@ fun PlayerView(
 	var videoViewBounds by remember { mutableStateOf(Rect()) }
 	val isPipMode = rememberIsInPipMode()
 	var canPipMode by remember { mutableStateOf(true) }
-
-	var showAudioTracks by remember { mutableStateOf(false) }
-	var showSubtitleTracks by remember { mutableStateOf(false) }
 	var showSettings by remember { mutableStateOf(false) }
-	val sheetState = rememberModalBottomSheetState()
 
 	val onPipMode = {
 			val params = PictureInPictureParams.Builder()
@@ -414,31 +406,6 @@ fun PlayerView(
 							horizontalArrangement = Arrangement.Start,
 							verticalAlignment = Alignment.CenterVertically
 						) {
-							IconButton({
-								showSubtitleTracks = true
-							}) {
-								Icon(
-									imageVector = Icons.Rounded.Subtitles,
-									contentDescription = null,
-									tint = Color.White,
-									modifier = Modifier
-										.size(30.dp)
-								)
-							}
-							Spacer(
-								Modifier.width(20.dp)
-							)
-							IconButton({
-								showAudioTracks = true
-							}) {
-								Icon(
-									imageVector = Icons.Rounded.Audiotrack,
-									contentDescription = null,
-									tint = Color.White,
-									modifier = Modifier
-										.size(30.dp)
-								)
-							}
 							Spacer(
 								Modifier.width(20.dp)
 							)
@@ -457,104 +424,25 @@ fun PlayerView(
 						Spacer(Modifier.height(20.dp))
 					}
 				}
-				AnimatedVisibility(
-					showSettings,
-					Modifier, enter = slideInVertically(
-						initialOffsetY = { fullHeight -> fullHeight }
-					) + fadeIn(
-						initialAlpha = 0.3f
-					), exit = slideOutVertically(
-						targetOffsetY = { fullHeight -> fullHeight }
-					) + fadeOut()){
-					ModalBottomSheet(
-						onDismissRequest = { showSettings = false },
-						sheetState = sheetState
+				if (showSettings) {
+					Box(
+						modifier = Modifier
+							.fillMaxSize()
+							.background(Color.Black.copy(alpha = 0.5f))
+							.pointerInput(Unit) {
+								detectTapGestures(onTap = { showSettings = false })
+							},
+						contentAlignment = Alignment.Center
 					) {
-						Column(modifier = Modifier.padding(16.dp)) {
-							Text(subtitleSettingsTitle, style = MaterialTheme.typography.titleLarge)
-							Spacer(Modifier.height(16.dp))
-
-							Text(stringResource(R.string.subtitle_size_label, state.sizeSubtitle.toInt()))
-							androidx.compose.material3.Slider(
-								value = state.sizeSubtitle,
-								onValueChange = { vm.updateSubtitleSize(it) },
-								valueRange = 10f..40f,
-								modifier = Modifier.fillMaxWidth()
+						AnimatedVisibility(
+							visible = showSettings,
+							enter = fadeIn() + scaleIn(initialScale = 0.9f),
+							exit = fadeOut() + scaleOut(targetScale = 0.9f)
+						) {
+							SettingPlayer(
+								viewModel = vm,
+								onDismiss = { showSettings = false }
 							)
-
-							Spacer(Modifier.height(16.dp))
-
-							Text(stringResource(R.string.subtitle_position_label, (state.positionSubtitle * 100).toInt()))
-							androidx.compose.material3.Slider(
-								value = state.positionSubtitle,
-								onValueChange = { vm.updateSubtitlePosition(it) },
-								valueRange = 0f..0.5f,
-								modifier = Modifier.fillMaxWidth()
-							)
-
-							Spacer(Modifier.height(32.dp))
-						}
-					}
-				}
-				//// TRACK
-				AnimatedVisibility(
-					showAudioTracks,
-					Modifier, enter = slideInVertically(
-						initialOffsetY = { fullHeight -> fullHeight }
-					) + fadeIn(
-						initialAlpha = 0.3f
-					), exit = slideOutVertically(
-						targetOffsetY = { fullHeight -> fullHeight }
-					) + fadeOut()){
-					ModalBottomSheet(
-						onDismissRequest = { showAudioTracks = false },
-						sheetState = sheetState
-					) {
-						Column(modifier = Modifier.padding(16.dp)) {
-							Text(audioTrackTitle, style = MaterialTheme.typography.titleLarge)
-							Spacer(Modifier.height(16.dp))
-							vm.getAudioTracks().forEachIndexed { index, track ->
-								ListItem(
-									headlineContent = { Text(track) },
-									modifier = Modifier.pointerInput(Unit) {
-										detectTapGestures(onTap = {
-											vm.selectAudioTrack(index)
-											showAudioTracks = false
-										})
-									},
-								)
-							}
-						}
-					}
-				}
-				AnimatedVisibility(
-					showSubtitleTracks,
-					Modifier, enter = slideInVertically(
-						initialOffsetY = { fullHeight -> fullHeight }
-					) + fadeIn(
-						initialAlpha = 0.3f
-					), exit = slideOutVertically(
-						targetOffsetY = { fullHeight -> fullHeight }
-					) + fadeOut()){
-					ModalBottomSheet(
-						onDismissRequest = { showSubtitleTracks = false },
-						sheetState = sheetState
-					) {
-						Column(modifier = Modifier.padding(16.dp)) {
-							Text(subtitleTrackTitle, style = MaterialTheme.typography.titleLarge)
-							Spacer(Modifier.height(16.dp))
-
-							vm.getSubtitleTracks().forEachIndexed { index, track ->
-								ListItem(
-									headlineContent = { Text(track) },
-									modifier = Modifier.pointerInput(Unit) {
-										detectTapGestures(onTap = {
-											vm.selectSubtitleTrack(index)
-											showSubtitleTracks = false
-										})
-									},
-								)
-							}
 						}
 					}
 				}

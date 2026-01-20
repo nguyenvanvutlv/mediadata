@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.update
 
 data class LocalFileState(
 	val folder: Uri? = null,
-	val files: List<DocumentFile> = emptyList()
+	val allFiles: List<DocumentFile> = emptyList(),
+	val files: List<DocumentFile> = emptyList(),
+	val searchQuery: String = ""
 )
 
 @HiltViewModel
@@ -24,13 +26,38 @@ class LocalFileViewModel @Inject constructor(
 	private val _localState = MutableStateFlow(LocalFileState())
 	val localState = _localState.asStateFlow()
 
+	fun onSearchQueryChanged(query: String) {
+		_localState.update { state ->
+			val filtered = if (query.isBlank()) {
+				state.allFiles
+			} else {
+				state.allFiles.filter {
+					it.name?.contains(query, ignoreCase = true) == true
+				}
+			}
+			state.copy(
+				searchQuery = query,
+				files = filtered
+			)
+		}
+	}
+
 	fun deleteFile(file: DocumentFile) {
 		val success = file.delete()
 		if (success) {
 			// Refresh file list after deletion
 			_localState.update { state ->
+				val newAllFiles = state.allFiles.filter { it.uri != file.uri }
+				val newFiltered = if (state.searchQuery.isBlank()) {
+					newAllFiles
+				} else {
+					newAllFiles.filter {
+						it.name?.contains(state.searchQuery, ignoreCase = true) == true
+					}
+				}
 				state.copy(
-					files = state.files.filter { it.uri != file.uri }
+					allFiles = newAllFiles,
+					files = newFiltered
 				)
 			}
 		}
@@ -40,7 +67,9 @@ class LocalFileViewModel @Inject constructor(
 		_localState.update {
 			it.copy(
 				folder = path,
-				files = emptyList()
+				allFiles = emptyList(),
+				files = emptyList(),
+				searchQuery = ""
 			)
 		}
 		path?.let {
@@ -56,6 +85,7 @@ class LocalFileViewModel @Inject constructor(
 			}
 			_localState.update { local ->
 				local.copy(
+					allFiles = files,
 					files = files
 				)
 			}
