@@ -117,6 +117,7 @@ By using MediaData Player, you acknowledge and agree that:
 - **Kotlin**: Primary development language
 - **Hardware Acceleration**: Leverages device codecs for efficient playback
 - **Material Design 3**: Follows latest design guidelines
+- **PRDownloader**: Robust file downloading engine
 
 ## Compliance & Policies
 
@@ -163,6 +164,7 @@ This project uses the following open-source libraries:
 - **Media3 (ExoPlayer)** - Apache License 2.0
 - **Jetpack Compose** - Apache License 2.0
 - **Kotlin** - Apache License 2.0
+- **PRDownloader** - Apache License 2.0
 
 ---
 
