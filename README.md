@@ -1,6 +1,6 @@
 # MediaData Player
 
-A professional media player application for Android, built on [Media3](https://github.com/androidx/media) framework. Compatible with Android 8+ and Android TV.
+A professional media player application for Android, built on [Media3](https://github.com/androidx/media) framework. Compatible with Android 8+.
 
 ## Overview
 
@@ -13,8 +13,7 @@ MediaData Player is a **technical tool** designed for playing local media files 
 ### Media Playback
 - **Advanced Player**: Built on Media3 (ExoPlayer) with hardware acceleration support
 - **Multiple Format Support**: Comprehensive codec compatibility for modern media formats
-- **Picture-in-Picture**: Continue watching in a small window while multitasking
-- **Audio Synchronization**: Optimized timing with Bluetooth device support
+- **Picture-in-Picture**: Continue watching in a small window
 - **Subtitle Support**: Customizable text, size, color, and position
 
 ### Casting & Connectivity
@@ -23,7 +22,7 @@ MediaData Player is a **technical tool** designed for playing local media files 
 - **Network Stream Playback**: Play content from direct media URLs (user-provided)
 
 ### User Controls
-- **Gesture Controls**: Swipe horizontally to seek, vertically for brightness/volume
+- **Gesture Controls**: Swipe horizontally to seek
 - **Playback Speed**: Adjustable playback rates
 - **Audio/Subtitle Selection**: Easy track switching during playback
 
@@ -87,10 +86,8 @@ Long-press the subtitle button in the player for quick access.
 
 ## Required Permissions
 
-- **INTERNET**: Required for network streaming and saving media functionality
 - **FOREGROUND_SERVICE_MEDIA_PLAYBACK**: Maintains playback during casting and background operation
 - **POST_NOTIFICATIONS**: Shows save progress and playback control notifications
-- **WAKE_LOCK**: Prevents device sleep during media playback
 - **Storage Access**: Required only for reading/writing user-selected local media files (folders you explicitly grant access to)
 
 ## Privacy & Data Policy
@@ -119,7 +116,7 @@ By using MediaData Player, you acknowledge and agree that:
 - **Jetpack Compose**: Modern Android UI toolkit
 - **Kotlin**: Primary development language
 - **Hardware Acceleration**: Leverages device codecs for efficient playback
-- **Material Design 3**: Follows Google's latest design guidelines
+- **Material Design 3**: Follows latest design guidelines
 
 ## Compliance & Policies
 
