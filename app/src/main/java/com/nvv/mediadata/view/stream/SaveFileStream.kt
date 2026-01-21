@@ -44,6 +44,7 @@ import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
 import com.nvv.mediadata.data.provide.rememberFileViewModel
+import com.nvv.mediadata.data.provide.rememberNotificationViewModel
 import com.nvv.mediadata.data.viewmodel.Settings
 
 @Composable
@@ -58,6 +59,7 @@ fun SaveFileStream(
 	
 	val downloadViewModel = rememberDownloadFileViewModel()
 	val fileViewModel = rememberFileViewModel()
+    val notificationViewModel = rememberNotificationViewModel()
 	val context = rememberContext()
 	val launcherSelectFolder = rememberLauncherForActivityResult(
 		contract = ActivityResultContracts.OpenDocumentTree()
@@ -147,6 +149,14 @@ fun SaveFileStream(
 							launcherSelectFolder.launch(null)
 							return@Button
 						}
+                        if (!url.startsWith("https")) {
+                           val message = context.getString(R.string.url_invalid)
+                           notificationViewModel.open(message)
+                           return@Button
+                        }
+                        val messageStart = context.getString(R.string.start_save_media)
+                        notificationViewModel.open(messageStart)
+
 						downloadViewModel.startDownloadFile(url, title.ifBlank { null })
 						navController.popBackStack()
 					},
