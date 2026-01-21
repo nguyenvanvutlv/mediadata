@@ -17,8 +17,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 103
-		versionName = "1.0.3"
+		versionCode = 105
+		versionName = "1.0.5"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
@@ -53,6 +53,7 @@ android {
 }
 
 dependencies {
+	implementation(libs.prdownloader)
 	implementation(libs.androidx.compose.foundation)
 	implementation(libs.androidx.appcompat.resources)
 	implementation(libs.androidx.appcompat)

@@ -11,43 +11,63 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nvv.mediadata.R
+import kotlinx.coroutines.launch
 
 class DownloadReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+            val pendingResult = goAsync()
             val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            if (downloadId == -1L) return
-            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val query = DownloadManager.Query().setFilterById(downloadId)
-            val cursor = downloadManager.query(query)
-            if (cursor.moveToFirst()) {
-                val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                val status = cursor.getInt(statusIndex)
-                if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                    val localUriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                    val localUriString = cursor.getString(localUriIndex)
-                    val titleIndex = cursor.getColumnIndex(DownloadManager.COLUMN_TITLE)
-                    val title = cursor.getString(titleIndex)
-                    if (localUriString != null) {
-                        enqueueFileProcessing(context, localUriString, title)
+            if (downloadId == -1L) {
+                pendingResult.finish()
+                return
+            }
+
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                try {
+                    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                    val query = DownloadManager.Query().setFilterById(downloadId)
+                    val cursor = downloadManager.query(query)
+                    if (cursor.moveToFirst()) {
+                        val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        val status = cursor.getInt(statusIndex)
+                        if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                            val localUriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                            val localUriString = cursor.getString(localUriIndex)
+                            val titleIndex = cursor.getColumnIndex(DownloadManager.COLUMN_TITLE)
+                            val title = cursor.getString(titleIndex)
+                            val mimeTypeIndex = cursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE)
+                            val mimeType = cursor.getString(mimeTypeIndex)
+
+                            if (localUriString != null) {
+                                enqueueFileProcessing(context, localUriString, title, mimeType)
+                            }
+                        } else if (status == DownloadManager.STATUS_FAILED) {
+                             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                showNotification(
+                                    context,
+                                    context.getString(R.string.download_failed),
+                                    context.getString(R.string.error_occurred_during_download)
+                                )
+                            }
+                        }
                     }
-                } else if (status == DownloadManager.STATUS_FAILED) {
-                    showNotification(
-                        context,
-                        context.getString(R.string.download_failed),
-                        context.getString(R.string.error_occurred_during_download)
-                    )
+                    cursor.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    pendingResult.finish()
                 }
             }
-            cursor.close()
         }
     }
 
-    private fun enqueueFileProcessing(context: Context, localUriString: String, title: String?) {
+    private fun enqueueFileProcessing(context: Context, localUriString: String, title: String?, mimeType: String?) {
         val inputData = Data.Builder()
             .putString("EXTRA_LOCAL_URI", localUriString)
             .putString("EXTRA_TITLE", title)
+            .putString("EXTRA_MIME_TYPE", mimeType)
             .build()
         val workRequest = OneTimeWorkRequestBuilder<FileProcessingWorker>()
             .setInputData(inputData)

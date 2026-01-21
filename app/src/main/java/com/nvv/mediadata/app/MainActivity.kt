@@ -66,6 +66,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import com.downloader.PRDownloader
+import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,6 +115,12 @@ class MainActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		checkNotificationPermission()
+		val configPRDownloader = PRDownloaderConfig.newBuilder()
+			.setReadTimeout(30_000)
+			.setConnectTimeout(30_000)
+			.setDatabaseEnabled(true)
+			.build()
+		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
 			var videoUri by remember { mutableStateOf(intent?.data) }
 			val startDestination = Destination.NETWORKS

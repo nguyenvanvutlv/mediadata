@@ -124,6 +124,17 @@ class PlayerViewModel @Inject constructor(
 						handler.removeCallbacks(progressRunnable)
 					}
 				}
+                
+                if (events.contains(Player.EVENT_PLAYER_ERROR)) {
+                    player.playerError?.let { error ->
+                        _state.update {
+                            it.copy(
+                                isError = true,
+                                messageError = error.message ?: "Unknown Error"
+                            )
+                        }
+                    }
+                }
 
 				if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
 					_index.value = player.currentMediaItemIndex
@@ -141,6 +152,15 @@ class PlayerViewModel @Inject constructor(
 					_state.update { it.copy(mimeType = detectedMimeType) }
 				}
 			}
+            
+            override fun onPlayerError(error: PlaybackException) {
+                 _state.update {
+                    it.copy(
+                        isError = true,
+                        messageError = error.message ?: "Unknown Error"
+                    )
+                }
+            }
 		}
 	}
 
@@ -226,7 +246,9 @@ class PlayerViewModel @Inject constructor(
 				sizeSubtitle = Settings.getSubtitleSize(context),
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
-				scaleMode = Settings.getScaleMode(context)
+				scaleMode = Settings.getScaleMode(context),
+                isError = false,
+                messageError = ""
 			)
 		}
 	}
@@ -308,26 +330,28 @@ class PlayerViewModel @Inject constructor(
 	fun selectAudioTrack(index: Int) {
 		val player = _player.value ?: return
 		val currentTracks = player.currentTracks
-		var count = 0
+		var trackCount = 0
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_AUDIO) {
-				if (count == index) {
-					val language = group.getTrackFormat(index).language
-					if (language != null) {
-						Settings.setLanguages(context, language)
-					}
-					player.trackSelectionParameters = player.trackSelectionParameters
-						.buildUpon()
-						.setOverrideForType(
-							androidx.media3.common.TrackSelectionOverride(
-								group.mediaTrackGroup,
-								index
+				for (i in 0 until group.length) {
+					if (trackCount == index) {
+						val language = group.getTrackFormat(i).language
+						if (language != null) {
+							Settings.setLanguages(context, language)
+						}
+						player.trackSelectionParameters = player.trackSelectionParameters
+							.buildUpon()
+							.setOverrideForType(
+								androidx.media3.common.TrackSelectionOverride(
+									group.mediaTrackGroup,
+									i
+								)
 							)
-						)
-						.build()
-					return
+							.build()
+						return
+					}
+					trackCount++
 				}
-				count++
 			}
 		}
 	}
@@ -335,26 +359,28 @@ class PlayerViewModel @Inject constructor(
 	fun selectSubtitleTrack(index: Int) {
 		val player = _player.value ?: return
 		val currentTracks = player.currentTracks
-		var count = 0
+		var trackCount = 0
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_TEXT) {
-				if (count == index) {
-					val language = group.getTrackFormat(index).language
-					if (language != null) {
-						Settings.setLanguages(context, language)
-					}
-					player.trackSelectionParameters = player.trackSelectionParameters
-						.buildUpon()
-						.setOverrideForType(
-							androidx.media3.common.TrackSelectionOverride(
-								group.mediaTrackGroup,
-								index
+				for (i in 0 until group.length) {
+					if (trackCount == index) {
+                        val language = group.getTrackFormat(i).language
+						if (language != null) {
+							Settings.setLanguages(context, language)
+						}
+						player.trackSelectionParameters = player.trackSelectionParameters
+							.buildUpon()
+							.setOverrideForType(
+								androidx.media3.common.TrackSelectionOverride(
+									group.mediaTrackGroup,
+									i
+								)
 							)
-						)
-						.build()
-					return
+							.build()
+						return
+					}
+					trackCount++
 				}
-				count++
 			}
 		}
 	}
