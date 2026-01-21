@@ -26,6 +26,19 @@ import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
 import timber.log.Timber
+import androidx.media3.session.SessionCommands
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
+import android.os.Bundle
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 
 const val bufferForPlayback = 2_500
 const val bufferForPlaybackAfterRebuffer = 3_000
@@ -111,7 +124,15 @@ class PlaybackService : MediaSessionService() {
 								val isSupported = mime == MimeTypes.AUDIO_AAC ||
 										mime == MimeTypes.AUDIO_MPEG ||
 										mime == MimeTypes.AUDIO_OPUS ||
-										mime == MimeTypes.AUDIO_VORBIS
+										mime == MimeTypes.AUDIO_VORBIS ||
+										mime == MimeTypes.AUDIO_AC3 ||
+										mime == MimeTypes.AUDIO_AC4 ||
+										mime == MimeTypes.AUDIO_E_AC3 ||
+										mime == MimeTypes.AUDIO_E_AC3_JOC ||
+										mime == MimeTypes.AUDIO_FLAC ||
+										mime == MimeTypes.AUDIO_DTS ||
+										mime == MimeTypes.AUDIO_DTS_EXPRESS ||
+										mime == MimeTypes.AUDIO_DTS_HD
 
 								if (isSelected && isSupported) {
 									isSupportedAudioSelected = true
@@ -145,7 +166,7 @@ class PlaybackService : MediaSessionService() {
 						)
 						needUpdate = true
 					}
-					if (!isTextSelected && firstTextGroup != null) {
+					if (!isTextSelected && firstTextGroup != null && !castPlayer.trackSelectionParameters.disabledTrackTypes.contains(C.TRACK_TYPE_TEXT)) {
 						parametersBuilder.setOverrideForType(
 							TrackSelectionOverride(
 								firstTextGroup.mediaTrackGroup,
@@ -200,7 +221,6 @@ class PlaybackService : MediaSessionService() {
 		for (i in 0 until oldPlayer.mediaItemCount) {
 			val oldItem = oldPlayer.getMediaItemAt(i)
 			val builder = oldItem.buildUpon()
-
 			if (i == currentItemIndex) {
 				val tracks = oldPlayer.currentTracks
 				var videoMime: String? = null
@@ -216,7 +236,6 @@ class PlaybackService : MediaSessionService() {
 						}
 					}
 				}
-
 				val originalMime = oldItem.localConfiguration?.mimeType
 				val finalMime = when {
 					originalMime == MimeTypes.APPLICATION_MATROSKA || originalMime == "video/x-matroska" -> originalMime
@@ -236,7 +255,6 @@ class PlaybackService : MediaSessionService() {
 					builder.setMimeType(MimeTypes.VIDEO_MP4)
 				}
 			}
-
 			val metadata = oldItem.mediaMetadata.buildUpon()
 				.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
 				.build()
@@ -249,6 +267,7 @@ class PlaybackService : MediaSessionService() {
 		newPlayer.setMediaItems(mediaItems, currentItemIndex, playbackPositionMs)
 		newPlayer.prepare()
 		newPlayer.playWhenReady = playWhenReady
+		newPlayer.trackSelectionParameters = oldPlayer.trackSelectionParameters
 		session.player = newPlayer
 	}
 

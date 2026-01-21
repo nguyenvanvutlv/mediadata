@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Subtitles
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,7 +49,6 @@ import com.nvv.mediadata.data.viewmodel.PlayerViewModel
 @Composable
 fun SettingPlayer(
 	viewModel: PlayerViewModel,
-	onDismiss: () -> Unit
 ) {
 	val navController = rememberNavController()
 	val state by viewModel.state.collectAsStateWithLifecycle()
@@ -96,17 +95,7 @@ fun SettingPlayer(
 				},
 			) {
 				composable("menu") {
-					MenuScreen(navController, state.speed)
-				}
-				composable("speed") {
-					SpeedScreen(
-						currentSpeed = state.speed,
-						onSpeedSelected = {
-							viewModel.setPlaybackSpeed(it)
-							navController.popBackStack()
-						},
-						onBack = { navController.popBackStack() }
-					)
+					MenuScreen(navController)
 				}
 				composable("audio") {
 					AudioTrackScreen(
@@ -148,14 +137,8 @@ fun SettingPlayer(
 }
 
 @Composable
-fun MenuScreen(navController: NavController, currentSpeed: Float) {
+fun MenuScreen(navController: NavController) {
 	Column(modifier = Modifier.padding(vertical = 8.dp)) {
-		MenuItem(
-			icon = Icons.Rounded.Speed,
-			text = "Playback speed",
-			secondaryText = if (currentSpeed == 1f) "Normal" else "${currentSpeed}x",
-			onClick = { navController.navigate("speed") }
-		)
 		MenuItem(
 			icon = Icons.Rounded.Audiotrack,
 			text = stringResource(R.string.audio_track_title),
@@ -203,27 +186,6 @@ fun MenuItem(
 			contentDescription = null,
 			tint = MaterialTheme.colorScheme.onSurfaceVariant
 		)
-	}
-}
-
-@Composable
-fun SpeedScreen(
-	currentSpeed: Float,
-	onSpeedSelected: (Float) -> Unit,
-	onBack: () -> Unit
-) {
-	Column {
-		Header("Playback speed", onBack)
-		val speeds = listOf(0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f)
-		LazyColumn {
-			items(speeds) { speed ->
-				SelectionItem(
-					text = if (speed == 1f) "Normal" else "${speed}x",
-					isSelected = speed == currentSpeed,
-					onClick = { onSpeedSelected(speed) }
-				)
-			}
-		}
 	}
 }
 
@@ -340,7 +302,8 @@ fun SelectionItem(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		if (isSelected) {
-			Icon(imageVector = Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+			Icon(imageVector = Icons.Rounded.Check, contentDescription = null,
+				tint = MaterialTheme.colorScheme.primary)
 		} else {
 			Spacer(modifier = Modifier.width(24.dp))
 		}

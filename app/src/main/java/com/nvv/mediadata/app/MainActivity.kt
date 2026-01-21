@@ -59,12 +59,14 @@ import com.nvv.mediadata.view.topbar.DefaultTopbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import android.Manifest
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
@@ -117,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()
+			val historyViewModel = rememberHistoryViewModel()
 			val isPlay by player.isPlay.collectAsStateWithLifecycle()
 			val notificationViewModel = rememberNotificationViewModel()
 			val isOpenNotification by notificationViewModel.isOpen.collectAsStateWithLifecycle()
@@ -177,6 +180,9 @@ class MainActivity : AppCompatActivity() {
 
 				}
 				if (videoUri != null){
+					val title = videoUri.toString().substringAfterLast("/")
+						.substringBefore("?").ifBlank { "Stream Link" }
+					historyViewModel.insertHistory(title, videoUri.toString())
 					player.setURLs(listOf(videoUri.toString()))
 					player.selectItem(0)
 				}
@@ -202,7 +208,7 @@ class MainActivity : AppCompatActivity() {
 				}
 			}
 			val listener = remember {
-				android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+				SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
 					if (key == "theme_mode") {
 						themeMode = Settings.getThemeMode(context)
 					}

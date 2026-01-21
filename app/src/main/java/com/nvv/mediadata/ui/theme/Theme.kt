@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.nvv.mediadata.data.viewmodel.Settings
 
 private val DarkColorScheme = darkColorScheme(
 	primary = Purple80,
@@ -26,21 +27,21 @@ private val LightColorScheme = lightColorScheme(
 fun MediadataTheme(
 	darkTheme: Boolean = isSystemInDarkTheme(),
 	dynamicColor: Boolean = true,
-	themeMode: com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode = com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.SYSTEM,
+	themeMode: Settings.Companion.ThemeMode = Settings.Companion.ThemeMode.SYSTEM,
 	content: @Composable () -> Unit
 ) {
 	val colorScheme = when {
 		dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
 			val context = LocalContext.current
 			val isDark = when(themeMode) {
-				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.SYSTEM -> darkTheme
-				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.DARK -> true
-				com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.LIGHT -> false
+				Settings.Companion.ThemeMode.SYSTEM -> darkTheme
+				Settings.Companion.ThemeMode.DARK -> true
+				Settings.Companion.ThemeMode.LIGHT -> false
 			}
 			if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 		}
-		themeMode == com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.DARK -> DarkColorScheme
-		themeMode == com.nvv.mediadata.data.viewmodel.Settings.Companion.ThemeMode.LIGHT -> LightColorScheme
+		themeMode == Settings.Companion.ThemeMode.DARK -> DarkColorScheme
+		themeMode == Settings.Companion.ThemeMode.LIGHT -> LightColorScheme
 		darkTheme -> DarkColorScheme
 		else -> LightColorScheme
 	}

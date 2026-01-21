@@ -36,6 +36,7 @@ import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Headset
 import androidx.compose.material.icons.rounded.PauseCircleFilled
 import androidx.compose.material.icons.rounded.PictureInPicture
 import androidx.compose.material.icons.rounded.PlayCircle
@@ -287,25 +288,13 @@ fun PlayerView(
 							}
 							Spacer(Modifier.weight(1f))
 							IconButton(
-								onClick = vm::aspect
-							) {
-								Icon(
-									imageVector = Icons.Rounded.AspectRatio,
-									contentDescription = null,
-									tint = Color.White,
-									modifier = Modifier
-										.size(30.dp)
-								)
-							}
-							Spacer(Modifier.width(10.dp))
-							IconButton(
 								onClick = {
 									vm.toggleVideo(false)
-									vm.setPlayMode(false) // Exit full player to show mini player
+									vm.setPlayMode(false)
 								}
 							) {
 								Icon(
-									imageVector = Icons.Rounded.Audiotrack,
+									imageVector = Icons.Rounded.Headset,
 									contentDescription = null,
 									tint = Color.White,
 									modifier = Modifier
@@ -416,7 +405,6 @@ fun PlayerView(
 							value = v,
 							onValueChange = { v = it },
 							onValueChangeFinished = {
-								Timber.tag("new value").d(v.toDouble().toString())
 								vm.seekTo(v.toDouble())
 							},
 							range = 0f..1f,
@@ -432,14 +420,23 @@ fun PlayerView(
 							horizontalArrangement = Arrangement.Start,
 							verticalAlignment = Alignment.CenterVertically
 						) {
-							Spacer(
-								Modifier.width(20.dp)
-							)
 							IconButton({
 								showSettings = true
 							}) {
 								Icon(
 									imageVector = Icons.Rounded.Settings,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(Modifier.width(10.dp))
+							IconButton(
+								onClick = vm::aspect
+							) {
+								Icon(
+									imageVector = Icons.Rounded.AspectRatio,
 									contentDescription = null,
 									tint = Color.White,
 									modifier = Modifier
@@ -467,7 +464,6 @@ fun PlayerView(
 						) {
 							SettingPlayer(
 								viewModel = vm,
-								onDismiss = { showSettings = false }
 							)
 						}
 					}

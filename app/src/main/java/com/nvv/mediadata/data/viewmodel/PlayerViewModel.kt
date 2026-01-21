@@ -3,6 +3,7 @@ package com.nvv.mediadata.data.viewmodel
 import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.OptIn
@@ -34,6 +35,7 @@ import java.io.File
 import javax.inject.Inject
 import androidx.core.net.toUri
 import androidx.media3.common.PlaybackParameters
+import androidx.media3.session.SessionCommand
 
 @OptIn(UnstableApi::class)
 @HiltViewModel
@@ -310,7 +312,7 @@ class PlayerViewModel @Inject constructor(
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_AUDIO) {
 				if (count == index) {
-					val language = group.getTrackFormat(0).language
+					val language = group.getTrackFormat(index).language
 					if (language != null) {
 						Settings.setLanguages(context, language)
 					}
@@ -319,7 +321,7 @@ class PlayerViewModel @Inject constructor(
 						.setOverrideForType(
 							androidx.media3.common.TrackSelectionOverride(
 								group.mediaTrackGroup,
-								0
+								index
 							)
 						)
 						.build()
@@ -337,7 +339,7 @@ class PlayerViewModel @Inject constructor(
 		for (group in currentTracks.groups) {
 			if (group.type == C.TRACK_TYPE_TEXT) {
 				if (count == index) {
-					val language = group.getTrackFormat(0).language
+					val language = group.getTrackFormat(index).language
 					if (language != null) {
 						Settings.setLanguages(context, language)
 					}
@@ -346,7 +348,7 @@ class PlayerViewModel @Inject constructor(
 						.setOverrideForType(
 							androidx.media3.common.TrackSelectionOverride(
 								group.mediaTrackGroup,
-								0
+								index
 							)
 						)
 						.build()
@@ -407,6 +409,31 @@ class PlayerViewModel @Inject constructor(
 		}
 	}
 
+	fun setSleepTimer(durationMs: Long) {
+		Timber.tag("START_SLEEP_TIMER").d("setSleepTimer: $durationMs")
+		val command = SessionCommand("START_SLEEP_TIMER", Bundle().apply {
+			putLong("DURATION_MS", durationMs)
+		})
+		_player.value?.let { p ->
+			if (p is MediaController) {
+				p.sendCustomCommand(command, Bundle.EMPTY)
+			}
+		}
+	}
+
+	fun setSleepTimerEndOfEpisode() {
+		setSleepTimer(-1)
+	}
+
+	fun cancelSleepTimer() {
+		val command = SessionCommand("CANCEL_SLEEP_TIMER", Bundle.EMPTY)
+		_player.value?.let { p ->
+			if (p is MediaController) {
+				p.sendCustomCommand(command, Bundle.EMPTY)
+			}
+		}
+	}
+	
 	override fun onCleared() {
 		super.onCleared()
 		_isPlay.value = false
