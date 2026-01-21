@@ -15,7 +15,7 @@ enum class VideoScaleMode(val displayName: String, val scaleType: Int) {
 	ORIGINAL("Original", AspectRatioFrameLayout.RESIZE_MODE_FIT);
 
 	companion object {
-		fun fromString(data: String) : VideoScaleMode {
+		fun fromString(data: String): VideoScaleMode {
 			VideoScaleMode.entries.forEach { v ->
 				if (v.displayName == data) return v
 			}

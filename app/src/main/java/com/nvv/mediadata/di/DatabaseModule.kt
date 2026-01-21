@@ -15,18 +15,18 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Provides
-    @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "mediadata_db"
-        ).build()
-    }
+	@Provides
+	@Singleton
+	fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+		return Room.databaseBuilder(
+			context,
+			AppDatabase::class.java,
+			"mediadata_db"
+		).build()
+	}
 
-    @Provides
-    fun provideHistoryDao(database: AppDatabase): HistoryDao {
-        return database.historyDao()
-    }
+	@Provides
+	fun provideHistoryDao(database: AppDatabase): HistoryDao {
+		return database.historyDao()
+	}
 }

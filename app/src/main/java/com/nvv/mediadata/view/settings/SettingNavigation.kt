@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun SettingNavigation(){
+fun SettingNavigation() {
 	val navController = rememberNavController()
 	NavHost(
 		navController = navController,
@@ -41,22 +41,22 @@ fun SettingNavigation(){
 			) + fadeOut(animationSpec = tween(300))
 		},
 	) {
-		composable(route = "settings"){
+		composable(route = "settings") {
 			BaseSettingList(navController)
 		}
-		composable(route = "settings/subtitle"){
+		composable(route = "settings/subtitle") {
 			SettingSubtitleNavigation(navController)
 		}
-		composable(route = "settings/theme"){
+		composable(route = "settings/theme") {
 			SettingTheme(navController = navController, onThemeChanged = {})
 		}
-		composable(route = "settings/privacy"){
+		composable(route = "settings/privacy") {
 			PrivacyPolicy(navController)
 		}
-		composable(route = "settings/terms"){
+		composable(route = "settings/terms") {
 			TermsOfService(navController)
 		}
-		composable(route = "settings/about"){
+		composable(route = "settings/about") {
 			AboutScreen(navController)
 		}
 	}

@@ -14,7 +14,7 @@ fun ItemNavigation(
 	headline: @Composable () -> Unit = {},
 	supportingContent: @Composable () -> Unit = {},
 	onClick: () -> Unit = {}
-){
+) {
 	ListItem(
 		leadingContent = leading,
 		headlineContent = headline,

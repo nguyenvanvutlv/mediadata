@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.nvv.mediadata.R
@@ -50,16 +51,16 @@ import com.nvv.mediadata.data.viewmodel.Settings
 @Composable
 fun SaveFileStream(
 	navController: NavHostController,
-){
+) {
 	val fileNameTitle = stringResource(R.string.file_name_title)
 	val fileNamePlaceHolder = stringResource(R.string.file_name_placeholder)
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
 	val networkDisclaimer = stringResource(R.string.network_disclaimer)
 	val urlPlaceholder = stringResource(R.string.network_url_placeholder)
-	
+
 	val downloadViewModel = rememberDownloadFileViewModel()
 	val fileViewModel = rememberFileViewModel()
-    val notificationViewModel = rememberNotificationViewModel()
+	val notificationViewModel = rememberNotificationViewModel()
 	val context = rememberContext()
 	val launcherSelectFolder = rememberLauncherForActivityResult(
 		contract = ActivityResultContracts.OpenDocumentTree()
@@ -74,8 +75,11 @@ fun SaveFileStream(
 			fileViewModel.setPath(uri)
 		}
 	}
-	var url by remember { mutableStateOf(
-		"") }
+	var url by remember {
+		mutableStateOf(
+			""
+		)
+	}
 	var title by remember { mutableStateOf("") }
 	val localKeyword = LocalSoftwareKeyboardController.current
 	Surface(
@@ -101,7 +105,7 @@ fun SaveFileStream(
 								color = Color.DarkGray.copy(alpha = 0.3f)
 							),
 							maxLines = 1,
-							overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+							overflow = Ellipsis
 						)
 					},
 					modifier = Modifier
@@ -145,20 +149,22 @@ fun SaveFileStream(
 				Button(
 					onClick = {
 						localKeyword?.hide()
-						if (Settings.getPath(context).trim().isEmpty()){
+						if (Settings.getPath(context).trim().isEmpty()) {
 							launcherSelectFolder.launch(null)
 							return@Button
 						}
-                        if (!url.startsWith("https")) {
-                           val message = context.getString(R.string.url_invalid)
-                           notificationViewModel.open(message)
-                           return@Button
-                        }
-                        val messageStart = context.getString(R.string.start_save_media)
-                        notificationViewModel.open(messageStart)
+						if (!url.startsWith("https")) {
+							val message = context.getString(R.string.url_invalid)
+							notificationViewModel.open(message)
+							return@Button
+						}
+						val messageStart = context.getString(R.string.start_save_media)
+						notificationViewModel.open(messageStart)
 
 						downloadViewModel.startDownloadFile(url, title.ifBlank { null })
-						navController.popBackStack()
+						navController.navigate("stream/network?tab=1") {
+							popUpTo("stream/network?tab=0") { inclusive = true }
+						}
 					},
 					modifier = Modifier.fillMaxWidth(0.8f)
 				) {
@@ -166,7 +172,7 @@ fun SaveFileStream(
 						Modifier.fillMaxWidth(),
 						horizontalArrangement = Arrangement.Center,
 						verticalAlignment = Alignment.CenterVertically
-					){
+					) {
 						Icon(
 							imageVector = Icons.Rounded.Save,
 							contentDescription = null,
@@ -190,7 +196,7 @@ fun SaveFileStream(
 						Modifier.fillMaxWidth(),
 						horizontalArrangement = Arrangement.Center,
 						verticalAlignment = Alignment.CenterVertically
-					){
+					) {
 						Icon(
 							imageVector = Icons.AutoMirrored.Rounded.KeyboardBackspace,
 							contentDescription = null,

@@ -12,5 +12,6 @@ class CastOptionsProvider : OptionsProvider {
 			.setReceiverApplicationId(CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID)
 			.build()
 	}
+
 	override fun getAdditionalSessionProviders(context: Context): List<SessionProvider>? = null
 }

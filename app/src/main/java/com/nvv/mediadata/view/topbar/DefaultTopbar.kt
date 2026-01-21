@@ -24,7 +24,7 @@ fun DefaultTopbar(
 			Text(text = destination.label)
 		},
 		actions = {
-			when(destination){
+			when (destination) {
 				Destination.LOCAL_FILE -> {
 					IconButton(openFolder) {
 						Icon(
@@ -34,12 +34,15 @@ fun DefaultTopbar(
 						)
 					}
 				}
+
 				Destination.HISTORY -> {
 
 				}
+
 				Destination.NETWORKS -> {
 
 				}
+
 				Destination.SETTINGS -> {
 
 				}

@@ -33,13 +33,14 @@ fun MediadataTheme(
 	val colorScheme = when {
 		dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
 			val context = LocalContext.current
-			val isDark = when(themeMode) {
+			val isDark = when (themeMode) {
 				Settings.Companion.ThemeMode.SYSTEM -> darkTheme
 				Settings.Companion.ThemeMode.DARK -> true
 				Settings.Companion.ThemeMode.LIGHT -> false
 			}
 			if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 		}
+
 		themeMode == Settings.Companion.ThemeMode.DARK -> DarkColorScheme
 		themeMode == Settings.Companion.ThemeMode.LIGHT -> LightColorScheme
 		darkTheme -> DarkColorScheme

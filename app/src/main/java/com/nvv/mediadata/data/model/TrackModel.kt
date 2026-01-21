@@ -29,12 +29,15 @@ fun exoLabel(format: Format?, trackType: Int?): String {
 		C.TRACK_TYPE_VIDEO -> {
 			lang ?: "Video Track"
 		}
+
 		C.TRACK_TYPE_AUDIO -> {
 			lang ?: "Audio Track"
 		}
+
 		C.TRACK_TYPE_TEXT -> {
 			lang ?: "Subtitle Track"
 		}
+
 		else -> {
 			lang ?: "Track"
 		}

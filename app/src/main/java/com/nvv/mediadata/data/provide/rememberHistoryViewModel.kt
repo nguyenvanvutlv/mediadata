@@ -6,5 +6,5 @@ import com.nvv.mediadata.data.viewmodel.HistoryViewModel
 
 @Composable
 fun rememberHistoryViewModel(): HistoryViewModel {
-    return hiltViewModel()
+	return hiltViewModel()
 }

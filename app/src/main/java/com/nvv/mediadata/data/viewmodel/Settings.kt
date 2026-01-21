@@ -3,10 +3,10 @@ package com.nvv.mediadata.data.viewmodel
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.OptIn
-import android.graphics.Color as AndroidColor
-import com.nvv.mediadata.data.model.VideoScaleMode
 import androidx.core.content.edit
 import androidx.media3.common.util.UnstableApi
+import com.nvv.mediadata.data.model.VideoScaleMode
+import android.graphics.Color as AndroidColor
 
 @OptIn(UnstableApi::class)
 class Settings {
@@ -44,7 +44,7 @@ class Settings {
 			getSharedPreferences(context).edit { putString(LANGUAGES, languages) }
 		}
 
-		fun getSubtitleSize(context: Context) : Float {
+		fun getSubtitleSize(context: Context): Float {
 			return getSharedPreferences(context).getFloat(SUBTITLE_SIZE, 20f)
 		}
 
@@ -52,7 +52,7 @@ class Settings {
 			getSharedPreferences(context).edit { putFloat(SUBTITLE_SIZE, size) }
 		}
 
-		fun getSubtitlePosition(context: Context) : Float {
+		fun getSubtitlePosition(context: Context): Float {
 			return getSharedPreferences(context).getFloat(SUBTITLE_POSITION, 0.1f)
 		}
 
@@ -60,10 +60,11 @@ class Settings {
 			getSharedPreferences(context).edit { putFloat(SUBTITLE_POSITION, position) }
 		}
 
-		fun getScaleMode(context: Context) : VideoScaleMode {
+		fun getScaleMode(context: Context): VideoScaleMode {
 			return VideoScaleMode.fromString(
 				getSharedPreferences(context).getString(
-					SCALE_MODE, VideoScaleMode.FILL.displayName) ?: VideoScaleMode.FILL.displayName
+					SCALE_MODE, VideoScaleMode.FILL.displayName
+				) ?: VideoScaleMode.FILL.displayName
 			)
 		}
 
@@ -71,7 +72,7 @@ class Settings {
 			getSharedPreferences(context).edit { putString(SCALE_MODE, mode.displayName) }
 		}
 
-		fun getColor(context: Context) : AndroidColor {
+		fun getColor(context: Context): AndroidColor {
 			return AndroidColor.valueOf(
 				getSharedPreferences(context).getInt(SUBTITLE_COLOR, AndroidColor.WHITE)
 			)
@@ -81,7 +82,7 @@ class Settings {
 			getSharedPreferences(context).edit { putInt(SUBTITLE_COLOR, color.toArgb()) }
 		}
 
-		fun getBackgroundColorOpacity(context: Context) : Int {
+		fun getBackgroundColorOpacity(context: Context): Int {
 			return getSharedPreferences(context).getInt(BACKGROUND_COLOR_OPACITY, 30)
 		}
 

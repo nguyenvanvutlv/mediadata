@@ -63,7 +63,7 @@ import java.util.Locale
 fun SettingSubtitle(
 	navController: NavController,
 	sub: NavController,
-){
+) {
 	val context = rememberContext()
 	val subtitleDisplay = stringResource(R.string.subtitle_display)
 	val leadingSubtitleColor = stringResource(R.string.leading_text_color)
@@ -80,11 +80,15 @@ fun SettingSubtitle(
 	)
 	var isOpenSubtitleColor by remember { mutableStateOf(false) }
 	var isOpenSubtitleBackgroundColorOpacity by remember { mutableStateOf(false) }
-	var currentSubtitleTextColor by remember { mutableStateOf(
-		Settings.getColor(context)) }
+	var currentSubtitleTextColor by remember {
+		mutableStateOf(
+			Settings.getColor(context)
+		)
+	}
 	var currentBackgroundColorOpacity by remember {
 		mutableIntStateOf(
-			Settings.getBackgroundColorOpacity(context))
+			Settings.getBackgroundColorOpacity(context)
+		)
 	}
 
 	val currentLanguageCode = Settings.getLanguages(context)
@@ -96,7 +100,8 @@ fun SettingSubtitle(
 		topBar = {
 			CenterAlignedTopAppBar(
 				title = {
-					Text(subtitleDisplay,
+					Text(
+						subtitleDisplay,
 						style = MaterialTheme.typography.titleLarge
 					)
 				},
@@ -121,20 +126,25 @@ fun SettingSubtitle(
 		}
 	) {
 		Surface(
-			Modifier.fillMaxSize().padding(it)
+			Modifier
+				.fillMaxSize()
+				.padding(it)
 		) {
 			Box(
 				Modifier.fillMaxSize()
-			){
+			) {
 				LazyColumn(
-					modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(horizontal = 16.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
 				) {
 					// SUBTITLE TEXT COLOR
-					item{
+					item {
 						ItemNavigation(
 							leading = {
-								Text(leadingSubtitleColor,
+								Text(
+									leadingSubtitleColor,
 									style = MaterialTheme.typography.titleMedium
 								)
 							},
@@ -142,7 +152,8 @@ fun SettingSubtitle(
 								subtitleTextColors.firstOrNull { item ->
 									item.second == currentSubtitleTextColor.toComposeColor()
 								}?.let { c ->
-									Text(c.first,
+									Text(
+										c.first,
 										style = MaterialTheme.typography.titleMedium
 									)
 								}
@@ -153,10 +164,11 @@ fun SettingSubtitle(
 						)
 					}
 					// SUBTITLE BACKGROUND COLOR
-					item{
+					item {
 						ItemNavigation(
 							leading = {
-								Text(leadingSubtitleBackgroundColorOpacity,
+								Text(
+									leadingSubtitleBackgroundColorOpacity,
 									style = MaterialTheme.typography.titleMedium
 								)
 							},
@@ -172,7 +184,7 @@ fun SettingSubtitle(
 						)
 					}
 					// SUBTITLE BACKGROUND COLOR
-					item{
+					item {
 						ItemNavigation(
 							leading = {
 								Icon(
@@ -202,13 +214,15 @@ fun SettingSubtitle(
 				DropdownMenu(
 					expanded = isOpenSubtitleColor,
 					onDismissRequest = { isOpenSubtitleColor = false },
-					modifier = Modifier.align(Alignment.BottomCenter)
+					modifier = Modifier
+						.align(Alignment.BottomCenter)
 						.padding(horizontal = 20.dp, vertical = 10.dp)
 				) {
 					subtitleTextColors.forEach { (name, color) ->
 						DropdownMenuItem(
 							text = {
-								Text(name,
+								Text(
+									name,
 									style = MaterialTheme.typography.bodyMedium
 								)
 							},
@@ -255,7 +269,7 @@ fun SettingSubtitle(
 @Composable
 fun SettingSubtitleNavigation(
 	navController: NavController
-){
+) {
 	val sub = rememberNavController()
 	NavHost(
 		navController = sub,
@@ -285,10 +299,10 @@ fun SettingSubtitleNavigation(
 			) + fadeOut(animationSpec = tween(300))
 		},
 	) {
-		composable(route = "settings/subtitle"){
+		composable(route = "settings/subtitle") {
 			SettingSubtitle(navController, sub)
 		}
-		composable(route = "settings/subtitle/language"){
+		composable(route = "settings/subtitle/language") {
 			SettingLanguageInSubtitle(sub)
 		}
 	}

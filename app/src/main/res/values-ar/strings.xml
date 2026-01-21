@@ -51,4 +51,6 @@
     <string name="delete_history_title">Delete History</string>
     <string name="delete_history_message">Are you sure you want to delete this link?</string>
     <string name="search_history_title">Search history...</string>
+    <string name="save_task">Current Task</string>
+    <string name="save_task_content">Current save media to local task</string>
 </resources>

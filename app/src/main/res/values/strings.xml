@@ -52,4 +52,6 @@
     <string name="url_invalid">URL invalid</string>
     <string name="start_save_media">Start to save media</string>
     <string name="search_history_title">Search history...</string>
+    <string name="save_task">Current Task</string>
+    <string name="save_task_content">Current save media to local task</string>
 </resources>

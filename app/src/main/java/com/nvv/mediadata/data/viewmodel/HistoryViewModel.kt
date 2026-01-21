@@ -18,43 +18,43 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val repository: HistoryRepository
+	private val repository: HistoryRepository
 ) : ViewModel() {
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
+	private val _searchQuery = MutableStateFlow("")
+	val searchQuery = _searchQuery.asStateFlow()
 
-    val historyFlow: Flow<PagingData<HistoryEntity>> = _searchQuery
-        .flatMapLatest { query ->
-            repository.getHistory(query)
-        }
-        .cachedIn(viewModelScope)
+	val historyFlow: Flow<PagingData<HistoryEntity>> = _searchQuery
+		.flatMapLatest { query ->
+			repository.getHistory(query)
+		}
+		.cachedIn(viewModelScope)
 
-    fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
-    }
+	fun onSearchQueryChanged(query: String) {
+		_searchQuery.value = query
+	}
 
-    fun insertHistory(title: String, url: String) {
-        viewModelScope.launch {
-            repository.insertHistory(HistoryEntity(title = title, url = url))
-        }
-    }
+	fun insertHistory(title: String, url: String) {
+		viewModelScope.launch {
+			repository.insertHistory(HistoryEntity(title = title, url = url))
+		}
+	}
 
-    fun updateHistory(history: HistoryEntity) {
-        viewModelScope.launch {
-            repository.updateHistory(history)
-        }
-    }
+	fun updateHistory(history: HistoryEntity) {
+		viewModelScope.launch {
+			repository.updateHistory(history)
+		}
+	}
 
-    fun deleteHistory(history: HistoryEntity) {
-        viewModelScope.launch {
-            repository.deleteHistory(history)
-        }
-    }
+	fun deleteHistory(history: HistoryEntity) {
+		viewModelScope.launch {
+			repository.deleteHistory(history)
+		}
+	}
 
-    fun clearAllHistory() {
-        viewModelScope.launch {
-            repository.clearHistory()
-        }
-    }
+	fun clearAllHistory() {
+		viewModelScope.launch {
+			repository.clearHistory()
+		}
+	}
 }

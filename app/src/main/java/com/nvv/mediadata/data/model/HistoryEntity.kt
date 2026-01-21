@@ -5,9 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "stream_history")
 data class HistoryEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val title: String,
-    val url: String,
-    val timestamp: Long = System.currentTimeMillis()
+	@PrimaryKey(autoGenerate = true)
+	val id: Int = 0,
+	val title: String,
+	val url: String,
+	val timestamp: Long = System.currentTimeMillis()
 )

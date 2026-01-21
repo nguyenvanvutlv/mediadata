@@ -43,7 +43,7 @@ import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 @Composable
 fun AudioStream(
 	navController: NavController
-){
+) {
 	var url by remember { mutableStateOf("") }
 	val player = rememberPlayerViewModel()
 	val historyViewModel = rememberHistoryViewModel()
@@ -99,7 +99,8 @@ fun AudioStream(
 					onClick = {
 						localKeyword?.hide()
 						if (url.isNotBlank()) {
-							val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Audio Stream" }
+							val title = url.substringAfterLast("/")
+								.substringBefore("?").ifBlank { "Audio Stream" }
 							historyViewModel.insertHistory(title, url)
 							player.setURLs(listOf(url))
 							player.selectAudioItem(0)
@@ -123,7 +124,7 @@ fun AudioStream(
 						Modifier.fillMaxWidth(),
 						horizontalArrangement = Arrangement.Center,
 						verticalAlignment = Alignment.CenterVertically
-					){
+					) {
 						Icon(
 							imageVector = Icons.AutoMirrored.Rounded.KeyboardBackspace,
 							contentDescription = null,

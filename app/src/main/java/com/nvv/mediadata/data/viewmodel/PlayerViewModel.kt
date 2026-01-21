@@ -7,24 +7,23 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.OptIn
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.nvv.mediadata.data.model.PlaybackState
-import com.nvv.mediadata.data.model.TrackModel
 import com.nvv.mediadata.data.model.VideoScaleMode
-import com.nvv.mediadata.data.model.exoLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,9 +32,6 @@ import kotlinx.coroutines.flow.update
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
-import androidx.core.net.toUri
-import androidx.media3.common.PlaybackParameters
-import androidx.media3.session.SessionCommand
 
 @OptIn(UnstableApi::class)
 @HiltViewModel
@@ -124,17 +120,17 @@ class PlayerViewModel @Inject constructor(
 						handler.removeCallbacks(progressRunnable)
 					}
 				}
-                
-                if (events.contains(Player.EVENT_PLAYER_ERROR)) {
-                    player.playerError?.let { error ->
-                        _state.update {
-                            it.copy(
-                                isError = true,
-                                messageError = error.message ?: "Unknown Error"
-                            )
-                        }
-                    }
-                }
+
+				if (events.contains(Player.EVENT_PLAYER_ERROR)) {
+					player.playerError?.let { error ->
+						_state.update {
+							it.copy(
+								isError = true,
+								messageError = error.message ?: "Unknown Error"
+							)
+						}
+					}
+				}
 
 				if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
 					_index.value = player.currentMediaItemIndex
@@ -152,15 +148,15 @@ class PlayerViewModel @Inject constructor(
 					_state.update { it.copy(mimeType = detectedMimeType) }
 				}
 			}
-            
-            override fun onPlayerError(error: PlaybackException) {
-                 _state.update {
-                    it.copy(
-                        isError = true,
-                        messageError = error.message ?: "Unknown Error"
-                    )
-                }
-            }
+
+			override fun onPlayerError(error: PlaybackException) {
+				_state.update {
+					it.copy(
+						isError = true,
+						messageError = error.message ?: "Unknown Error"
+					)
+				}
+			}
 		}
 	}
 
@@ -247,12 +243,12 @@ class PlayerViewModel @Inject constructor(
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
 				scaleMode = Settings.getScaleMode(context),
-                isError = false,
-                messageError = ""
+				isError = false,
+				messageError = ""
 			)
 		}
 	}
-	
+
 	fun setPlaybackSpeed(speed: Float) {
 		_player.value?.let { p ->
 			p.playbackParameters = PlaybackParameters(speed)
@@ -364,7 +360,7 @@ class PlayerViewModel @Inject constructor(
 			if (group.type == C.TRACK_TYPE_TEXT) {
 				for (i in 0 until group.length) {
 					if (trackCount == index) {
-                        val language = group.getTrackFormat(i).language
+						val language = group.getTrackFormat(i).language
 						if (language != null) {
 							Settings.setLanguages(context, language)
 						}
@@ -459,7 +455,7 @@ class PlayerViewModel @Inject constructor(
 			}
 		}
 	}
-	
+
 	override fun onCleared() {
 		super.onCleared()
 		_isPlay.value = false

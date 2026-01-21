@@ -6,7 +6,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nvv.mediadata.data.viewmodel.DownloadFileViewModel
 
 @Composable
-fun rememberDownloadFileViewModel() : DownloadFileViewModel{
+fun rememberDownloadFileViewModel(): DownloadFileViewModel {
 	val context = rememberContext() as ComponentActivity
 	return hiltViewModel(context)
 }

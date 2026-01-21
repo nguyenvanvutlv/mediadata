@@ -3,19 +3,19 @@ package com.nvv.mediadata.view.file
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FolderOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.FolderOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,7 +65,7 @@ fun LocalFileNavigation() {
 			fileViewModel.setPath(
 				Settings.getPath(context).toUri()
 			)
-		}catch(e: Exception){
+		} catch (e: Exception) {
 
 		}
 	}
@@ -101,7 +101,8 @@ fun LocalFileNavigation() {
 			OutlinedTextField(
 				value = files.searchQuery,
 				onValueChange = { fileViewModel.onSearchQueryChanged(it) },
-				modifier = Modifier.fillMaxWidth()
+				modifier = Modifier
+					.fillMaxWidth()
 					.padding(16.dp),
 				placeholder = { Text("Search files...") },
 				leadingIcon = {
@@ -113,7 +114,7 @@ fun LocalFileNavigation() {
 
 			Box(
 				Modifier.weight(1f)
-			){
+			) {
 				if (files.files.isEmpty()) {
 					Column(
 						modifier = Modifier.fillMaxSize(),
@@ -141,7 +142,9 @@ fun LocalFileNavigation() {
 					}
 				} else {
 					LazyColumn(
-						modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+						modifier = Modifier
+							.fillMaxSize()
+							.padding(horizontal = 16.dp, vertical = 8.dp),
 						verticalArrangement = Arrangement.spacedBy(8.dp),
 						horizontalAlignment = Alignment.CenterHorizontally
 					) {
@@ -178,7 +181,7 @@ fun LocalFileNavigation() {
 											)
 										}
 									}
-								){
+								) {
 									val link = file.uri.toString()
 									playViewModel.setURLs(
 										links = listOf(link)

@@ -26,19 +26,6 @@ import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
 import timber.log.Timber
-import androidx.media3.session.SessionCommands
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionResult
-import android.os.Bundle
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
 
 const val bufferForPlayback = 2_500
 const val bufferForPlaybackAfterRebuffer = 3_000
@@ -74,8 +61,10 @@ class PlaybackService : MediaSessionService() {
 			.setRenderersFactory(renderersFactory)
 			.setTrackSelector(trackSelector)
 			.setLoadControl(loadControl)
-			.setMediaSourceFactory(DefaultMediaSourceFactory(this)
-				.setDataSourceFactory(dataSourceFactory))
+			.setMediaSourceFactory(
+				DefaultMediaSourceFactory(this)
+					.setDataSourceFactory(dataSourceFactory)
+			)
 			.setAudioAttributes(
 				AudioAttributes.Builder()
 					.setUsage(C.USAGE_MEDIA)
@@ -191,12 +180,15 @@ class PlaybackService : MediaSessionService() {
 			override fun onSessionStarted(session: CastSession, sessionId: String) {
 				swapPlayer(castPlayer)
 			}
+
 			override fun onSessionEnded(session: CastSession, error: Int) {
 				swapPlayer(player)
 			}
+
 			override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
 				swapPlayer(castPlayer)
 			}
+
 			override fun onSessionStarting(session: CastSession) {}
 			override fun onSessionStartFailed(session: CastSession, error: Int) {}
 			override fun onSessionEnding(session: CastSession) {}

@@ -7,8 +7,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +26,7 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Subtitles
-import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -171,15 +177,21 @@ fun MenuItem(
 			.padding(horizontal = 16.dp, vertical = 12.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		Icon(imageVector = icon, contentDescription = null,
-			tint = MaterialTheme.colorScheme.onSurface)
+		Icon(
+			imageVector = icon, contentDescription = null,
+			tint = MaterialTheme.colorScheme.onSurface
+		)
 		Spacer(modifier = Modifier.width(16.dp))
-		Text(text = text, style = MaterialTheme.typography.bodyLarge,
-			color = MaterialTheme.colorScheme.onSurface)
+		Text(
+			text = text, style = MaterialTheme.typography.bodyLarge,
+			color = MaterialTheme.colorScheme.onSurface
+		)
 		Spacer(modifier = Modifier.weight(1f))
 		if (secondaryText != null) {
-			Text(text = secondaryText, style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant)
+			Text(
+				text = secondaryText, style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
 		}
 		Icon(
 			imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
@@ -244,9 +256,13 @@ fun SubtitleSettingScreen(
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.Center
 		) {
-			item{
-				Text(stringResource(R.string.subtitle_size_label,
-					state.sizeSubtitle.toInt()))
+			item {
+				Text(
+					stringResource(
+						R.string.subtitle_size_label,
+						state.sizeSubtitle.toInt()
+					)
+				)
 				Slider(
 					value = state.sizeSubtitle,
 					onValueChange = onUpdateSize,
@@ -254,9 +270,13 @@ fun SubtitleSettingScreen(
 					modifier = Modifier.fillMaxWidth()
 				)
 			}
-			item{
-				Text(stringResource(R.string.subtitle_position_label,
-					(state.positionSubtitle * 100).toInt()))
+			item {
+				Text(
+					stringResource(
+						R.string.subtitle_position_label,
+						(state.positionSubtitle * 100).toInt()
+					)
+				)
 				Slider(
 					value = state.positionSubtitle,
 					onValueChange = onUpdatePosition,
@@ -302,8 +322,10 @@ fun SelectionItem(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		if (isSelected) {
-			Icon(imageVector = Icons.Rounded.Check, contentDescription = null,
-				tint = MaterialTheme.colorScheme.primary)
+			Icon(
+				imageVector = Icons.Rounded.Check, contentDescription = null,
+				tint = MaterialTheme.colorScheme.primary
+			)
 		} else {
 			Spacer(modifier = Modifier.width(24.dp))
 		}

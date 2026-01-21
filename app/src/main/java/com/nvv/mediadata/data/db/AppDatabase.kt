@@ -6,5 +6,5 @@ import com.nvv.mediadata.data.model.HistoryEntity
 
 @Database(entities = [HistoryEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun historyDao(): HistoryDao
+	abstract fun historyDao(): HistoryDao
 }

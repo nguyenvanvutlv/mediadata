@@ -2,7 +2,6 @@ package com.nvv.mediadata.view.player
 
 import android.app.PictureInPictureParams
 import android.graphics.Rect
-import android.os.Build
 import android.util.Rational
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -13,10 +12,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -34,20 +30,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.AspectRatio
-import androidx.compose.material.icons.rounded.Audiotrack
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Headset
 import androidx.compose.material.icons.rounded.PauseCircleFilled
 import androidx.compose.material.icons.rounded.PictureInPicture
-import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,7 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -75,7 +65,6 @@ import com.nvv.mediadata.view.core.findActivity
 import com.nvv.mediadata.view.core.padStartWith0
 import com.nvv.mediadata.view.core.seek.SeekerPlayer
 import kotlinx.coroutines.withTimeout
-import timber.log.Timber
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -106,14 +95,14 @@ fun PlayerView(
 	var showSettings by remember { mutableStateOf(false) }
 
 	val onPipMode = {
-			val params = PictureInPictureParams.Builder()
-				.setAspectRatio(Rational(16, 9))
-				.setSourceRectHint(videoViewBounds)
-				.build()
-			if (canPipMode) {
-				context.findActivity()?.enterPictureInPictureMode(params)
-			}
+		val params = PictureInPictureParams.Builder()
+			.setAspectRatio(Rational(16, 9))
+			.setSourceRectHint(videoViewBounds)
+			.build()
+		if (canPipMode) {
+			context.findActivity()?.enterPictureInPictureMode(params)
 		}
+	}
 	val isCasting = player?.deviceInfo?.playbackType == androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE
 	LaunchedEffect(state.position) {
 		if (!isSeeking) {
@@ -184,7 +173,7 @@ fun PlayerView(
 						detectTapGestures(
 							onTap = {
 								if (isCasting) {
-									videoPlayerState.showControls( isPlaying = false)
+									videoPlayerState.showControls(isPlaying = false)
 								} else {
 									if (videoPlayerState.isControlsVisible) {
 										videoPlayerState.hideControls()
@@ -334,7 +323,7 @@ fun PlayerView(
 						modifier = Modifier.fillMaxWidth(),
 						horizontalArrangement = Arrangement.SpaceEvenly,
 						verticalAlignment = Alignment.CenterVertically
-					){
+					) {
 						IconButton({
 							if (player?.isPlaying == true) {
 								player?.pause()
@@ -386,7 +375,8 @@ fun PlayerView(
 					) {
 						Spacer(Modifier.weight(1f))
 						Row(
-							modifier = Modifier.fillMaxWidth()
+							modifier = Modifier
+								.fillMaxWidth()
 								.padding(horizontal = 20.dp),
 							horizontalArrangement = Arrangement.SpaceBetween
 						) {

@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -15,135 +14,137 @@ import timber.log.Timber
 import java.io.IOException
 
 class FileProcessingWorker(
-    context: Context,
-    workerParams: WorkerParameters
+	context: Context,
+	workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    override suspend fun doWork(): Result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-        val localUriString = inputData.getString("EXTRA_LOCAL_URI") ?: return@withContext Result.failure()
-        val title = inputData.getString("EXTRA_TITLE") ?: "Unknown"
-        val mimeType = inputData.getString("EXTRA_MIME_TYPE")
+	override suspend fun doWork(): Result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+		val localUriString = inputData.getString("EXTRA_LOCAL_URI") ?: return@withContext Result.failure()
+		val title = inputData.getString("EXTRA_TITLE") ?: "Unknown"
+		val mimeType = inputData.getString("EXTRA_MIME_TYPE")
 
-        try {
-            val sourceUri = localUriString.toUri()
-            val path = Settings.getPath(applicationContext)
-            if (path.isEmpty()) return@withContext Result.failure()
+		try {
+			val sourceUri = localUriString.toUri()
+			val path = Settings.getPath(applicationContext)
+			if (path.isEmpty()) return@withContext Result.failure()
 
-            val extension = if (mimeType != null) {
-                android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" }
-            } else {
-                null
-            } ?: detectVideoExtensionFromStream(applicationContext, sourceUri)
+			val extension = if (mimeType != null) {
+				android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" }
+			} else {
+				null
+			} ?: detectVideoExtensionFromStream(applicationContext, sourceUri)
 
-            val safeTitle = title.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
-            val finalFileName = if (safeTitle.endsWith(extension, ignoreCase = true)) {
-                safeTitle
-            } else {
-                "$safeTitle$extension"
-            }
+			val safeTitle = title.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
+			val finalFileName = if (safeTitle.endsWith(extension, ignoreCase = true)) {
+				safeTitle
+			} else {
+				"$safeTitle$extension"
+			}
 
-            val targetDirUri = path.toUri()
-            val targetDir = DocumentFile.fromTreeUri(applicationContext, targetDirUri)
+			val targetDirUri = path.toUri()
+			val targetDir = DocumentFile.fromTreeUri(applicationContext, targetDirUri)
 
-            if (targetDir != null && targetDir.canWrite()) {
-                 // Check if file exists and rename if necessary
-                var finalFile = targetDir.findFile(finalFileName)
-                var newFileName = finalFileName
-                var counter = 1
-                while (finalFile != null) {
-                    val nameWithoutExt = finalFileName.substringBeforeLast(".")
-                    newFileName = "$nameWithoutExt ($counter)$extension"
-                    finalFile = targetDir.findFile(newFileName)
-                    counter++
-                }
+			if (targetDir != null && targetDir.canWrite()) {
+				// Check if file exists and rename if necessary
+				var finalFile = targetDir.findFile(finalFileName)
+				var newFileName = finalFileName
+				var counter = 1
+				while (finalFile != null) {
+					val nameWithoutExt = finalFileName.substringBeforeLast(".")
+					newFileName = "$nameWithoutExt ($counter)$extension"
+					finalFile = targetDir.findFile(newFileName)
+					counter++
+				}
 
-                val targetFile = targetDir.createFile(mimeType ?: "video/*", newFileName)
-                    ?: throw IOException("Can't create target file")
-                    
-                applicationContext.contentResolver.openInputStream(sourceUri).use { inputStream ->
-                    if (inputStream == null) throw IOException("Can't open input stream")
-                    applicationContext.contentResolver.openOutputStream(targetFile.uri).use { outputStream ->
-                        if (outputStream == null) throw IOException("Can't open output stream")
-                        inputStream.copyTo(outputStream, bufferSize = 32 * 1024)
-                    }
-                }
-                
-                // Content Resolver update to make it visible immediately might be needed, but DocumentFile handles most.
-                
-                showNotification(
-                    applicationContext.getString(R.string.download_finished),
-                    applicationContext.getString(R.string.saved_successfully, newFileName)
-                )
-                Result.success()
-            } else {
-                Timber.e("Target directory not writable or null: $targetDirUri")
-                showNotification(
-                    applicationContext.getString(R.string.notification_title_error),
-                    applicationContext.getString(R.string.failed_to_save_downloaded_file)
-                )
-                Result.failure()
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Error processing downloaded file")
-             showNotification(
-                applicationContext.getString(R.string.notification_title_error),
-                applicationContext.getString(R.string.failed_to_save_downloaded_file)
-            )
-            Result.failure()
-        }
-    }
+				val targetFile = targetDir.createFile(mimeType ?: "video/*", newFileName)
+					?: throw IOException("Can't create target file")
 
-    private fun detectVideoExtensionFromStream(context: Context, uri: Uri): String {
-        val retriever = android.media.MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(context, uri)
-            val mimeType = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-            if (mimeType != null) {
-                android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" } ?: ".mp4"
-            } else {
-                ".mp4"
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Error detecting extension with MediaMetadataRetriever")
-            // Fallback to manual check for common formats if retriever fails
-             try {
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                     val buffer = ByteArray(12)
-                    if (input.read(buffer) != -1) {
-                        val hexSignature = buffer.joinToString("") { "%02X".format(it) }
-                        val asciiSignature = String(buffer)
-                        if (hexSignature.startsWith("1A45DFA3")) return ".mkv"
-                        if (asciiSignature.length >= 8 && asciiSignature.substring(4, 8) == "ftyp") return ".mp4"
-                        if (hexSignature.startsWith("52494646")) return ".avi"
-                    }
-                }
-            } catch (ignore: Exception) {}
-            ".mp4"
-        } finally {
-            try {
-                retriever.release()
-            } catch (ignore: Exception) {}
-        }
-    }
+				applicationContext.contentResolver.openInputStream(sourceUri).use { inputStream ->
+					if (inputStream == null) throw IOException("Can't open input stream")
+					applicationContext.contentResolver.openOutputStream(targetFile.uri).use { outputStream ->
+						if (outputStream == null) throw IOException("Can't open output stream")
+						inputStream.copyTo(outputStream, bufferSize = 32 * 1024)
+					}
+				}
 
-    private fun showNotification(title: String, message: String) {
-        val channelId = "download_status_channel"
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+				// Content Resolver update to make it visible immediately might be needed, but DocumentFile handles most.
 
-	    val channel = NotificationChannel(
-	        channelId,
-	        applicationContext.getString(R.string.download_status_channel_name),
-	        NotificationManager.IMPORTANCE_DEFAULT
-	    )
-	    notificationManager.createNotificationChannel(channel)
+				showNotification(
+					applicationContext.getString(R.string.download_finished),
+					applicationContext.getString(R.string.saved_successfully, newFileName)
+				)
+				Result.success()
+			} else {
+				Timber.e("Target directory not writable or null: $targetDirUri")
+				showNotification(
+					applicationContext.getString(R.string.notification_title_error),
+					applicationContext.getString(R.string.failed_to_save_downloaded_file)
+				)
+				Result.failure()
+			}
+		} catch (e: Exception) {
+			Timber.e(e, "Error processing downloaded file")
+			showNotification(
+				applicationContext.getString(R.string.notification_title_error),
+				applicationContext.getString(R.string.failed_to_save_downloaded_file)
+			)
+			Result.failure()
+		}
+	}
 
-	    val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setAutoCancel(true)
-            .build()
+	private fun detectVideoExtensionFromStream(context: Context, uri: Uri): String {
+		val retriever = android.media.MediaMetadataRetriever()
+		return try {
+			retriever.setDataSource(context, uri)
+			val mimeType = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+			if (mimeType != null) {
+				android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" } ?: ".mp4"
+			} else {
+				".mp4"
+			}
+		} catch (e: Exception) {
+			Timber.e(e, "Error detecting extension with MediaMetadataRetriever")
+			// Fallback to manual check for common formats if retriever fails
+			try {
+				context.contentResolver.openInputStream(uri)?.use { input ->
+					val buffer = ByteArray(12)
+					if (input.read(buffer) != -1) {
+						val hexSignature = buffer.joinToString("") { "%02X".format(it) }
+						val asciiSignature = String(buffer)
+						if (hexSignature.startsWith("1A45DFA3")) return ".mkv"
+						if (asciiSignature.length >= 8 && asciiSignature.substring(4, 8) == "ftyp") return ".mp4"
+						if (hexSignature.startsWith("52494646")) return ".avi"
+					}
+				}
+			} catch (ignore: Exception) {
+			}
+			".mp4"
+		} finally {
+			try {
+				retriever.release()
+			} catch (ignore: Exception) {
+			}
+		}
+	}
 
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-    }
+	private fun showNotification(title: String, message: String) {
+		val channelId = "download_status_channel"
+		val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+		val channel = NotificationChannel(
+			channelId,
+			applicationContext.getString(R.string.download_status_channel_name),
+			NotificationManager.IMPORTANCE_DEFAULT
+		)
+		notificationManager.createNotificationChannel(channel)
+
+		val notification = NotificationCompat.Builder(applicationContext, channelId)
+			.setContentTitle(title)
+			.setContentText(message)
+			.setSmallIcon(android.R.drawable.stat_sys_download_done)
+			.setAutoCancel(true)
+			.build()
+
+		notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+	}
 }

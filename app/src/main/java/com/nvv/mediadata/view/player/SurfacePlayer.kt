@@ -81,8 +81,7 @@ fun SurfacePlayer(
 		Box(
 			modifier = modifier
 				.fillMaxSize()
-				.background(Color.BLACK.toColor().toComposeColor())
-			,
+				.background(Color.BLACK.toColor().toComposeColor()),
 			contentAlignment = Alignment.Center
 		) {
 			androidx.compose.foundation.layout.Column(
@@ -126,8 +125,9 @@ fun SurfacePlayer(
 				val subView = view.subtitleView
 				view.resizeMode = state.scaleMode.scaleType
 				val opacity = 0.coerceAtLeast(
-					state.opacity.coerceAtMost(100));
-				val alpha = (opacity * 255f / 100f).roundToInt();
+					state.opacity.coerceAtMost(100)
+				)
+				val alpha = (opacity * 255f / 100f).roundToInt()
 				val style = CaptionStyleCompat(
 					state.subtitleTextColor,
 					ColorUtils.setAlphaComponent(Color.BLACK, alpha),
@@ -155,13 +155,16 @@ fun SurfacePlayer(
 				Lifecycle.Event.ON_RESUME -> {
 					hideSystemBars()
 				}
+
 				Lifecycle.Event.ON_START -> {
 					p?.playWhenReady = true
 					p?.prepare()
 				}
+
 				Lifecycle.Event.ON_STOP -> {
 					p?.playWhenReady = false
 				}
+
 				else -> Unit
 			}
 		}

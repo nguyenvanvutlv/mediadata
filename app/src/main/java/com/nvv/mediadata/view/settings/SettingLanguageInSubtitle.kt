@@ -44,7 +44,7 @@ import java.util.Locale
 @Composable
 fun SettingLanguageInSubtitle(
 	navController: NavController
-){
+) {
 	val context = rememberContext()
 	var currentLanguage by remember { mutableStateOf(Settings.getLanguages(context)) }
 	val languageList = remember {
@@ -84,16 +84,20 @@ fun SettingLanguageInSubtitle(
 		}
 	) {
 		Surface(
-			Modifier.fillMaxSize().padding(it)
+			Modifier
+				.fillMaxSize()
+				.padding(it)
 		) {
 			Box(
 				Modifier.fillMaxSize()
 			) {
 				LazyColumn(
-					modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(horizontal = 16.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
 				) {
-					items(languageList, key = { l -> l.second }){ (name, code) ->
+					items(languageList, key = { l -> l.second }) { (name, code) ->
 						val isSelected = currentLanguage == code
 						ItemNavigation(
 							leading = {

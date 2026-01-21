@@ -26,7 +26,7 @@ import com.nvv.mediadata.view.core.ItemNavigation
 @Composable
 fun BaseSettingList(
 	navController: NavController
-){
+) {
 	val subtitleDisplay = stringResource(R.string.subtitle_display)
 	val aboutDisplay = stringResource(R.string.about)
 	Surface(
@@ -34,16 +34,18 @@ fun BaseSettingList(
 	) {
 		Box(
 			Modifier.fillMaxSize()
-		){
+		) {
 			LazyColumn(
-				modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+				modifier = Modifier
+					.fillMaxSize()
+					.padding(horizontal = 16.dp),
 				horizontalAlignment = Alignment.CenterHorizontally
 			) {
-				item{
+				item {
 					ItemNavigation(
 						leading = {
 							Icon(
-								imageVector = androidx.compose.material.icons.Icons.Rounded.Subtitles,
+								imageVector = Icons.Rounded.Subtitles,
 								contentDescription = null
 							)
 						},
@@ -64,7 +66,7 @@ fun BaseSettingList(
 						}
 					)
 				}
-				item{
+				item {
 					ItemNavigation(
 						leading = {
 							Icon(
@@ -96,7 +98,7 @@ fun BaseSettingList(
 						}
 					)
 				}
-				item{
+				item {
 					ItemNavigation(
 						leading = {
 							Icon(

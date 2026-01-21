@@ -3,27 +3,35 @@ package com.nvv.mediadata.view.stream
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardBackspace
+import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,109 +45,174 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.nvv.mediadata.R
+import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
 import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 
 @Composable
 fun NetworkStream(
 	navController: NavHostController,
+	initialTab: Int = 0
 ) {
-	var url by remember { mutableStateOf(
-		"") }
+	var selectedTab by remember { mutableIntStateOf(initialTab) }
 	val player = rememberPlayerViewModel()
 	val historyViewModel = rememberHistoryViewModel()
+	val downloadViewModel = rememberDownloadFileViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
-	
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
 	val playButtonLabel = stringResource(R.string.play_button_label)
 	val networkDisclaimer = stringResource(R.string.network_disclaimer)
 	val urlPlaceholder = stringResource(R.string.network_url_placeholder)
 
+	val titles = listOf("Stream Link", "Tasks")
+
 	Surface(
 		Modifier.fillMaxSize()
 	) {
-		Box(
-			Modifier.fillMaxSize()
-		) {
-			Column(
-				Modifier
-					.fillMaxSize()
-					.verticalScroll(rememberScrollState()),
-				horizontalAlignment = Alignment.CenterHorizontally,
+		Column(Modifier.fillMaxSize()) {
+			// BACK BUTTON ROW
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(8.dp),
+				verticalAlignment = Alignment.CenterVertically
 			) {
-				OutlinedTextField(
-					value = url,
-					onValueChange = { n -> url = n },
-					label = { Text(streamUrlLabel) },
-					placeholder = {
-						Text(
-							urlPlaceholder,
-							style = MaterialTheme.typography.bodyLarge.copy(
-								color = Color.DarkGray.copy(alpha = 0.3f)
-							),
-							maxLines = 1,
-							overflow = TextOverflow.Ellipsis
-						)
-					},
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(vertical = 10.dp, horizontal = 16.dp),
-					singleLine = true,
-					maxLines = 1,
-					keyboardActions = KeyboardActions {
-						localKeyword?.hide()
-					},
-				)
-				Text(
-					text = networkDisclaimer,
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					textAlign = TextAlign.Center,
-					modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-				)
-				Spacer(Modifier.height(16.dp))
-				Button(
-					onClick = {
-						localKeyword?.hide()
-						if (url.isNotBlank()) {
-							val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Stream Link" }
-							historyViewModel.insertHistory(title, url)
-							player.setURLs(listOf(url))
-							player.selectItem(0)
-						}
-					},
-					modifier = Modifier.fillMaxWidth(0.8f)
-				) {
-					Text(
-						playButtonLabel,
-						style = MaterialTheme.typography.labelLarge
+				IconButton(onClick = { navController.popBackStack() }) {
+					Icon(
+						imageVector = Icons.AutoMirrored.Rounded.KeyboardBackspace,
+						contentDescription = stringResource(R.string.back_button)
 					)
 				}
-				Spacer(Modifier.weight(1f))
-				Button(
-					onClick = {
-						navController.popBackStack()
-					},
-					modifier = Modifier.fillMaxWidth(0.8f)
+				Spacer(Modifier.width(8.dp))
+				// TABS
+				TabRow(
+					selectedTabIndex = selectedTab,
+					modifier = Modifier.weight(1f)
 				) {
-					Row(
-						Modifier.fillMaxWidth(),
-						horizontalArrangement = Arrangement.Center,
-						verticalAlignment = Alignment.CenterVertically
-					){
-						Icon(
-							imageVector = Icons.AutoMirrored.Rounded.KeyboardBackspace,
-							contentDescription = null,
-							modifier = Modifier.size(30.dp)
-						)
-						Spacer(Modifier.width(5.dp))
-						Text(
-							stringResource(R.string.back_button),
-							style = MaterialTheme.typography.labelLarge
+					titles.forEachIndexed { index, title ->
+						Tab(
+							selected = selectedTab == index,
+							onClick = { selectedTab = index },
+							text = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) }
 						)
 					}
 				}
-				Spacer(Modifier.height(16.dp))
+			}
+
+			Box(Modifier.fillMaxSize()) {
+				if (selectedTab == 0) {
+					// TAB 0: STREAM LINK INPUT
+					var url by remember { mutableStateOf("") }
+					Column(
+						Modifier
+							.fillMaxSize()
+							.verticalScroll(rememberScrollState()),
+						horizontalAlignment = Alignment.CenterHorizontally,
+					) {
+						Spacer(Modifier.height(16.dp))
+						OutlinedTextField(
+							value = url,
+							onValueChange = { n -> url = n },
+							label = { Text(streamUrlLabel) },
+							placeholder = {
+								Text(
+									urlPlaceholder,
+									style = MaterialTheme.typography.bodyLarge.copy(
+										color = Color.DarkGray.copy(alpha = 0.3f)
+									),
+									maxLines = 1,
+									overflow = TextOverflow.Ellipsis
+								)
+							},
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(vertical = 10.dp, horizontal = 16.dp),
+							singleLine = true,
+							maxLines = 1,
+							keyboardActions = KeyboardActions {
+								localKeyword?.hide()
+							},
+						)
+						Text(
+							text = networkDisclaimer,
+							style = MaterialTheme.typography.bodySmall,
+							color = MaterialTheme.colorScheme.onSurfaceVariant,
+							textAlign = TextAlign.Center,
+							modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+						)
+						Spacer(Modifier.height(16.dp))
+						Button(
+							onClick = {
+								localKeyword?.hide()
+								if (url.isNotBlank()) {
+									val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Stream Link" }
+									historyViewModel.insertHistory(title, url)
+									player.setURLs(listOf(url))
+									player.selectItem(0)
+								}
+							},
+							modifier = Modifier.fillMaxWidth(0.8f)
+						) {
+							Text(
+								playButtonLabel,
+								style = MaterialTheme.typography.labelLarge
+							)
+						}
+					}
+				} else {
+					// TAB 1: TASK LIST
+					val tasks = downloadViewModel.tasks
+					if (tasks.isEmpty()) {
+						Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+							Text("No active downloads", style = MaterialTheme.typography.bodyLarge)
+						}
+					} else {
+						LazyColumn(
+							Modifier.fillMaxSize(),
+							contentPadding = PaddingValues(16.dp),
+							verticalArrangement = Arrangement.spacedBy(8.dp)
+						) {
+							items(tasks.size) { index ->
+								val task = tasks[index]
+								Card(
+									modifier = Modifier.fillMaxWidth(),
+								) {
+									Column(Modifier.padding(16.dp)) {
+										Text(
+											task.fileName, style = MaterialTheme.typography.titleMedium,
+											maxLines = 1, overflow = TextOverflow.Ellipsis
+										)
+										Spacer(Modifier.height(8.dp))
+										Row(
+											Modifier.fillMaxWidth(),
+											horizontalArrangement = Arrangement.SpaceBetween,
+											verticalAlignment = Alignment.CenterVertically
+										) {
+											Column(Modifier.weight(1f)) {
+												Text(task.status, style = MaterialTheme.typography.bodyMedium)
+												Text("${task.progress}%", style = MaterialTheme.typography.bodyMedium)
+											}
+											if (task.status == "Downloading") {
+												IconButton(onClick = { downloadViewModel.cancelDownload(task.id) }) {
+													Icon(
+														imageVector = Icons.Rounded.Cancel,
+														contentDescription = "Cancel",
+														tint = MaterialTheme.colorScheme.error
+													)
+												}
+											}
+										}
+										Spacer(Modifier.height(4.dp))
+										LinearProgressIndicator(
+											progress = { task.progress / 100f },
+											modifier = Modifier.fillMaxWidth(),
+										)
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

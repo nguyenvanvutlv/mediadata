@@ -11,21 +11,21 @@ import com.nvv.mediadata.data.model.HistoryEntity
 
 @Dao
 interface HistoryDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHistory(history: HistoryEntity)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	suspend fun insertHistory(history: HistoryEntity)
 
-    @Update
-    suspend fun updateHistory(history: HistoryEntity)
+	@Update
+	suspend fun updateHistory(history: HistoryEntity)
 
-    @Delete
-    suspend fun deleteHistory(history: HistoryEntity)
+	@Delete
+	suspend fun deleteHistory(history: HistoryEntity)
 
-    @Query("SELECT * FROM stream_history WHERE title LIKE '%' || :query || '%' OR url LIKE '%' || :query || '%' ORDER BY timestamp DESC")
-    fun searchHistory(query: String): PagingSource<Int, HistoryEntity>
+	@Query("SELECT * FROM stream_history WHERE title LIKE '%' || :query || '%' OR url LIKE '%' || :query || '%' ORDER BY timestamp DESC")
+	fun searchHistory(query: String): PagingSource<Int, HistoryEntity>
 
-    @Query("SELECT * FROM stream_history ORDER BY timestamp DESC")
-    fun getAllHistory(): PagingSource<Int, HistoryEntity>
+	@Query("SELECT * FROM stream_history ORDER BY timestamp DESC")
+	fun getAllHistory(): PagingSource<Int, HistoryEntity>
 
-    @Query("DELETE FROM stream_history")
-    suspend fun clearAllHistory()
+	@Query("DELETE FROM stream_history")
+	suspend fun clearAllHistory()
 }

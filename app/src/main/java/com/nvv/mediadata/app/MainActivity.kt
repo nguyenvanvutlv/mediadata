@@ -1,6 +1,9 @@
 package com.nvv.mediadata.app
 
+import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
@@ -29,25 +32,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.C
+import androidx.media3.common.Player
 import androidx.navigation.compose.rememberNavController
+import com.downloader.PRDownloader
+import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.Destination
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberFileViewModel
+import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberNotificationViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.data.viewmodel.Settings
@@ -58,23 +68,12 @@ import com.nvv.mediadata.view.stream.MiniAudioPlayer
 import com.nvv.mediadata.view.topbar.DefaultTopbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import android.Manifest
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.unit.dp
-import androidx.media3.common.C
-import androidx.media3.common.Player
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
-import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 	private var pipModeListener: ((isInPipMode: Boolean) -> Unit)? = null
-	
+
 	private val requestPermissionLauncher = registerForActivityResult(
 		ActivityResultContracts.RequestPermission()
 	) { isGranted: Boolean ->
@@ -84,6 +83,7 @@ class MainActivity : AppCompatActivity() {
 
 		}
 	}
+
 	private fun checkNotificationPermission() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 			if (ContextCompat.checkSelfPermission(
@@ -183,10 +183,10 @@ class MainActivity : AppCompatActivity() {
 					fileViewModel.setPath(
 						Settings.getPath(context).toUri()
 					)
-				}catch(e: Exception){
+				} catch (e: Exception) {
 
 				}
-				if (videoUri != null){
+				if (videoUri != null) {
 					val title = videoUri.toString().substringAfterLast("/")
 						.substringBefore("?").ifBlank { "Stream Link" }
 					historyViewModel.insertHistory(title, videoUri.toString())
@@ -295,7 +295,7 @@ class MainActivity : AppCompatActivity() {
 							}
 						}
 					}
-					
+
 					MiniAudioPlayer(
 						visible = isAudioPlaying && !isPlay,
 						onNavigateToPlayer = {
@@ -304,7 +304,7 @@ class MainActivity : AppCompatActivity() {
 						},
 						modifier = Modifier
 							.align(androidx.compose.ui.Alignment.BottomCenter)
-							.padding(bottom = 80.dp) 
+							.padding(bottom = 80.dp)
 					)
 
 					AnimatedVisibility(

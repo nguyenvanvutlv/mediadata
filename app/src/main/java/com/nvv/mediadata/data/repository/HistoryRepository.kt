@@ -11,34 +11,34 @@ import javax.inject.Singleton
 
 @Singleton
 class HistoryRepository @Inject constructor(
-    private val historyDao: HistoryDao
+	private val historyDao: HistoryDao
 ) {
-    fun getHistory(query: String): Flow<PagingData<HistoryEntity>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = 20,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = {
-                if (query.isBlank()) historyDao.getAllHistory()
-                else historyDao.searchHistory(query)
-            }
-        ).flow
-    }
+	fun getHistory(query: String): Flow<PagingData<HistoryEntity>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				enablePlaceholders = false
+			),
+			pagingSourceFactory = {
+				if (query.isBlank()) historyDao.getAllHistory()
+				else historyDao.searchHistory(query)
+			}
+		).flow
+	}
 
-    suspend fun insertHistory(history: HistoryEntity) {
-        historyDao.insertHistory(history)
-    }
+	suspend fun insertHistory(history: HistoryEntity) {
+		historyDao.insertHistory(history)
+	}
 
-    suspend fun updateHistory(history: HistoryEntity) {
-        historyDao.updateHistory(history)
-    }
+	suspend fun updateHistory(history: HistoryEntity) {
+		historyDao.updateHistory(history)
+	}
 
-    suspend fun deleteHistory(history: HistoryEntity) {
-        historyDao.deleteHistory(history)
-    }
+	suspend fun deleteHistory(history: HistoryEntity) {
+		historyDao.deleteHistory(history)
+	}
 
-    suspend fun clearHistory() {
-        historyDao.clearAllHistory()
-    }
+	suspend fun clearHistory() {
+		historyDao.clearAllHistory()
+	}
 }
