@@ -58,37 +58,36 @@ dependencies {
 	implementation(libs.androidx.appcompat)
 	implementation(libs.androidx.compose.foundation.layout)
 	// PLAYER
-	val media3 = "1.9.0"
-	implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
-	implementation("androidx.media3:media3-session:$media3")
-	implementation("androidx.media3:media3-datasource:$media3")
-	implementation("androidx.media3:media3-decoder:$media3")
-	implementation("androidx.media3:media3-common:$media3")
-	implementation("androidx.media3:media3-container:$media3")
-	implementation("androidx.media3:media3-extractor:$media3")
+	implementation(libs.play.services.cast.framework)
+	implementation(libs.androidx.media3.session)
+	implementation(libs.androidx.media3.datasource)
+	implementation(libs.androidx.media3.decoder)
+	implementation(libs.androidx.media3.common)
+	implementation(libs.androidx.media3.container)
+	implementation(libs.androidx.media3.extractor)
 	implementation("androidx.mediarouter:mediarouter:1.8.1") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
-	implementation("androidx.media3:media3-cast:${media3}") {
+	implementation("androidx.media3:media3-cast:1.9.0") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
-	implementation("androidx.media3:media3-exoplayer-dash:$media3") {
+	implementation("androidx.media3:media3-exoplayer-dash:1.9.0") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
-	implementation("androidx.media3:media3-exoplayer-hls:$media3") {
+	implementation("androidx.media3:media3-exoplayer-hls:1.9.0") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
-	implementation("androidx.media3:media3-exoplayer-smoothstreaming:$media3") {
+	implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.9.0") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
-	implementation("androidx.media3:media3-exoplayer-rtsp:$media3") {
+	implementation("androidx.media3:media3-exoplayer-rtsp:1.9.0") {
 		exclude(group = "androidx.media3", module = "media3-exoplayer")
 	}
 	implementation(fileTree("libs") {
 		include("lib-*.aar")
 	})
-	implementation("androidx.recyclerview:recyclerview:1.4.0")
-	implementation("androidx.documentfile:documentfile:1.1.0")
+	implementation(libs.androidx.recyclerview)
+	implementation(libs.androidx.documentfile)
 	/// HILT
 	implementation(libs.hilt.android)
 	ksp(libs.hilt.android.compiler)

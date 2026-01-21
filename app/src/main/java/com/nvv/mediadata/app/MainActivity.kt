@@ -115,7 +115,6 @@ class MainActivity : AppCompatActivity() {
 		checkNotificationPermission()
 		setContent {
 			var videoUri by remember { mutableStateOf(intent?.data) }
-			KeepScreenOn()
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()
@@ -224,6 +223,9 @@ class MainActivity : AppCompatActivity() {
 
 			MediadataTheme(themeMode = themeMode) {
 				Box(modifier = Modifier.fillMaxSize()) {
+					if (isPlay) {
+						KeepScreenOn()
+					}
 					Scaffold(
 						topBar = {
 							AnimatedVisibility(

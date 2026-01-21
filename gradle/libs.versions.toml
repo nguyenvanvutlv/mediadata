@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.2"
+documentfile = "1.1.0"
 kotlin = "2.1.0"
 ksp = "2.1.0-1.0.29"
 # HILT
@@ -16,6 +17,9 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
 composeBom = "2024.09.00"
+media3Session = "1.9.0"
+playServicesCastFramework = "22.2.0"
+recyclerview = "1.4.0"
 timber = "5.0.1"
 foundation = "1.10.1"
 appcompatResources = "1.7.1"
@@ -30,6 +34,14 @@ foundationLayout = "1.10.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3Session" }
+androidx-media3-container = { module = "androidx.media3:media3-container", version.ref = "media3Session" }
+androidx-media3-datasource = { module = "androidx.media3:media3-datasource", version.ref = "media3Session" }
+androidx-media3-decoder = { module = "androidx.media3:media3-decoder", version.ref = "media3Session" }
+androidx-media3-extractor = { module = "androidx.media3:media3-extractor", version.ref = "media3Session" }
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3Session" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -56,6 +68,7 @@ coil3-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 # EXTEND ICON
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+play-services-cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "playServicesCastFramework" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }
