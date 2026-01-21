@@ -94,7 +94,7 @@
         <p>The app requires access to your device storage solely for:</p>
         <ul>
             <li>Playing local media files you select</li>
-            <li>Saving network media to user-designated folders</li>
+            <li>Saving network media to user-designated folders (including temporary parts for high-speed multi-threaded downloading)</li>
             <li>Storing app preferences (subtitle settings, language, etc.)</li>
         </ul>
         <p><strong>Important:</strong> You have full control over what files the app can access. The app only accesses files you explicitly open or folders you explicitly grant permission to.</p>
@@ -118,6 +118,7 @@
         <p>MediaData Player uses the following Android and Google services:</p>
         <ul>
             <li><strong>Google Cast:</strong> For casting to TV devices. Google Cast may collect device information as per Google's privacy policy</li>
+            <li><strong>PDDownloader:</strong> A custom download engine integrated into the app for accelerated, multi-threaded downloading. It operates entirely locally on your device and does not transmit data to external servers.</li>
             <li><strong>Android DownloadManager:</strong> System service for saving files. Managed by Android OS</li>
             <li><strong>Media3 (ExoPlayer):</strong> Google's open-source media playback library. No data collection</li>
         </ul>

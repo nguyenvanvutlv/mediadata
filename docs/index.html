@@ -433,39 +433,7 @@
         <div class="container">
             <h2 class="section-title">🎬 Supported Formats</h2>
             <div class="format-categories">
-                <div class="format-category">
-                    <h3>Video Codecs</h3>
-                    <div class="format-list">
-                        H.264 (AVC)<br>
-                        H.265 (HEVC)<br>
-                        VP8, VP9<br>
-                        AV1<br>
-                        MPEG-4
-                    </div>
-                </div>
-
-                <div class="format-category">
-                    <h3>Audio Codecs</h3>
-                    <div class="format-list">
-                        MP3, AAC<br>
-                        FLAC, ALAC<br>
-                        Opus, Vorbis<br>
-                        AC-3, E-AC-3<br>
-                        DTS
-                    </div>
-                </div>
-
-                <div class="format-category">
-                    <h3>Containers</h3>
-                    <div class="format-list">
-                        MP4, MKV<br>
-                        WebM, AVI<br>
-                        MOV, FLV<br>
-                        3GP, TS<br>
-                        M4A, OGG
-                    </div>
-                </div>
-
+                <!-- ... (existing content) ... -->
                 <div class="format-category">
                     <h3>Streaming</h3>
                     <div class="format-list">
@@ -479,6 +447,97 @@
             </div>
         </div>
     </section>
+
+    <!-- Download Manager Section -->
+    <section class="download-manager" style="padding: 80px 20px; background: white;">
+        <div class="container">
+            <h2 class="section-title">⬇️ Save file Media Manager</h2>
+            <p style="text-align: center; margin-bottom: 30px; color: #666;">Try out the save manager interface (Demo)</p>
+            
+            <div class="download-controls" style="max-width: 800px; margin: 0 auto; display: flex; gap: 10px; margin-bottom: 30px;">
+                <input type="text" id="urlInput" placeholder="Enter media URL to save..." style="flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 1em;">
+                <button onclick="startDownload()" class="btn btn-primary" style="background: #667eea; color: white;">Start Saving</button>
+            </div>
+
+            <div class="download-list" id="downloadList" style="max-width: 800px; margin: 0 auto;">
+                <!-- Download items will be added here -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function startDownload() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            const fileName = url.split('/').pop() || 'media_file.mp4';
+            const id = Date.now();
+            
+            const item = document.createElement('div');
+            item.className = 'download-item';
+            item.id = `download-${id}`;
+            item.style.cssText = `
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 15px;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                animation: fadeInUp 0.4s ease-out;
+            `;
+
+            item.innerHTML = `
+                <div class="file-icon" style="font-size: 2em;">📄</div>
+                <div class="file-info" style="flex: 1;">
+                    <h4 style="margin-bottom: 5px; color: #333;">${fileName}</h4>
+                    <div class="progress-bar" style="height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin: 8px 0;">
+                        <div class="progress" style="width: 0%; height: 100%; background: #667eea; transition: width 0.3s;"></div>
+                    </div>
+                    <div class="status" style="font-size: 0.85em; color: #666; display: flex; justify-content: space-between;">
+                        <span class="state">Starting...</span>
+                        <span class="percentage">0%</span>
+                    </div>
+                </div>
+                <button onclick="deleteDownload(${id})" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #ff6b6b;">×</button>
+            `;
+
+            document.getElementById('downloadList').prepend(item);
+            urlInput.value = '';
+
+            // Simulate download progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+
+                const el = document.getElementById(`download-${id}`);
+                if (!el) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                el.querySelector('.progress').style.width = `${progress}%`;
+                el.querySelector('.percentage').textContent = `${Math.round(progress)}%`;
+                el.querySelector('.state').textContent = progress === 100 ? 'Completed' : 'Saving...';
+
+                if (progress === 100) {
+                    clearInterval(interval);
+                    el.querySelector('.state').style.color = '#28a745';
+                }
+            }, 200);
+        }
+
+        function deleteDownload(id) {
+            const el = document.getElementById(`download-${id}`);
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(10px)';
+                setTimeout(() => el.remove(), 300);
+            }
+        }
+    </script>
 
     <section class="privacy-section">
         <div class="container">
