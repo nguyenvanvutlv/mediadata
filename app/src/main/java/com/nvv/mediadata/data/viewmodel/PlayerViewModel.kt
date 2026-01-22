@@ -260,8 +260,7 @@ class PlayerViewModel @Inject constructor(
 			path.endsWith(".mkv") || path.contains("matroska") -> MimeTypes.APPLICATION_MATROSKA
 			path.endsWith(".webm") -> MimeTypes.VIDEO_WEBM
 			path.endsWith(".flv") -> MimeTypes.VIDEO_FLV
-			path.endsWith(".mp4") || path.endsWith(".m4v") ||
-					path.startsWith("http") -> MimeTypes.VIDEO_MP4
+			path.endsWith(".mp4") || path.endsWith(".m4v") -> MimeTypes.VIDEO_MP4
 			else -> getMimeTypeFromServer(url)
 		}
 		Timber.tag("mimetype").d("MediaItem MimeType: $mimeType")

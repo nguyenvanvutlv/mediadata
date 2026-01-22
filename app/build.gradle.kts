@@ -18,8 +18,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 105
-		versionName = "1.0.5"
+		versionCode = 107
+		versionName = "1.0.7"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
