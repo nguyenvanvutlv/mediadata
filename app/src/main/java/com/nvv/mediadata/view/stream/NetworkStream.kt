@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,7 @@ import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
 import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun NetworkStream(
@@ -65,6 +67,8 @@ fun NetworkStream(
 	val urlPlaceholder = stringResource(R.string.network_url_placeholder)
 
 	val titles = listOf("Stream Link", "Tasks")
+
+	val scope = rememberCoroutineScope()
 
 	Surface(
 		Modifier.fillMaxSize()
@@ -145,10 +149,13 @@ fun NetworkStream(
 							onClick = {
 								localKeyword?.hide()
 								if (url.isNotBlank()) {
-									val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Stream Link" }
-									historyViewModel.insertHistory(title, url)
-									player.setURLs(listOf(url))
-									player.selectItem(0)
+									scope.launch {
+										val title = url.substringAfterLast("/").substringBefore("?").ifBlank { "Stream Link" }
+										historyViewModel.insertHistory(title, url)
+										player.setURLs(listOf(url))
+										player.selectItem(0)
+									}
+
 								}
 							},
 							modifier = Modifier.fillMaxWidth(0.8f)

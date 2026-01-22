@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ import com.nvv.mediadata.data.model.HistoryEntity
 import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.view.core.LoadingUI
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +66,8 @@ fun HistoryView() {
 
 	var showEditDialog by remember { mutableStateOf<HistoryEntity?>(null) }
 	var showDeleteDialog by remember { mutableStateOf<HistoryEntity?>(null) }
+
+	val scope = rememberCoroutineScope()
 
 	Column(modifier = Modifier.fillMaxSize()) {
 		OutlinedTextField(
@@ -121,8 +125,11 @@ fun HistoryView() {
 							HistoryItem(
 								history = item,
 								onClick = {
-									playerViewModel.setURLs(listOf(item.url))
-									playerViewModel.selectItem(0)
+									scope.launch {
+										playerViewModel.setURLs(listOf(item.url))
+										playerViewModel.selectItem(0)
+									}
+
 								},
 								onEdit = { showEditDialog = item },
 								onDelete = { showDeleteDialog = item }

@@ -26,17 +26,25 @@ import com.nvv.mediadata.data.model.PlaybackState
 import com.nvv.mediadata.data.model.VideoScaleMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Named
+import kotlin.text.contains
 
 @OptIn(UnstableApi::class)
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
 	@ApplicationContext private val context: Context,
+	@Named("BaseOkHttpClient")
+	private val okHttpClient: OkHttpClient,
 ) : ViewModel() {
 	private var _isPlay = MutableStateFlow(false)
 	val isPlay = _isPlay.asStateFlow()
@@ -69,7 +77,8 @@ class PlayerViewModel @Inject constructor(
 	}
 
 	init {
-		val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
+		val sessionToken = SessionToken(context.applicationContext,
+			ComponentName(context.applicationContext, PlaybackService::class.java))
 		controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
 		controllerFuture.addListener({
 			try {
@@ -157,79 +166,116 @@ class PlayerViewModel @Inject constructor(
 					)
 				}
 			}
+
+			override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+				super.onMediaMetadataChanged(mediaMetadata)
+				val title = mediaMetadata.title ?: mediaMetadata.displayTitle
+				if (title != null) {
+					Timber.d("Detected Title from Stream: $title")
+					val p = _player.value ?: return
+					val currentIndex = p.currentMediaItemIndex
+					val currentItem = p.getMediaItemAt(currentIndex)
+					val newMetadata = currentItem.mediaMetadata.buildUpon()
+						.setTitle(title)
+						.setDisplayTitle(title)
+						.build()
+					val newItem = currentItem.buildUpon()
+						.setMediaMetadata(newMetadata)
+						.build()
+					p.replaceMediaItem(currentIndex, newItem)
+				}
+			}
 		}
 	}
 
-	private fun buildMediaItem(url: String): MediaItem {
-		val uri = url.toMediaUri()
-		val lastSegment = uri.lastPathSegment?.lowercase().orEmpty()
-		val mimeType = when {
-			lastSegment.contains(".m3u8") || lastSegment.contains(".m3u") ->
-				MimeTypes.APPLICATION_M3U8
-
-			lastSegment.contains(".mpd") ->
-				MimeTypes.APPLICATION_MPD
-
-			lastSegment.contains(".ism") ->
-				MimeTypes.APPLICATION_SS
-
-			lastSegment.contains(".mp4") || lastSegment.contains(".m4v") ->
-				MimeTypes.VIDEO_MP4
-
-			lastSegment.contains(".mkv") ->
-				MimeTypes.APPLICATION_MATROSKA
-
-			lastSegment.contains(".webm") ->
-				MimeTypes.VIDEO_WEBM
-
-			lastSegment.contains(".mov") ->
-				MimeTypes.VIDEO_QUICK_TIME
-
-			lastSegment.contains(".avi") ->
-				MimeTypes.VIDEO_AVI
-
-			lastSegment.contains(".flv") ->
-				MimeTypes.VIDEO_FLV
-
-			lastSegment.contains(".ts") ->
-				MimeTypes.VIDEO_MP2T
-
-			lastSegment.contains(".mp3") ->
-				MimeTypes.AUDIO_MPEG
-
-			lastSegment.contains(".aac") ->
-				MimeTypes.AUDIO_AAC
-
-			lastSegment.contains(".m4a") ->
-				MimeTypes.AUDIO_MP4
-
-			lastSegment.contains(".flac") ->
-				MimeTypes.AUDIO_FLAC
-
-			lastSegment.contains(".wav") ->
-				MimeTypes.AUDIO_WAV
-
-			lastSegment.contains(".ogg") ->
-				MimeTypes.AUDIO_OGG
-
-			else -> null
+	private suspend fun getMimeTypeFromServer(url: String): String? = withContext(Dispatchers.IO) {
+		try {
+			val request = Request.Builder()
+				.url(url)
+				.head()
+				.build()
+			okHttpClient.newCall(request).execute().use { response ->
+				val contentType = response.header("Content-Type")?.lowercase()
+				Timber.tag("mimetype").d("Raw Content-Type: $contentType | URL: $url")
+				if (contentType == null) return@withContext null
+				return@withContext when {
+					contentType.contains("mpegurl") || contentType.contains("m3u8") ->
+						MimeTypes.APPLICATION_M3U8
+					contentType.contains("dash+xml") || contentType.contains("dash") ->
+						MimeTypes.APPLICATION_MPD
+					contentType.contains("vnd.ms-sstr+xml") ->
+						MimeTypes.APPLICATION_SS
+					contentType.contains("video/x-matroska") || contentType.contains("mkv") ->
+						MimeTypes.APPLICATION_MATROSKA
+					contentType.contains("video/mp4") || contentType.contains("m4v") ->
+						MimeTypes.VIDEO_MP4
+					contentType.contains("video/webm") ->
+						MimeTypes.VIDEO_WEBM
+					contentType.contains("video/x-msvideo") || contentType.contains("avi") ->
+						"video/x-msvideo" // AVI
+					contentType.contains("video/quicktime") ->
+						MimeTypes.VIDEO_QUICK_TIME
+					contentType.contains("video/x-flv") || contentType.contains("flv") ->
+						MimeTypes.VIDEO_FLV
+					contentType.contains("video/mp2t") || contentType.contains("ts") ->
+						MimeTypes.VIDEO_MP2T
+					contentType.contains("audio/mpeg") || contentType.contains("mp3") ->
+						MimeTypes.AUDIO_MPEG
+					contentType.contains("audio/aac") || contentType.contains("mp4a") ->
+						MimeTypes.AUDIO_AAC
+					contentType.contains("audio/ogg") || contentType.contains("opus") ->
+						MimeTypes.AUDIO_OGG
+					contentType.contains("audio/wav") || contentType.contains("wave") ->
+						MimeTypes.AUDIO_WAV
+					contentType.contains("audio/flac") || contentType.contains("x-flac") ->
+						MimeTypes.AUDIO_FLAC
+					contentType.contains("audio/ac3") ->
+						MimeTypes.AUDIO_AC3
+					contentType.contains("audio/eac3") ->
+						MimeTypes.AUDIO_E_AC3
+					contentType.contains("audio/x-dts") || contentType.contains("dts") ->
+						MimeTypes.AUDIO_DTS
+					contentType.contains("text/vtt") -> MimeTypes.TEXT_VTT
+					contentType.contains("application/x-subrip") -> MimeTypes.APPLICATION_SUBRIP
+					contentType.contains("application/ttml+xml") -> MimeTypes.APPLICATION_TTML
+					else -> contentType
+				}
+			}
+		} catch (e: Exception) {
+			Timber.tag("mimetype").e(e, "Error sniffing MimeType for $url")
+			null
 		}
+	}
+
+	private suspend fun buildMediaItem(url: String): MediaItem {
+		val uri = url.toMediaUri()
+		val path = uri.toString().lowercase()
+		val mimeType = when {
+			path.contains(".m3u8") -> MimeTypes.APPLICATION_M3U8
+			path.contains(".mpd") -> MimeTypes.APPLICATION_MPD
+			path.contains(".hevc") || path.contains(".h265") -> MimeTypes.VIDEO_H265
+			path.contains(".av1") -> MimeTypes.VIDEO_AV1
+			path.contains(".h264") || path.contains(".avc") -> MimeTypes.VIDEO_H264
+			path.endsWith(".avi") -> "video/x-msvideo"
+			path.endsWith(".mkv") || path.contains("matroska") -> MimeTypes.APPLICATION_MATROSKA
+			path.endsWith(".webm") -> MimeTypes.VIDEO_WEBM
+			path.endsWith(".flv") -> MimeTypes.VIDEO_FLV
+			path.endsWith(".mp4") || path.endsWith(".m4v") ||
+					path.startsWith("http") -> MimeTypes.VIDEO_MP4
+			else -> getMimeTypeFromServer(url)
+		}
+		Timber.tag("mimetype").d("MediaItem MimeType: $mimeType")
+		val metadata = MediaMetadata.Builder()
+			.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
+			.build()
 		return MediaItem.Builder()
 			.setUri(uri)
-			.setMediaId(url)
-			.setMediaMetadata(
-				MediaMetadata.Builder()
-					.setTitle("Player")
-					.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
-					.build()
-			)
-			.apply {
-				mimeType?.let { setMimeType(it) }
-			}
+			.setMimeType(mimeType)
+			.setMediaMetadata(metadata)
 			.build()
 	}
 
-	fun setURLs(links: List<String>) {
+	suspend fun setURLs(links: List<String>) {
 		val mediaItems = links.map { buildMediaItem(it) }
 		_items.value = mediaItems
 		_player.value?.setMediaItems(mediaItems)
@@ -249,12 +295,6 @@ class PlayerViewModel @Inject constructor(
 		}
 	}
 
-	fun setPlaybackSpeed(speed: Float) {
-		_player.value?.let { p ->
-			p.playbackParameters = PlaybackParameters(speed)
-			_state.update { it.copy(speed = speed) }
-		}
-	}
 
 	fun selectItem(index: Int) {
 		if (index !in _items.value.indices) return
@@ -431,30 +471,7 @@ class PlayerViewModel @Inject constructor(
 		}
 	}
 
-	fun setSleepTimer(durationMs: Long) {
-		Timber.tag("START_SLEEP_TIMER").d("setSleepTimer: $durationMs")
-		val command = SessionCommand("START_SLEEP_TIMER", Bundle().apply {
-			putLong("DURATION_MS", durationMs)
-		})
-		_player.value?.let { p ->
-			if (p is MediaController) {
-				p.sendCustomCommand(command, Bundle.EMPTY)
-			}
-		}
-	}
 
-	fun setSleepTimerEndOfEpisode() {
-		setSleepTimer(-1)
-	}
-
-	fun cancelSleepTimer() {
-		val command = SessionCommand("CANCEL_SLEEP_TIMER", Bundle.EMPTY)
-		_player.value?.let { p ->
-			if (p is MediaController) {
-				p.sendCustomCommand(command, Bundle.EMPTY)
-			}
-		}
-	}
 
 	override fun onCleared() {
 		super.onCleared()

@@ -4,6 +4,7 @@ plugins {
 	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.hilt)
 	alias(libs.plugins.ksp)
+	alias(libs.plugins.kotlin.serialization)
 	id("androidx.room") version "2.7.1"
 }
 
@@ -53,12 +54,17 @@ android {
 }
 
 dependencies {
+	implementation(libs.okhttp)
+	implementation(libs.kotlinx.serialization)
 	implementation(libs.prdownloader)
 	implementation(libs.androidx.compose.foundation)
 	implementation(libs.androidx.appcompat.resources)
 	implementation(libs.androidx.appcompat)
 	implementation(libs.androidx.compose.foundation.layout)
 	// PLAYER
+	implementation(libs.androidx.media3.exoplayer)
+	implementation(libs.androidx.media3.ui)
+	implementation(libs.media3.ui)
 	implementation(libs.play.services.cast.framework)
 	implementation(libs.androidx.media3.session)
 	implementation(libs.androidx.media3.datasource)
@@ -66,24 +72,12 @@ dependencies {
 	implementation(libs.androidx.media3.common)
 	implementation(libs.androidx.media3.container)
 	implementation(libs.androidx.media3.extractor)
-	implementation("androidx.mediarouter:mediarouter:1.8.1") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
-	implementation("androidx.media3:media3-cast:1.9.0") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
-	implementation("androidx.media3:media3-exoplayer-dash:1.9.0") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
-	implementation("androidx.media3:media3-exoplayer-hls:1.9.0") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
-	implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.9.0") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
-	implementation("androidx.media3:media3-exoplayer-rtsp:1.9.0") {
-		exclude(group = "androidx.media3", module = "media3-exoplayer")
-	}
+	implementation("androidx.mediarouter:mediarouter:1.8.1")
+	implementation("androidx.media3:media3-cast:1.9.0")
+	implementation("androidx.media3:media3-exoplayer-dash:1.9.0")
+	implementation("androidx.media3:media3-exoplayer-hls:1.9.0")
+	implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.9.0")
+	implementation("androidx.media3:media3-exoplayer-rtsp:1.9.0")
 	implementation(fileTree("libs") {
 		include("lib-*.aar")
 	})

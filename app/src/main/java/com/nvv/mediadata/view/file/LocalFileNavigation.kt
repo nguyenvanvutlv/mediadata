@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.data.viewmodel.Settings
 import com.nvv.mediadata.view.core.ItemNavigation
 import com.nvv.mediadata.view.core.ScrollableText
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -60,6 +62,7 @@ fun LocalFileNavigation() {
 	val deleteMessage = stringResource(R.string.delete_file_message)
 	val deleteButton = stringResource(R.string.delete_button)
 	val cancelButton = stringResource(R.string.cancel_button)
+	val scope = rememberCoroutineScope()
 	LaunchedEffect(Unit) {
 		try {
 			fileViewModel.setPath(
@@ -182,11 +185,14 @@ fun LocalFileNavigation() {
 										}
 									}
 								) {
-									val link = file.uri.toString()
-									playViewModel.setURLs(
-										links = listOf(link)
-									)
-									playViewModel.selectItem(0)
+									scope.launch {
+										val link = file.uri.toString()
+										playViewModel.setURLs(
+											links = listOf(link)
+										)
+										playViewModel.selectItem(0)
+									}
+
 								}
 							}
 						}

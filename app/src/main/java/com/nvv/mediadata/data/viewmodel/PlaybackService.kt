@@ -16,6 +16,7 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
@@ -43,7 +44,7 @@ class PlaybackService : MediaSessionService() {
 	private fun initializePlayer() {
 		val renderersFactory = DefaultRenderersFactory(this)
 			.setEnableDecoderFallback(true)
-			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
+			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON)
 		val trackSelector = DefaultTrackSelector(this)
 		val loadControl = DefaultLoadControl.Builder()
 			.setBufferDurationsMs(
@@ -131,7 +132,8 @@ class PlaybackService : MediaSessionService() {
 									fallbackAudioIndex = i
 								}
 							}
-						} else if (group.type == C.TRACK_TYPE_TEXT) {
+						}
+						else if (group.type == C.TRACK_TYPE_TEXT) {
 							for (i in 0 until group.length) {
 								if (group.isTrackSelected(i)) {
 									isTextSelected = true
@@ -155,7 +157,11 @@ class PlaybackService : MediaSessionService() {
 						)
 						needUpdate = true
 					}
-					if (!isTextSelected && firstTextGroup != null && !castPlayer.trackSelectionParameters.disabledTrackTypes.contains(C.TRACK_TYPE_TEXT)) {
+					if (!isTextSelected && firstTextGroup != null &&
+						!castPlayer
+							.trackSelectionParameters
+							.disabledTrackTypes
+							.contains(C.TRACK_TYPE_TEXT)) {
 						parametersBuilder.setOverrideForType(
 							TrackSelectionOverride(
 								firstTextGroup.mediaTrackGroup,
@@ -170,7 +176,8 @@ class PlaybackService : MediaSessionService() {
 				}
 			})
 			setupCastListener(castContext)
-		} catch (e: Exception) {
+		}
+		catch (e: Exception) {
 			Timber.e(e)
 		}
 	}
@@ -213,6 +220,7 @@ class PlaybackService : MediaSessionService() {
 		for (i in 0 until oldPlayer.mediaItemCount) {
 			val oldItem = oldPlayer.getMediaItemAt(i)
 			val builder = oldItem.buildUpon()
+
 			if (i == currentItemIndex) {
 				val tracks = oldPlayer.currentTracks
 				var videoMime: String? = null
@@ -228,25 +236,39 @@ class PlaybackService : MediaSessionService() {
 						}
 					}
 				}
+
 				val originalMime = oldItem.localConfiguration?.mimeType
 				val finalMime = when {
-					originalMime == MimeTypes.APPLICATION_MATROSKA || originalMime == "video/x-matroska" -> originalMime
-					originalMime == MimeTypes.VIDEO_WEBM -> originalMime
-					videoMime?.contains("avc") == true || videoMime?.contains("h264") == true || videoMime?.contains("mp4") == true -> MimeTypes.VIDEO_MP4
-					videoMime?.contains("hevc") == true || videoMime?.contains("h265") == true -> MimeTypes.VIDEO_MP4
-					videoMime?.contains("vp9") == true || videoMime?.contains("webm") == true -> MimeTypes.VIDEO_WEBM
-					videoMime?.contains("matroska") == true || videoMime?.contains("x-matroska") == true -> "video/x-matroska"
+					videoMime?.contains("av1") == true -> MimeTypes.VIDEO_AV1
+					videoMime?.contains("hevc") == true || videoMime?.contains("h265") == true -> MimeTypes.VIDEO_H265
+					videoMime?.contains("avc") == true || videoMime?.contains("h264") == true -> MimeTypes.VIDEO_H264
+					videoMime?.contains("vp9") == true -> MimeTypes.VIDEO_VP9
+					videoMime?.contains("mp2t") == true || originalMime == MimeTypes.VIDEO_MP2T -> MimeTypes.VIDEO_MP2T
+					videoMime?.contains("avi") == true || originalMime == "video/x-msvideo" -> "video/x-msvideo"
+					videoMime?.contains("matroska") == true || videoMime?.contains("x-matroska") == true ||
+							originalMime == MimeTypes.APPLICATION_MATROSKA -> "video/x-matroska"
+					videoMime?.contains("webm") == true || originalMime == MimeTypes.VIDEO_WEBM -> MimeTypes.VIDEO_WEBM
+					videoMime?.contains("flv") == true || originalMime == MimeTypes.VIDEO_FLV -> MimeTypes.VIDEO_FLV
+					originalMime == MimeTypes.APPLICATION_M3U8 -> MimeTypes.APPLICATION_M3U8
+					originalMime == MimeTypes.APPLICATION_MPD -> MimeTypes.APPLICATION_MPD
+					audioMime?.contains("ac3") == true -> MimeTypes.AUDIO_AC3
+					audioMime?.contains("eac3") == true -> MimeTypes.AUDIO_E_AC3
+					audioMime?.contains("dts") == true -> MimeTypes.AUDIO_DTS
 					audioMime?.contains("mpeg") == true || audioMime?.contains("mp3") == true -> MimeTypes.AUDIO_MPEG
 					audioMime?.contains("aac") == true -> MimeTypes.AUDIO_AAC
+					audioMime?.contains("flac") == true -> MimeTypes.AUDIO_FLAC
+					audioMime?.contains("opus") == true -> MimeTypes.AUDIO_OPUS
+					videoMime?.contains("mp4") == true || (originalMime == null &&
+							oldItem.localConfiguration?.uri?.toString()?.contains("http") == true) -> MimeTypes.VIDEO_MP4
 					else -> originalMime
 				}
-				Timber.tag("MIME_TYPE").d(finalMime.toString())
 				if (finalMime != null) {
 					builder.setMimeType(finalMime)
 				} else if (oldItem.localConfiguration?.uri?.toString()?.startsWith("http") == true) {
 					builder.setMimeType(MimeTypes.VIDEO_MP4)
 				}
 			}
+
 			val metadata = oldItem.mediaMetadata.buildUpon()
 				.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
 				.build()
@@ -284,6 +306,7 @@ class PlaybackService : MediaSessionService() {
 	override fun onDestroy() {
 		mediaSession?.run {
 			player.release()
+			castPlayer.release()
 			release()
 			mediaSession = null
 		}
