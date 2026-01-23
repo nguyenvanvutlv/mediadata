@@ -17,6 +17,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
@@ -39,6 +40,20 @@ import javax.inject.Inject
 import javax.inject.Named
 import kotlin.text.contains
 
+@UnstableApi
+fun isHevcSupported(): Boolean {
+	return try {
+		val decoderInfos = MediaCodecUtil.getDecoderInfos(
+			MimeTypes.VIDEO_H265,
+			false,
+			false
+		)
+		decoderInfos.isNotEmpty()
+	} catch (e: Exception) {
+		false
+	}
+}
+
 @OptIn(UnstableApi::class)
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
@@ -46,6 +61,15 @@ class PlayerViewModel @Inject constructor(
 	@Named("BaseOkHttpClient")
 	private val okHttpClient: OkHttpClient,
 ) : ViewModel() {
+	private companion object {
+		private const val MIME_VIDEO_VP8 = "video/x-vnd.on2.vp8"
+		private const val MIME_AUDIO_ALAC = "audio/alac"
+		private const val MIME_AUDIO_TRUEHD = "audio/true-hd"
+		private const val MIME_AUDIO_RAW = "audio/raw"
+		private const val MIME_AUDIO_MP4 = "audio/mp4"
+		private const val MIME_AUDIO_AMR = "audio/amr"
+		private const val MIME_AUDIO_AMR_WB = "audio/amr-wb"
+	}
 	private var _isPlay = MutableStateFlow(false)
 	val isPlay = _isPlay.asStateFlow()
 
@@ -190,15 +214,29 @@ class PlayerViewModel @Inject constructor(
 
 	private suspend fun getMimeTypeFromServer(url: String): String? = withContext(Dispatchers.IO) {
 		try {
+			Timber.tag("mimetype").d("get codec from server")
 			val request = Request.Builder()
 				.url(url)
 				.head()
 				.build()
 			okHttpClient.newCall(request).execute().use { response ->
-				val contentType = response.header("Content-Type")?.lowercase()
-				Timber.tag("mimetype").d("Raw Content-Type: $contentType | URL: $url")
-				if (contentType == null) return@withContext null
+				val rawContentType = response.header("Content-Type")?.lowercase()
+				Timber.tag("mimetype").d("Raw Content-Type: $rawContentType | URL: $url")
+				val contentType = rawContentType
+					?.substringBefore(";")
+					?.trim()
+					?.takeIf { it.isNotBlank() }
+					?: ""
+				if (contentType == "" ||
+					contentType == "application/octet-stream" ||
+					contentType == "binary/octet-stream" ||
+					contentType == "application/force-download"
+				) {
+					return@withContext sniffMimeTypeFromBytes(url)
+				}
 				return@withContext when {
+					contentType.contains("video/vp8") || contentType.contains("x-vnd.on2.vp8") ->
+						MIME_VIDEO_VP8
 					contentType.contains("mpegurl") || contentType.contains("m3u8") ->
 						MimeTypes.APPLICATION_M3U8
 					contentType.contains("dash+xml") || contentType.contains("dash") ->
@@ -219,30 +257,128 @@ class PlayerViewModel @Inject constructor(
 						MimeTypes.VIDEO_FLV
 					contentType.contains("video/mp2t") || contentType.contains("ts") ->
 						MimeTypes.VIDEO_MP2T
-					contentType.contains("audio/mpeg") || contentType.contains("mp3") ->
+					contentType.contains("truehd") || contentType.contains("true-hd") ->
+						MIME_AUDIO_TRUEHD
+					contentType.contains("alac") ->
+						MIME_AUDIO_ALAC
+					contentType.contains("vnd.dts.hd") ||
+							contentType.contains("dts-hd") ||
+							contentType.contains("dts_hd") ->
+						MimeTypes.AUDIO_DTS_HD
+					contentType.contains("audio/raw") ||
+							contentType.contains("lpcm") ||
+							contentType.contains("pcm") ||
+							contentType.contains("audio/l16") ||
+							contentType.contains("audio/l24") ->
+						MIME_AUDIO_RAW
+					contentType.contains("amr-wb") ->
+						MIME_AUDIO_AMR_WB
+					contentType.contains("audio/amr") ||
+							contentType.contains("amr") ->
+						MIME_AUDIO_AMR
+					contentType.contains("audio/mpeg") ||
+							contentType.contains("mp3") ->
 						MimeTypes.AUDIO_MPEG
-					contentType.contains("audio/aac") || contentType.contains("mp4a") ->
+					contentType.contains("audio/aac") ||
+							contentType.contains("mp4a") ->
 						MimeTypes.AUDIO_AAC
-					contentType.contains("audio/ogg") || contentType.contains("opus") ->
+					contentType.contains("audio/eac3-joc") ||
+							(contentType.contains("eac3") && contentType.contains("joc")) ->
+						MimeTypes.AUDIO_E_AC3_JOC
+					contentType.contains("audio/opus") ||
+							contentType.contains("opus") ->
+						MimeTypes.AUDIO_OPUS
+					contentType.contains("vorbis") ->
+						MimeTypes.AUDIO_VORBIS
+					contentType.contains("audio/ogg") ->
 						MimeTypes.AUDIO_OGG
-					contentType.contains("audio/wav") || contentType.contains("wave") ->
+					contentType.contains("audio/wav") ||
+							contentType.contains("wave") ->
 						MimeTypes.AUDIO_WAV
-					contentType.contains("audio/flac") || contentType.contains("x-flac") ->
+					contentType.contains("audio/flac") ||
+							contentType.contains("x-flac") ->
 						MimeTypes.AUDIO_FLAC
 					contentType.contains("audio/ac3") ->
 						MimeTypes.AUDIO_AC3
 					contentType.contains("audio/eac3") ->
 						MimeTypes.AUDIO_E_AC3
-					contentType.contains("audio/x-dts") || contentType.contains("dts") ->
+					contentType.contains("audio/x-dts") ||
+							contentType.contains("dts") ->
 						MimeTypes.AUDIO_DTS
 					contentType.contains("text/vtt") -> MimeTypes.TEXT_VTT
 					contentType.contains("application/x-subrip") -> MimeTypes.APPLICATION_SUBRIP
 					contentType.contains("application/ttml+xml") -> MimeTypes.APPLICATION_TTML
-					else -> contentType
+					else -> null
 				}
 			}
 		} catch (e: Exception) {
 			Timber.tag("mimetype").e(e, "Error sniffing MimeType for $url")
+			null
+		}
+	}
+
+	private suspend fun sniffMimeTypeFromBytes(url: String): String? = withContext(Dispatchers.IO) {
+		return@withContext try {
+			val request = Request.Builder()
+				.url(url)
+				.header("Range", "bytes=0-4095")
+				.build()
+			okHttpClient.newCall(request).execute().use { response ->
+				val bytes = response.body?.bytes() ?: return@withContext null
+				if (bytes.isEmpty()) return@withContext null
+				val headText = bytes.toString(Charsets.UTF_8).trimStart()
+				if (headText.startsWith("#EXTM3U", ignoreCase = true)) return@withContext MimeTypes.APPLICATION_M3U8
+				if (headText.startsWith("<MPD", ignoreCase = true) || headText.contains("<MPD", ignoreCase = true)) {
+					return@withContext MimeTypes.APPLICATION_MPD
+				}
+				if (bytes.size >= 4 &&
+					bytes[0] == 0x1A.toByte() &&
+					bytes[1] == 0x45.toByte() &&
+					bytes[2] == 0xDF.toByte() &&
+					bytes[3] == 0xA3.toByte()
+				) return@withContext MimeTypes.APPLICATION_MATROSKA
+				if (bytes.size >= 12 &&
+					bytes[4] == 'f'.code.toByte() &&
+					bytes[5] == 't'.code.toByte() &&
+					bytes[6] == 'y'.code.toByte() &&
+					bytes[7] == 'p'.code.toByte()
+				) return@withContext MimeTypes.VIDEO_MP4
+				if (bytes[0] == 0x47.toByte()) return@withContext MimeTypes.VIDEO_MP2T
+				if (bytes.size >= 4 &&
+					bytes[0] == 'O'.code.toByte() &&
+					bytes[1] == 'g'.code.toByte() &&
+					bytes[2] == 'g'.code.toByte() &&
+					bytes[3] == 'S'.code.toByte()
+				) return@withContext MimeTypes.AUDIO_OGG
+				if (bytes.size >= 4 &&
+					bytes[0] == 'f'.code.toByte() &&
+					bytes[1] == 'L'.code.toByte() &&
+					bytes[2] == 'a'.code.toByte() &&
+					bytes[3] == 'C'.code.toByte()
+				) return@withContext MimeTypes.AUDIO_FLAC
+				if (bytes.size >= 12 &&
+					bytes[0] == 'R'.code.toByte() &&
+					bytes[1] == 'I'.code.toByte() &&
+					bytes[2] == 'F'.code.toByte() &&
+					bytes[3] == 'F'.code.toByte() &&
+					bytes[8] == 'W'.code.toByte() &&
+					bytes[9] == 'A'.code.toByte() &&
+					bytes[10] == 'V'.code.toByte() &&
+					bytes[11] == 'E'.code.toByte()
+				) return@withContext MimeTypes.AUDIO_WAV
+				if (bytes.size >= 3 &&
+					bytes[0] == 'I'.code.toByte() &&
+					bytes[1] == 'D'.code.toByte() &&
+					bytes[2] == '3'.code.toByte()
+				) return@withContext MimeTypes.AUDIO_MPEG
+				if (bytes.size >= 2 && bytes[0] == 0xFF.toByte() && (bytes[1].toInt() and 0xE0) == 0xE0) {
+					return@withContext MimeTypes.AUDIO_MPEG
+				}
+
+				null
+			}
+		} catch (e: Exception) {
+			Timber.tag("mimetype").e(e, "Byte sniff failed for $url")
 			null
 		}
 	}
@@ -253,25 +389,47 @@ class PlayerViewModel @Inject constructor(
 		val mimeType = when {
 			path.contains(".m3u8") -> MimeTypes.APPLICATION_M3U8
 			path.contains(".mpd") -> MimeTypes.APPLICATION_MPD
-			path.contains(".hevc") || path.contains(".h265") -> MimeTypes.VIDEO_H265
+			path.endsWith(".m4a") -> MIME_AUDIO_MP4
+			path.endsWith(".alac") -> MIME_AUDIO_ALAC
+			path.endsWith(".truehd") -> MIME_AUDIO_TRUEHD
+			path.endsWith(".awb") -> MIME_AUDIO_AMR_WB
+			path.endsWith(".amr") -> MIME_AUDIO_AMR
+			path.endsWith(".flac") -> MimeTypes.AUDIO_FLAC
+			path.endsWith(".wav") ||
+					path.endsWith(".wave") -> MimeTypes.AUDIO_WAV
+			path.endsWith(".mp3") -> MimeTypes.AUDIO_MPEG
+			path.endsWith(".aac") -> MimeTypes.AUDIO_AAC
+			path.endsWith(".opus") -> MimeTypes.AUDIO_OPUS
+			path.endsWith(".ogg") -> MimeTypes.AUDIO_OGG
+			path.endsWith(".ac3") -> MimeTypes.AUDIO_AC3
+			path.endsWith(".eac3") -> MimeTypes.AUDIO_E_AC3
+			path.endsWith(".dts") ||
+					path.endsWith(".dtshd") ||
+					path.endsWith(".dts-hd") -> MimeTypes.AUDIO_DTS
+			path.contains(".hevc") ||
+					path.contains(".h265") -> MimeTypes.VIDEO_H265
 			path.contains(".av1") -> MimeTypes.VIDEO_AV1
 			path.contains(".h264") || path.contains(".avc") -> MimeTypes.VIDEO_H264
 			path.endsWith(".avi") -> "video/x-msvideo"
 			path.endsWith(".mkv") || path.contains("matroska") -> MimeTypes.APPLICATION_MATROSKA
+			path.endsWith(".mka") -> MimeTypes.APPLICATION_MATROSKA
 			path.endsWith(".webm") -> MimeTypes.VIDEO_WEBM
 			path.endsWith(".flv") -> MimeTypes.VIDEO_FLV
 			path.endsWith(".mp4") || path.endsWith(".m4v") -> MimeTypes.VIDEO_MP4
 			else -> getMimeTypeFromServer(url)
 		}
 		Timber.tag("mimetype").d("MediaItem MimeType: $mimeType")
+		Timber.tag("hevc").d("Hevc Supported: ${isHevcSupported()}")
 		val metadata = MediaMetadata.Builder()
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
 			.build()
-		return MediaItem.Builder()
+		val builder = MediaItem.Builder()
 			.setUri(uri)
-			.setMimeType(mimeType)
 			.setMediaMetadata(metadata)
-			.build()
+		if (!mimeType.isNullOrBlank()) {
+			builder.setMimeType(mimeType)
+		}
+		return builder.build()
 	}
 
 	suspend fun setURLs(links: List<String>) {

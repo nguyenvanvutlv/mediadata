@@ -19,8 +19,13 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.video.VideoRendererEventListener
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.google.android.gms.cast.framework.CastContext
@@ -35,16 +40,100 @@ const val minBuffer = 6_000
 
 @OptIn(UnstableApi::class)
 class PlaybackService : MediaSessionService() {
+	private companion object {
+		private const val MIME_VIDEO_VP8 = "video/x-vnd.on2.vp8"
+		private const val MIME_AUDIO_ALAC = "audio/alac"
+		private const val MIME_AUDIO_TRUEHD = "audio/true-hd"
+		private const val MIME_AUDIO_RAW = "audio/raw"
+		private const val MIME_AUDIO_AMR = "audio/amr"
+		private const val MIME_AUDIO_AMR_WB = "audio/amr-wb"
+	}
 	private var mediaSession: MediaSession? = null
 	lateinit var player: ExoPlayer
 	private lateinit var castPlayer: CastPlayer
 	private lateinit var castContext: CastContext
 	private var sessionManagerListener: SessionManagerListener<CastSession>? = null
 
+	private fun shouldUseExtensionRenderer(
+		mimeType: String,
+		requiresSecureDecoder: Boolean,
+		requiresTunnelingDecoder: Boolean
+	): Boolean {
+		if (requiresSecureDecoder || requiresTunnelingDecoder) {
+			Timber.tag("ExtensionMode").d("Secure/Tunneling decoder required, using hardware decoder")
+			return false
+		}
+		
+		val isDolbyVision = mimeType == MimeTypes.VIDEO_DOLBY_VISION || mimeType.contains("dolby-vision")
+		val isHevc = mimeType == MimeTypes.VIDEO_H265 || mimeType.contains("hevc") || mimeType.contains("h265")
+		
+		if (isDolbyVision || isHevc) {
+			val tag = if (isDolbyVision) "DolbyVision" else "HEVC"
+			Timber.tag(tag).d("Detected ${if (isDolbyVision) "Dolby Vision" else "HEVC"}, should prefer extension renderer")
+			return true
+		}
+		
+		return false
+	}
+
 	private fun initializePlayer() {
-		val renderersFactory = DefaultRenderersFactory(this)
-			.setEnableDecoderFallback(true)
-			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON)
+		val smartCodecSelector = object : MediaCodecSelector {
+			override fun getDecoderInfos(
+				mimeType: String,
+				requiresSecureDecoder: Boolean,
+				requiresTunnelingDecoder: Boolean
+			): List<MediaCodecInfo> {
+				val allDecoders = MediaCodecUtil.getDecoderInfos(
+					mimeType,
+					requiresSecureDecoder,
+					requiresTunnelingDecoder
+				)
+				val shouldUseExtension = shouldUseExtensionRenderer(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
+				if (shouldUseExtension) {
+					val isDolbyVision = mimeType == MimeTypes.VIDEO_DOLBY_VISION || mimeType.contains("dolby-vision")
+					val tag = if (isDolbyVision) "DolbyVision" else "HEVC"
+					val hardwareDecoders = allDecoders.filter { decoderInfo ->
+						val name = decoderInfo.name.lowercase()
+						name.startsWith("c2.") || 
+						name.startsWith("omx.") ||
+						name.contains("android.hevc") ||
+						name.contains("android.avc") ||
+						name.contains("mtk.video.decoder")
+					}
+					if (hardwareDecoders.isEmpty()) {
+						return allDecoders
+					}
+					Timber.tag(tag).d("Returning empty list to force FFmpeg extension renderer (hardware may not support profile)")
+					return emptyList()
+				}
+				Timber.tag("CodecSelector").d("Using hardware decoder (normal format or secure/tunneling required)")
+				return allDecoders
+			}
+		}
+		val renderersFactory = object : DefaultRenderersFactory(this) {
+			override fun buildVideoRenderers(
+				context: android.content.Context,
+				extensionRendererMode: Int,
+				mediaCodecSelector: MediaCodecSelector,
+				enableDecoderFallback: Boolean,
+				eventHandler: android.os.Handler,
+				videoRendererEventListener: VideoRendererEventListener,
+				allowedVideoJoiningTimeMs: Long,
+				out: java.util.ArrayList<Renderer>
+			) {
+				super.buildVideoRenderers(
+					context,
+					extensionRendererMode,
+					smartCodecSelector,
+					enableDecoderFallback,
+					eventHandler,
+					videoRendererEventListener,
+					allowedVideoJoiningTimeMs,
+					out
+				)
+			}
+		}.setEnableDecoderFallback(true)
+			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
 		val trackSelector = DefaultTrackSelector(this)
 		val loadControl = DefaultLoadControl.Builder()
 			.setBufferDurationsMs(
@@ -225,23 +314,31 @@ class PlaybackService : MediaSessionService() {
 				val tracks = oldPlayer.currentTracks
 				var videoMime: String? = null
 				var audioMime: String? = null
+				var videoCodecs: String? = null
 				for (group in tracks.groups) {
 					if (group.isSelected) {
 						val format = group.getTrackFormat(0)
 						val detectedMime = format.containerMimeType ?: format.sampleMimeType
 						if (group.type == C.TRACK_TYPE_VIDEO) {
 							videoMime = detectedMime
+							videoCodecs = format.codecs
 						} else if (group.type == C.TRACK_TYPE_AUDIO) {
 							audioMime = detectedMime
 						}
 					}
 				}
-
 				val originalMime = oldItem.localConfiguration?.mimeType
+				val metadataCodecs = oldItem.mediaMetadata.extras?.getString("codecs") ?: ""
+				val codecs = videoCodecs ?: metadataCodecs
+				val isDolbyVision = codecs.contains("dvhe") || codecs.contains("dvh1") || 
+					videoMime?.contains("dolby-vision") == true || 
+					originalMime == MimeTypes.VIDEO_DOLBY_VISION
 				val finalMime = when {
+					isDolbyVision -> MimeTypes.VIDEO_DOLBY_VISION
 					videoMime?.contains("av1") == true -> MimeTypes.VIDEO_AV1
 					videoMime?.contains("hevc") == true || videoMime?.contains("h265") == true -> MimeTypes.VIDEO_H265
 					videoMime?.contains("avc") == true || videoMime?.contains("h264") == true -> MimeTypes.VIDEO_H264
+					videoMime?.contains("vp8") == true -> MIME_VIDEO_VP8
 					videoMime?.contains("vp9") == true -> MimeTypes.VIDEO_VP9
 					videoMime?.contains("mp2t") == true || originalMime == MimeTypes.VIDEO_MP2T -> MimeTypes.VIDEO_MP2T
 					videoMime?.contains("avi") == true || originalMime == "video/x-msvideo" -> "video/x-msvideo"
@@ -251,29 +348,38 @@ class PlaybackService : MediaSessionService() {
 					videoMime?.contains("flv") == true || originalMime == MimeTypes.VIDEO_FLV -> MimeTypes.VIDEO_FLV
 					originalMime == MimeTypes.APPLICATION_M3U8 -> MimeTypes.APPLICATION_M3U8
 					originalMime == MimeTypes.APPLICATION_MPD -> MimeTypes.APPLICATION_MPD
+					audioMime?.contains("truehd") == true ||
+							audioMime?.contains("true-hd") == true -> MIME_AUDIO_TRUEHD
+					audioMime?.contains("alac") == true -> MIME_AUDIO_ALAC
+					audioMime?.contains("dts-hd") == true ||
+							audioMime?.contains("dts_hd") == true ||
+							audioMime?.contains("vnd.dts.hd") == true -> MimeTypes.AUDIO_DTS_HD
+					audioMime?.contains("eac3") == true && audioMime.contains("joc") -> MimeTypes.AUDIO_E_AC3_JOC
 					audioMime?.contains("ac3") == true -> MimeTypes.AUDIO_AC3
 					audioMime?.contains("eac3") == true -> MimeTypes.AUDIO_E_AC3
 					audioMime?.contains("dts") == true -> MimeTypes.AUDIO_DTS
-					audioMime?.contains("mpeg") == true || audioMime?.contains("mp3") == true -> MimeTypes.AUDIO_MPEG
+					audioMime?.contains("mpeg") == true ||
+							audioMime?.contains("mp3") == true -> MimeTypes.AUDIO_MPEG
 					audioMime?.contains("aac") == true -> MimeTypes.AUDIO_AAC
 					audioMime?.contains("flac") == true -> MimeTypes.AUDIO_FLAC
 					audioMime?.contains("opus") == true -> MimeTypes.AUDIO_OPUS
-					videoMime?.contains("mp4") == true || (originalMime == null &&
-							oldItem.localConfiguration?.uri?.toString()?.contains("http") == true) -> MimeTypes.VIDEO_MP4
+					audioMime?.contains("vorbis") == true -> MimeTypes.AUDIO_VORBIS
+					audioMime?.contains("pcm") == true ||
+							audioMime?.contains("lpcm") == true ||
+							audioMime?.contains("audio/raw") == true -> MIME_AUDIO_RAW
+					audioMime?.contains("amr-wb") == true -> MIME_AUDIO_AMR_WB
+					audioMime?.contains("amr") == true -> MIME_AUDIO_AMR
+					videoMime?.contains("mp4") == true -> MimeTypes.VIDEO_MP4
 					else -> originalMime
 				}
 				if (finalMime != null) {
 					builder.setMimeType(finalMime)
-				} else if (oldItem.localConfiguration?.uri?.toString()?.startsWith("http") == true) {
-					builder.setMimeType(MimeTypes.VIDEO_MP4)
 				}
 			}
-
 			val metadata = oldItem.mediaMetadata.buildUpon()
 				.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
 				.build()
 			builder.setMediaMetadata(metadata)
-
 			mediaItems.add(builder.build())
 		}
 		oldPlayer.stop()
