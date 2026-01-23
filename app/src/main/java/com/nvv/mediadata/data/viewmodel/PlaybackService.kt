@@ -8,6 +8,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
@@ -15,6 +16,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.common.Format
+import androidx.media3.common.VideoSize
+import androidx.media3.exoplayer.DecoderCounters
+import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
@@ -66,10 +71,18 @@ class PlaybackService : MediaSessionService() {
 		
 		val isDolbyVision = mimeType == MimeTypes.VIDEO_DOLBY_VISION || mimeType.contains("dolby-vision")
 		val isHevc = mimeType == MimeTypes.VIDEO_H265 || mimeType.contains("hevc") || mimeType.contains("h265")
+		val isAv1 = mimeType == MimeTypes.VIDEO_AV1 || mimeType.contains("av01") || mimeType.contains("av1")
+		val isVp9 = mimeType == MimeTypes.VIDEO_VP9 || mimeType.contains("vp9")
 		
-		if (isDolbyVision || isHevc) {
-			val tag = if (isDolbyVision) "DolbyVision" else "HEVC"
-			Timber.tag(tag).d("Detected ${if (isDolbyVision) "Dolby Vision" else "HEVC"}, should prefer extension renderer")
+		if (isDolbyVision || isHevc || isAv1 || isVp9) {
+			val formatName = when {
+				isDolbyVision -> "Dolby Vision"
+				isHevc -> "HEVC"
+				isAv1 -> "AV1"
+				isVp9 -> "VP9"
+				else -> "Unknown"
+			}
+			Timber.tag("ExtensionMode").d("Detected $formatName, using FFmpeg extension renderer")
 			return true
 		}
 		
@@ -88,28 +101,47 @@ class PlaybackService : MediaSessionService() {
 					requiresSecureDecoder,
 					requiresTunnelingDecoder
 				)
+				Timber.tag("CodecSelector").d("MimeType: $mimeType, Decoders: ${allDecoders.map { it.name }}")
 				val shouldUseExtension = shouldUseExtensionRenderer(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
 				if (shouldUseExtension) {
 					val isDolbyVision = mimeType == MimeTypes.VIDEO_DOLBY_VISION || mimeType.contains("dolby-vision")
-					val tag = if (isDolbyVision) "DolbyVision" else "HEVC"
-					val hardwareDecoders = allDecoders.filter { decoderInfo ->
-						val name = decoderInfo.name.lowercase()
-						name.startsWith("c2.") || 
-						name.startsWith("omx.") ||
-						name.contains("android.hevc") ||
-						name.contains("android.avc") ||
-						name.contains("mtk.video.decoder")
+					val isHevc = mimeType == MimeTypes.VIDEO_H265 || mimeType.contains("hevc") || mimeType.contains("h265")
+					val isAv1 = mimeType == MimeTypes.VIDEO_AV1 || mimeType.contains("av01") || mimeType.contains("av1")
+					val tag = when {
+						isDolbyVision -> "DolbyVision"
+						isHevc -> "HEVC"
+						isAv1 -> "AV1"
+						else -> "ExtensionFormat"
 					}
-					if (hardwareDecoders.isEmpty()) {
-						return allDecoders
-					}
-					Timber.tag(tag).d("Returning empty list to force FFmpeg extension renderer (hardware may not support profile)")
-					return emptyList()
+					
+					Timber.tag(tag).d("Format detected, FFmpeg extension will be preferred (EXTENSION_RENDERER_MODE_PREFER)")
+					Timber.tag(tag).d("Returning all decoders to allow fallback if FFmpeg fails")
+					return allDecoders
 				}
+				
 				Timber.tag("CodecSelector").d("Using hardware decoder (normal format or secure/tunneling required)")
 				return allDecoders
 			}
 		}
+		val videoRendererEventListenerWrapper = object : VideoRendererEventListener {
+			override fun onVideoEnabled(decoderCounters: DecoderCounters) {
+				Timber.tag("VideoRenderer").d("Video renderer enabled")
+			}
+			override fun onVideoDecoderInitialized(decoderName: String, initializedTimestampMs: Long, initializationDurationMs: Long) {
+				Timber.tag("VideoRenderer").d("Video decoder initialized: $decoderName")
+			}
+			override fun onVideoInputFormatChanged(format: Format, decoderReuseEvaluation: DecoderReuseEvaluation?) {
+				Timber.tag("VideoRenderer").d("Video input format changed: ${format.sampleMimeType}")
+			}
+			override fun onVideoDisabled(decoderCounters: DecoderCounters) {}
+			override fun onDroppedFrames(count: Int, elapsedMs: Long) {}
+			override fun onVideoSizeChanged(videoSize: VideoSize) {}
+			override fun onRenderedFirstFrame(output: Any, renderTimeMs: Long) {
+				Timber.tag("VideoRenderer").d("First frame rendered by: ${output.javaClass.simpleName}")
+			}
+			override fun onVideoFrameProcessingOffset(totalProcessingOffsetUs: Long, frameCount: Int) {}
+		}
+		
 		val renderersFactory = object : DefaultRenderersFactory(this) {
 			override fun buildVideoRenderers(
 				context: android.content.Context,
@@ -121,16 +153,92 @@ class PlaybackService : MediaSessionService() {
 				allowedVideoJoiningTimeMs: Long,
 				out: java.util.ArrayList<Renderer>
 			) {
+				val combinedListener = object : VideoRendererEventListener {
+					override fun onVideoEnabled(decoderCounters: DecoderCounters) {
+						videoRendererEventListener.onVideoEnabled(decoderCounters)
+						videoRendererEventListenerWrapper.onVideoEnabled(decoderCounters)
+					}
+					override fun onVideoDecoderInitialized(decoderName: String, initializedTimestampMs: Long, initializationDurationMs: Long) {
+						videoRendererEventListener.onVideoDecoderInitialized(decoderName, initializedTimestampMs, initializationDurationMs)
+						videoRendererEventListenerWrapper.onVideoDecoderInitialized(decoderName, initializedTimestampMs, initializationDurationMs)
+					}
+					override fun onVideoInputFormatChanged(format: Format, decoderReuseEvaluation: DecoderReuseEvaluation?) {
+						videoRendererEventListener.onVideoInputFormatChanged(format, decoderReuseEvaluation)
+						videoRendererEventListenerWrapper.onVideoInputFormatChanged(format, decoderReuseEvaluation)
+					}
+					override fun onVideoDisabled(decoderCounters: DecoderCounters) {
+						videoRendererEventListener.onVideoDisabled(decoderCounters)
+					}
+					override fun onDroppedFrames(count: Int, elapsedMs: Long) {
+						videoRendererEventListener.onDroppedFrames(count, elapsedMs)
+					}
+					override fun onVideoSizeChanged(videoSize: VideoSize) {
+						videoRendererEventListener.onVideoSizeChanged(videoSize)
+					}
+					override fun onRenderedFirstFrame(output: Any, renderTimeMs: Long) {
+						videoRendererEventListener.onRenderedFirstFrame(output, renderTimeMs)
+						videoRendererEventListenerWrapper.onRenderedFirstFrame(output, renderTimeMs)
+					}
+					override fun onVideoFrameProcessingOffset(totalProcessingOffsetUs: Long, frameCount: Int) {
+						videoRendererEventListener.onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount)
+					}
+				}
+				
 				super.buildVideoRenderers(
 					context,
 					extensionRendererMode,
 					smartCodecSelector,
 					enableDecoderFallback,
 					eventHandler,
-					videoRendererEventListener,
+					combinedListener,
 					allowedVideoJoiningTimeMs,
 					out
 				)
+				val rendererNames = out.map { it.javaClass.simpleName }
+				Timber.tag("RenderersFactory").d("Video renderers built (before filter): $rendererNames")
+				
+				val ffmpegRenderers = mutableListOf<Renderer>()
+				val mediaCodecRenderers = mutableListOf<Renderer>()
+				val dav1dRenderers = mutableListOf<Renderer>()
+				val otherRenderers = mutableListOf<Renderer>()
+				
+				for (renderer in out) {
+					val className = renderer.javaClass.simpleName
+					when {
+						className.contains("Ffmpeg", ignoreCase = true) -> {
+							ffmpegRenderers.add(renderer)
+							Timber.tag("RenderersFactory").d("Found FFmpeg renderer: $className")
+						}
+						className.contains("MediaCodec", ignoreCase = true) -> {
+							mediaCodecRenderers.add(renderer)
+						}
+						className.contains("Dav1d", ignoreCase = true) -> {
+							dav1dRenderers.add(renderer)
+							Timber.tag("RenderersFactory").d("Found Libdav1dVideoRenderer (will remove if FFmpeg available)")
+						}
+						else -> {
+							otherRenderers.add(renderer)
+						}
+					}
+				}
+				
+				out.clear()
+				if (ffmpegRenderers.isNotEmpty()) {
+					out.addAll(ffmpegRenderers)
+					Timber.tag("RenderersFactory").d("FFmpeg extension available - using for ALL video formats")
+					Timber.tag("RenderersFactory").d("Removing Libdav1dVideoRenderer (FFmpeg handles AV1 better)")
+					Timber.tag("RenderersFactory").d("FFmpeg supports: HEVC, AV1, Dolby Vision, VP9, H.264, and more")
+					out.addAll(mediaCodecRenderers)
+					Timber.tag("RenderersFactory").d("MediaCodecVideoRenderer kept as fallback only")
+					out.addAll(otherRenderers)
+				} else {
+					out.addAll(mediaCodecRenderers)
+					out.addAll(dav1dRenderers)
+					out.addAll(otherRenderers)
+					Timber.tag("RenderersFactory").d("No FFmpeg extension, using default renderers")
+				}
+				
+				Timber.tag("RenderersFactory").d("Video renderers final: ${out.map { it.javaClass.simpleName }}")
 			}
 		}.setEnableDecoderFallback(true)
 			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
@@ -177,6 +285,29 @@ class PlaybackService : MediaSessionService() {
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(pendingIntent)
 			.build()
+		
+		player.addListener(object : Player.Listener {
+			override fun onTracksChanged(tracks: Tracks) {
+				for (group in tracks.groups) {
+					if (group.type == C.TRACK_TYPE_VIDEO && group.isSelected) {
+						val format = group.getTrackFormat(0)
+						Timber.tag("VideoRenderer").d("Video track selected: ${format.sampleMimeType}, codec: ${format.codecs}")
+					}
+				}
+			}
+			
+			override fun onPlayerError(error: PlaybackException) {
+				Timber.tag("PlaybackError").e(error, "Playback error: ${error.message}")
+				val errorCode = error.errorCode
+				val errorMessage = error.message
+				Timber.tag("PlaybackError").d("Error code: $errorCode, Message: $errorMessage")
+				
+				if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
+					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
+					Timber.tag("PlaybackError").w("Decoder failed, may need to use extension renderer")
+				}
+			}
+		})
 	}
 
 	override fun onCreate() {
