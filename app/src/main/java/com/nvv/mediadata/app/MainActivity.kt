@@ -122,8 +122,7 @@ class MainActivity : AppCompatActivity() {
 			.build()
 		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
-//			var videoUri by remember { mutableStateOf(intent?.data) }
-			var videoUri = "https://dl-z01a-0026.mypikpak.com/download/?fid=zOAqK39MWZ5-b4W9UinoG7FpMpF-V5ioYyPVKop8Vkr5KqjRy6xveCnRXzkAfkDr7po6w3dGvBr1x9TmhpeLy2DoZzT-vUu_tJ2oJhKlEDU=&from=5&verno=3&prod=pikpak&expire=1769277604&g=97B2B3278B5F7D06556A198C4E7AC731F49BF91D&ui=aJgD4HNLZR8dbfo1&t=0&ms=81600000&th=81600000&f=29045508134&alt=0&us=0&hspu=&po=0&fileid=VOjg-o60rV3_BwcKnc2Xl1ERo2&userid=aJgD4HNLZR8dbfo1&pr=XQPkPvr9WWiIuMvELmrVeg59XFTOetZNGO7aLgbQwrok9KnoGoSDrCgF-Fmt4tRwt3KgN07OqPjw866ewr6b47YR8IQsEbgLeg7REDd1xl8rbhHqlgDJhwZMBv7rVDjPXajJr6dadW5m29LWeop04R6v00lHSkjRpldMOUqNO31Eii4wy9hkZJ9C8h2auy9kI1C_zXKPlyTc4xzDVBiKW29aSAb8LPdqAqY7ZRGAZXyZLD6c6LCdFo3Z0qa0KVsELOakZKcXjjIgjPp2aqPfGDBJlB6MyPwKBx4SwnBdRRmCTRz25t2Eqcbkle5veO1PzTmnPJWT8eJXfVytWr9g5WU5iNfC1R-Tkyi-K9N4jVfHMSnumVEubnRZj-Y-yBpnHRuci6DJC2bD1m5Qe_DxRvsP3xRxZX7KKmWowv2LNc-6rfZFE0U-ehl0EJR815xb&sign=794077B66CFAE36565B30EC8BC4D4623"
+			var videoUri by remember { mutableStateOf(intent?.data) }
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()
@@ -190,7 +189,7 @@ class MainActivity : AppCompatActivity() {
 				if (videoUri != null) {
 					val title = videoUri.toString().substringAfterLast("/")
 						.substringBefore("?").ifBlank { "Stream Link" }
-					historyViewModel.insertHistory(title, videoUri.toString())
+//					historyViewModel.insertHistory(title, videoUri.toString())
 					player.setURLs(listOf(videoUri.toString()))
 					player.selectItem(0)
 				}
