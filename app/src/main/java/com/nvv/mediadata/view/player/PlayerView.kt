@@ -15,6 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -342,9 +344,55 @@ fun PlayerView(
 						}
 					}
 				}
+				/// ERROR
+				AnimatedVisibility(
+					state.isError,
+					Modifier.fillMaxSize(),
+					fadeIn(),
+					fadeOut()
+				) {
+					Box(
+						modifier = Modifier
+							.fillMaxSize()
+							.background(Color.Black.copy(alpha = 0.9f))
+							.padding(24.dp),
+						contentAlignment = Alignment.Center
+					) {
+						Column(
+							horizontalAlignment = Alignment.CenterHorizontally,
+							modifier = Modifier
+								.fillMaxWidth()
+								.fillMaxSize()
+						) {
+							Text(
+								text = "Can't play video",
+								color = Color.Red,
+								style = MaterialTheme.typography.headlineMedium,
+								modifier = Modifier.padding(bottom = 16.dp)
+							)
+							Box(
+								modifier = Modifier
+									.fillMaxWidth()
+									.weight(1f)
+									.background(
+										Color.DarkGray.copy(alpha = 0.7f),
+										RoundedCornerShape(8.dp)
+									)
+									.padding(16.dp)
+							) {
+								Text(
+									text = state.messageError,
+									color = Color.White,
+									style = MaterialTheme.typography.bodyMedium,
+									modifier = Modifier.verticalScroll(rememberScrollState())
+								)
+							}
+						}
+					}
+				}
 				/// BUFFER
 				AnimatedVisibility(
-					state.isBuffering,
+					state.isBuffering && !state.isError,
 					Modifier.fillMaxSize(),
 					fadeIn(),
 					fadeOut()

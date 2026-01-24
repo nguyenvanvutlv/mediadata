@@ -38,3 +38,5 @@ release/
 .DS_Store
 temp/
 docs/
+
+example/

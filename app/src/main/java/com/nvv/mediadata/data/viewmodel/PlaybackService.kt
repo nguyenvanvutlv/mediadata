@@ -291,7 +291,19 @@ class PlaybackService : MediaSessionService() {
 				for (group in tracks.groups) {
 					if (group.type == C.TRACK_TYPE_VIDEO && group.isSelected) {
 						val format = group.getTrackFormat(0)
-						Timber.tag("VideoRenderer").d("Video track selected: ${format.sampleMimeType}, codec: ${format.codecs}")
+						val mimeType = format.sampleMimeType
+						val codecs = format.codecs
+						Timber.tag("VideoRenderer").d("Video track selected: $mimeType, codec: $codecs")
+						
+						if (mimeType != null) {
+							val supportResult = CodecSupportChecker.checkVideoFormatSupport(mimeType, codecs)
+							if (!supportResult.isSupported) {
+								Timber.tag("CodecSupport").e("Can't support this codec: $mimeType")
+								Timber.tag("CodecSupport").e("Error: ${supportResult.errorMessage}")
+							} else {
+								Timber.tag("CodecSupport").d("Can't support this codec: $mimeType")
+							}
+						}
 					}
 				}
 			}
@@ -305,6 +317,33 @@ class PlaybackService : MediaSessionService() {
 				if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
 					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
 					Timber.tag("PlaybackError").w("Decoder failed, may need to use extension renderer")
+					
+					val currentTracks = player.currentTracks
+					var videoMimeType: String? = null
+					var videoCodecs: String? = null
+					for (group in currentTracks.groups) {
+						if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
+							val format = group.getTrackFormat(0)
+							videoMimeType = format.sampleMimeType
+							videoCodecs = format.codecs
+							break
+						}
+					}
+					
+					if (videoMimeType != null) {
+						val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
+						val detailedError = buildString {
+							append("can't video\n\n")
+							append("Format: $videoMimeType\n")
+							if (videoCodecs != null) {
+								append("Codec: $videoCodecs\n")
+							}
+							append("\n")
+							append(supportResult.errorMessage ?: "Can't found codec")
+							append(CodecSupportChecker.getDeviceCodecInfo())
+						}
+						Timber.tag("PlaybackError").e(detailedError)
+					}
 				}
 			}
 		})

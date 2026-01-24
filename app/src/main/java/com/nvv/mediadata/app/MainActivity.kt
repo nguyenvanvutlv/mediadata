@@ -122,7 +122,8 @@ class MainActivity : AppCompatActivity() {
 			.build()
 		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
-			var videoUri by remember { mutableStateOf(intent?.data) }
+//			var videoUri by remember { mutableStateOf(intent?.data) }
+			val videoUri = "https://dl-z01a-0027.mypikpak.com/download/?fid=UzwNz4HvPfL7cXxSfTbg0lF-xjsoUb1ukaDTMP5qFcAO0RGXCmjUcdiqHH70VQN67eR0JWUK1nlhiY9sqrOaimDoZzT-vUu_tJ2oJhKlEDU=&from=5&verno=3&prod=pikpak&expire=1769342500&g=AB90C260EBB2A7F9B391560C389F5605DEE03341&ui=aJgD4HNLZR8dbfo1&t=0&ms=50400000&th=50400000&f=1847647048&alt=0&us=0&hspu=&po=0&userid=aJgD4HNLZR8dbfo1&fileid=VOjjcrR2zFy0ZNklRbRd7TT3o2&pr=XQPkPvr9WWiIuMvELmrVevLvpOK5XjzUvHjXE3K2SS0w2SRzPwl856nF4frNmICPm2cQXwLLEmfgjgnmQic9eRA7zoJTUw68-vOe2tfBId52kQeILWY9IVPpaNAb5ZLstZA6IeZaQdgjgavUwRFC3x6v00lHSkjRpldMOUqNO31Eii4wy9hkZJ9C8h2auy9kI1C_zXKPlyTc4xzDVBiKW_jOhdl_-in0HPL_sa9ptNS4xq4f08D2JyMbQ0vMEz3CVr3SxvgsAofNTCexjrb8QPrfsiDhU06hFF4LFyuMMLkfy6awhtsqTE26s1U82zmeQ3dUZZRg7F5yps0Mbvy_RexKULymc17ONI7oLzoiRhDh1bZRbnOWn7OLxc9SneM9wiS3rCZyGutjiF992j57RlF2LcJI5jd6uH48k0GzHvwNffu1RHpk2usHSuyIrSL-&sign=D64BBBEC1318EA5BE51DCEC3E9C41D1C"
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()

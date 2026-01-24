@@ -156,10 +156,51 @@ class PlayerViewModel @Inject constructor(
 
 				if (events.contains(Player.EVENT_PLAYER_ERROR)) {
 					player.playerError?.let { error ->
+						val errorCode = error.errorCode
+						val baseMessage = error.message ?: "Unknown Error"
+						
+						val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
+							errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
+							val tracks = player.currentTracks
+							var videoMimeType: String? = null
+							var videoCodecs: String? = null
+							for (group in tracks.groups) {
+								if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
+									val format = group.getTrackFormat(0)
+									videoMimeType = format.sampleMimeType
+									videoCodecs = format.codecs
+									break
+								}
+							}
+							
+							if (videoMimeType != null) {
+								val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
+								buildString {
+									append("Can't play video\n\n")
+									append("Format: $videoMimeType\n")
+									if (videoCodecs != null) {
+										append("Codec: $videoCodecs\n")
+									}
+									append("Error: $baseMessage\n\n")
+									if (!supportResult.isSupported && supportResult.errorMessage != null) {
+										append(supportResult.errorMessage)
+									} else if (supportResult.availableDecoders.isEmpty()) {
+										append("can't found decoder suitable in this device.\n")
+									} else {
+										append("Có ${supportResult.availableDecoders.size} decoder(s) available nhưng không thể khởi tạo.")
+									}
+								}
+							} else {
+								baseMessage
+							}
+						} else {
+							baseMessage
+						}
+						
 						_state.update {
 							it.copy(
 								isError = true,
-								messageError = error.message ?: "Unknown Error"
+								messageError = detailedMessage
 							)
 						}
 					}
@@ -183,10 +224,54 @@ class PlayerViewModel @Inject constructor(
 			}
 
 			override fun onPlayerError(error: PlaybackException) {
+				val errorCode = error.errorCode
+				val baseMessage = error.message ?: "Unknown Error"
+				
+				val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
+					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
+					val player = _player.value
+					if (player != null) {
+						val tracks = player.currentTracks
+						var videoMimeType: String? = null
+						var videoCodecs: String? = null
+						for (group in tracks.groups) {
+							if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
+								val format = group.getTrackFormat(0)
+								videoMimeType = format.sampleMimeType
+								videoCodecs = format.codecs
+								break
+							}
+						}
+						
+						if (videoMimeType != null) {
+							val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
+							buildString {
+								append("Can't play video\n\n")
+								append("Format: $videoMimeType\n")
+								if (videoCodecs != null) {
+									append("Codec: $videoCodecs\n")
+								}
+								append("Error: $baseMessage\n\n")
+								if (!supportResult.isSupported && supportResult.errorMessage != null) {
+									append(supportResult.errorMessage)
+								} else if (supportResult.availableDecoders.isEmpty()) {
+									append("Can't found decoder suitable in this device.\n")
+								}
+							}
+						} else {
+							baseMessage
+						}
+					} else {
+						baseMessage
+					}
+				} else {
+					baseMessage
+				}
+				
 				_state.update {
 					it.copy(
 						isError = true,
-						messageError = error.message ?: "Unknown Error"
+						messageError = detailedMessage
 					)
 				}
 			}
