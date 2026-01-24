@@ -300,10 +300,7 @@ fun SettingSubtitleNavigation(
 		},
 	) {
 		composable(route = "settings/subtitle") {
-			SettingSubtitle(navController, sub)
-		}
-		composable(route = "settings/subtitle/language") {
-			SettingLanguageInSubtitle(sub)
+			SubtitleEditorScreen(navController)
 		}
 	}
 }

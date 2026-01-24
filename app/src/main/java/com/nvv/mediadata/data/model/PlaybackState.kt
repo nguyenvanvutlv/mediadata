@@ -42,6 +42,9 @@ data class PlaybackState(
 	val positionSubtitle: Float = 0.1f,
 	val scaleMode: VideoScaleMode = VideoScaleMode.FILL,
 	val subtitleTextColor: Int = Color.WHITE,
+	val subtitleOutlineColor: Int = Color.BLACK,
+	val subtitleBackgroundColor: Int = Color.TRANSPARENT,
 	val opacity: Int = 30,
-	val speed: Float = 1f
+	val speed: Float = 1f,
+	val subtitleFont: String = "DEFAULT"
 )

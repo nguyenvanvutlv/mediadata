@@ -138,9 +138,11 @@ fun HistoryView() {
 					}
 					if (historyItems.loadState.append is LoadState.Loading) {
 						item {
-							Box(modifier = Modifier
-								.fillMaxWidth()
-								.padding(16.dp)) {
+							Box(
+								modifier = Modifier
+									.fillMaxWidth()
+									.padding(16.dp)
+							) {
 								CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
 							}
 						}

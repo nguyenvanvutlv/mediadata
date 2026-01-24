@@ -15,8 +15,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,6 +61,9 @@ import com.nvv.mediadata.R
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberIsInPipMode
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
+import com.nvv.mediadata.data.viewmodel.Settings
+import com.nvv.mediadata.ui.theme.Media3Typography
+import com.nvv.mediadata.view.core.ScrollableText
 import com.nvv.mediadata.view.core.findActivity
 import com.nvv.mediadata.view.core.padStartWith0
 import com.nvv.mediadata.view.core.seek.SeekerPlayer
@@ -95,6 +96,32 @@ fun PlayerView(
 	val isPipMode = rememberIsInPipMode()
 	var canPipMode by remember { mutableStateOf(true) }
 	var showSettings by remember { mutableStateOf(false) }
+
+	var currentTitle by remember { mutableStateOf("") }
+	val subtitleFont = Settings.getSubtitleFont(context)
+
+	val titleFontFamily = remember(subtitleFont) {
+		val fontFamilyType = try {
+			Media3Typography.FontFamilyType.valueOf(subtitleFont)
+		} catch (e: Exception) {
+			Media3Typography.FontFamilyType.DEFAULT
+		}
+		when (fontFamilyType) {
+			Media3Typography.FontFamilyType.ANDADA_PRO -> com.nvv.mediadata.ui.theme.AndadaProFontFamily
+			Media3Typography.FontFamilyType.ASAP_CONDENSED -> com.nvv.mediadata.ui.theme.AsapCondensedFontFamily
+			Media3Typography.FontFamilyType.GOOGLE_SANS_FLEX -> com.nvv.mediadata.ui.theme.GoogleSansFlexFontFamily
+			Media3Typography.FontFamilyType.HAHMLET -> com.nvv.mediadata.ui.theme.HahmletFontFamily
+			Media3Typography.FontFamilyType.ROBOTO_CONDENSED -> com.nvv.mediadata.ui.theme.RobotoCondensedFontFamily
+			Media3Typography.FontFamilyType.SPACE_GROTESK -> com.nvv.mediadata.ui.theme.SpaceGroteskFontFamily
+			Media3Typography.FontFamilyType.DEFAULT -> androidx.compose.ui.text.font.FontFamily.Default
+		}
+	}
+
+	LaunchedEffect(player?.currentMediaItem) {
+		currentTitle = player?.currentMediaItem?.mediaMetadata?.title?.toString()
+			?: player?.currentMediaItem?.mediaMetadata?.displayTitle?.toString()
+					?: ""
+	}
 
 	val onPipMode = {
 		val params = PictureInPictureParams.Builder()
@@ -277,7 +304,13 @@ fun PlayerView(
 										.size(30.dp)
 								)
 							}
-							Spacer(Modifier.weight(1f))
+							ScrollableText(
+								text = currentTitle,
+								modifier = Modifier.weight(1f),
+								fontFamily = titleFontFamily,
+								color = Color.White
+							)
+							Spacer(Modifier.width(8.dp))
 							IconButton(
 								onClick = {
 									vm.toggleVideo(false)
@@ -341,52 +374,6 @@ fun PlayerView(
 								modifier = Modifier
 									.size(80.dp)
 							)
-						}
-					}
-				}
-				/// ERROR
-				AnimatedVisibility(
-					state.isError,
-					Modifier.fillMaxSize(),
-					fadeIn(),
-					fadeOut()
-				) {
-					Box(
-						modifier = Modifier
-							.fillMaxSize()
-							.background(Color.Black.copy(alpha = 0.9f))
-							.padding(24.dp),
-						contentAlignment = Alignment.Center
-					) {
-						Column(
-							horizontalAlignment = Alignment.CenterHorizontally,
-							modifier = Modifier
-								.fillMaxWidth()
-								.fillMaxSize()
-						) {
-							Text(
-								text = "Can't play video",
-								color = Color.Red,
-								style = MaterialTheme.typography.headlineMedium,
-								modifier = Modifier.padding(bottom = 16.dp)
-							)
-							Box(
-								modifier = Modifier
-									.fillMaxWidth()
-									.weight(1f)
-									.background(
-										Color.DarkGray.copy(alpha = 0.7f),
-										RoundedCornerShape(8.dp)
-									)
-									.padding(16.dp)
-							) {
-								Text(
-									text = state.messageError,
-									color = Color.White,
-									style = MaterialTheme.typography.bodyMedium,
-									modifier = Modifier.verticalScroll(rememberScrollState())
-								)
-							}
 						}
 					}
 				}

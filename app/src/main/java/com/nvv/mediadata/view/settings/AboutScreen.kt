@@ -168,7 +168,7 @@ fun AboutScreen(
 				},
 				supportingContent = {
 					Text(
-						text = "Apache License 2.0 • View on GitHub",
+						text = "GPL-3.0 • View on GitHub",
 						style = MaterialTheme.typography.bodySmall,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)
@@ -208,7 +208,7 @@ fun AboutScreen(
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 			Text(
-				text = "Licensed under Apache License 2.0",
+				text = "Licensed under GNU General Public License v3.0 (GPL-3.0)",
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)

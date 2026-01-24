@@ -2,6 +2,7 @@ package com.nvv.mediadata.view.player
 
 import android.content.pm.ActivityInfo
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.util.TypedValue
 import android.view.View
@@ -39,6 +40,7 @@ import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.ui.PlayerView
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
+import com.nvv.mediadata.ui.theme.Media3Typography
 import com.nvv.mediadata.view.core.findActivity
 import com.nvv.mediadata.view.core.toComposeColor
 import kotlin.math.roundToInt
@@ -128,15 +130,27 @@ fun SurfacePlayer(
 					state.opacity.coerceAtMost(100)
 				)
 				val alpha = (opacity * 255f / 100f).roundToInt()
+				val fontFamilyType = try {
+					Media3Typography.FontFamilyType.valueOf(state.subtitleFont)
+				} catch (e: Exception) {
+					Media3Typography.FontFamilyType.DEFAULT
+				}
+				val typeface = Media3Typography.getTypeface(context, fontFamilyType) ?: Typeface.DEFAULT
+				val windowColor = if (state.subtitleBackgroundColor == Color.TRANSPARENT) {
+					Color.TRANSPARENT
+				} else {
+					ColorUtils.setAlphaComponent(state.subtitleBackgroundColor, alpha)
+				}
 				val style = CaptionStyleCompat(
 					state.subtitleTextColor,
-					ColorUtils.setAlphaComponent(Color.BLACK, alpha),
 					Color.TRANSPARENT,
+					windowColor,
 					CaptionStyleCompat.EDGE_TYPE_OUTLINE,
-					Color.BLACK,
-					null
+					state.subtitleOutlineColor,
+					typeface
 				)
 				subView?.setStyle(style)
+				subView?.invalidate()
 				if (!isPipMode) {
 					subView?.setFixedTextSize(
 						TypedValue.COMPLEX_UNIT_SP,

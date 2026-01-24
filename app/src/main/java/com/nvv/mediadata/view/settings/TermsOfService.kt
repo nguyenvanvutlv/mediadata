@@ -123,7 +123,7 @@ fun TermsOfService(
 			Text("You must provide your own legitimate content URLs. The app does not recommend, provide, or endorse any content sources.")
 
 			LegalSectionTitle("5. Intellectual Property")
-			LegalBulletPoint("App Ownership: Owned by Vũ Nguyễn Văn, licensed under Apache License 2.0.")
+			LegalBulletPoint("App Ownership: Owned by Vũ Nguyễn Văn, licensed under GNU General Public License v3.0 (GPL-3.0).")
 			LegalBulletPoint("Third-Party Rights: We respect intellectual property and expect users to do the same.")
 			LegalBulletPoint("DMCA: Contact us at nguyenvanvu.tlvnvv@gmail.com for concerns about misuse.")
 
@@ -143,7 +143,7 @@ fun TermsOfService(
 			Text("Your use is also governed by our Privacy Policy. We do not collect personal data.")
 
 			LegalSectionTitle("11. License")
-			Text("MediaData Player is licensed under the Apache License 2.0. See LICENSE file for full terms.")
+			Text("MediaData Player is licensed under the GNU General Public License v3.0 (GPL-3.0). See LICENSE file for full terms. Source code is available at: https://github.com/nguyenvanvutlv/mediadata")
 
 			LegalSectionTitle("12. Contact")
 			Text("Questions? Contact us at: nguyenvanvu.tlvnvv@gmail.com")
@@ -159,7 +159,7 @@ fun TermsOfService(
 			HorizontalDivider()
 			Spacer(modifier = Modifier.height(16.dp))
 			Text(
-				text = "© 2026 MediaData Player. Licensed under Apache License 2.0.\nBy using this app, you agree to these Terms of Service.",
+				text = "© 2026 MediaData Player. Licensed under GNU General Public License v3.0 (GPL-3.0).\nBy using this app, you agree to these Terms of Service.",
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				modifier = Modifier.fillMaxWidth()

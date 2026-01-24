@@ -18,8 +18,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 110
-		versionName = "1.1.0"
+		versionCode = 112
+		versionName = "1.1.2"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
@@ -72,12 +72,14 @@ dependencies {
 	implementation(libs.androidx.media3.common)
 	implementation(libs.androidx.media3.container)
 	implementation(libs.androidx.media3.extractor)
-	implementation("androidx.mediarouter:mediarouter:1.8.1")
-	implementation("androidx.media3:media3-cast:1.9.0")
-	implementation("androidx.media3:media3-exoplayer-dash:1.9.0")
-	implementation("androidx.media3:media3-exoplayer-hls:1.9.0")
-	implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.9.0")
-	implementation("androidx.media3:media3-exoplayer-rtsp:1.9.0")
+	implementation(libs.androidx.mediarouter)
+	implementation(libs.androidx.media3.cast)
+	implementation(libs.androidx.media3.exoplayer.dash)
+	implementation(libs.androidx.media3.exoplayer.hls)
+	implementation(libs.androidx.media3.exoplayer.smoothstreaming)
+	implementation(libs.androidx.media3.exoplayer.rtsp)
+	implementation("io.github.anilbeesetti:nextlib-media3ext:1.8.0-0.9.0")
+	implementation("io.github.anilbeesetti:nextlib-mediainfo:1.8.0-0.9.0")
 	implementation(fileTree("libs") {
 		include("lib-*.aar")
 	})

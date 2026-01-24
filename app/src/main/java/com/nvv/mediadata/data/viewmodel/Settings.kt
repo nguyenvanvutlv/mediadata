@@ -18,9 +18,13 @@ class Settings {
 
 		//// player
 		private const val SUBTITLE_COLOR = "subtitle_color"
+		private const val SUBTITLE_OUTLINE_COLOR = "subtitle_outline_color"
+		private const val SUBTITLE_BACKGROUND_COLOR = "subtitle_background_color"
 		private const val BACKGROUND_COLOR_OPACITY = "background_color_opacity"
 		private const val SUBTITLE_SIZE = "subtitle_size"
 		private const val SUBTITLE_POSITION = "subtitle_position"
+		private const val SUBTITLE_FONT = "subtitle_font"
+		private const val SECONDARY_LANGUAGE = "secondary_language"
 		private const val SCALE_MODE = "scale_mode"
 		private const val THEME_MODE = "theme_mode"
 
@@ -60,6 +64,14 @@ class Settings {
 			getSharedPreferences(context).edit { putFloat(SUBTITLE_POSITION, position) }
 		}
 
+		fun getSubtitleFont(context: Context): String {
+			return getSharedPreferences(context).getString(SUBTITLE_FONT, "DEFAULT") ?: "DEFAULT"
+		}
+
+		fun setSubtitleFont(context: Context, fontFamilyType: String) {
+			getSharedPreferences(context).edit { putString(SUBTITLE_FONT, fontFamilyType) }
+		}
+
 		fun getScaleMode(context: Context): VideoScaleMode {
 			return VideoScaleMode.fromString(
 				getSharedPreferences(context).getString(
@@ -80,6 +92,22 @@ class Settings {
 
 		fun setColor(context: Context, color: AndroidColor) {
 			getSharedPreferences(context).edit { putInt(SUBTITLE_COLOR, color.toArgb()) }
+		}
+
+		fun getSubtitleOutlineColor(context: Context): Int {
+			return getSharedPreferences(context).getInt(SUBTITLE_OUTLINE_COLOR, AndroidColor.BLACK)
+		}
+
+		fun setSubtitleOutlineColor(context: Context, color: Int) {
+			getSharedPreferences(context).edit { putInt(SUBTITLE_OUTLINE_COLOR, color) }
+		}
+
+		fun getSubtitleBackgroundColor(context: Context): Int {
+			return getSharedPreferences(context).getInt(SUBTITLE_BACKGROUND_COLOR, AndroidColor.TRANSPARENT)
+		}
+
+		fun setSubtitleBackgroundColor(context: Context, color: Int) {
+			getSharedPreferences(context).edit { putInt(SUBTITLE_BACKGROUND_COLOR, color) }
 		}
 
 		fun getBackgroundColorOpacity(context: Context): Int {

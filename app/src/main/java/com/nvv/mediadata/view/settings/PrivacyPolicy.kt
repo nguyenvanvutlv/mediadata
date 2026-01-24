@@ -141,7 +141,7 @@ fun PrivacyPolicy(
 
 			LegalSectionTitle("8. Open Source")
 			Text(
-				text = "MediaData Player is open source (Apache License 2.0). You can review the source code on GitHub: https://github.com/nguyenvanvutlv/mediadata",
+				text = "MediaData Player is open source (GNU General Public License v3.0 - GPL-3.0). You can review the source code on GitHub: https://github.com/nguyenvanvutlv/mediadata",
 				style = MaterialTheme.typography.bodyMedium
 			)
 
@@ -173,7 +173,7 @@ fun PrivacyPolicy(
 			HorizontalDivider()
 			Spacer(modifier = Modifier.height(16.dp))
 			Text(
-				text = "© 2026 MediaData Player. Licensed under Apache License 2.0.\nThis is a media player tool. Users are responsible for content they access.",
+				text = "© 2026 MediaData Player. Licensed under GNU General Public License v3.0 (GPL-3.0).\nThis is a media player tool. Users are responsible for content they access.",
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				modifier = Modifier.fillMaxWidth()

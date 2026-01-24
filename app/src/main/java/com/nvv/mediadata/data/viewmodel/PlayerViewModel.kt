@@ -3,7 +3,6 @@ package com.nvv.mediadata.data.viewmodel
 import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.OptIn
@@ -14,12 +13,9 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
-import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -38,21 +34,7 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.text.contains
 
-@UnstableApi
-fun isHevcSupported(): Boolean {
-	return try {
-		val decoderInfos = MediaCodecUtil.getDecoderInfos(
-			MimeTypes.VIDEO_H265,
-			false,
-			false
-		)
-		decoderInfos.isNotEmpty()
-	} catch (e: Exception) {
-		false
-	}
-}
 
 @OptIn(UnstableApi::class)
 @HiltViewModel
@@ -70,6 +52,7 @@ class PlayerViewModel @Inject constructor(
 		private const val MIME_AUDIO_AMR = "audio/amr"
 		private const val MIME_AUDIO_AMR_WB = "audio/amr-wb"
 	}
+
 	private var _isPlay = MutableStateFlow(false)
 	val isPlay = _isPlay.asStateFlow()
 
@@ -101,8 +84,10 @@ class PlayerViewModel @Inject constructor(
 	}
 
 	init {
-		val sessionToken = SessionToken(context.applicationContext,
-			ComponentName(context.applicationContext, PlaybackService::class.java))
+		val sessionToken = SessionToken(
+			context.applicationContext,
+			ComponentName(context.applicationContext, PlaybackService::class.java)
+		)
 		controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
 		controllerFuture.addListener({
 			try {
@@ -158,9 +143,10 @@ class PlayerViewModel @Inject constructor(
 					player.playerError?.let { error ->
 						val errorCode = error.errorCode
 						val baseMessage = error.message ?: "Unknown Error"
-						
+
 						val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
-							errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
+							errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED
+						) {
 							val tracks = player.currentTracks
 							var videoMimeType: String? = null
 							var videoCodecs: String? = null
@@ -172,7 +158,7 @@ class PlayerViewModel @Inject constructor(
 									break
 								}
 							}
-							
+
 							if (videoMimeType != null) {
 								val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
 								buildString {
@@ -186,8 +172,6 @@ class PlayerViewModel @Inject constructor(
 										append(supportResult.errorMessage)
 									} else if (supportResult.availableDecoders.isEmpty()) {
 										append("can't found decoder suitable in this device.\n")
-									} else {
-										append("Có ${supportResult.availableDecoders.size} decoder(s) available nhưng không thể khởi tạo.")
 									}
 								}
 							} else {
@@ -196,7 +180,7 @@ class PlayerViewModel @Inject constructor(
 						} else {
 							baseMessage
 						}
-						
+
 						_state.update {
 							it.copy(
 								isError = true,
@@ -226,9 +210,10 @@ class PlayerViewModel @Inject constructor(
 			override fun onPlayerError(error: PlaybackException) {
 				val errorCode = error.errorCode
 				val baseMessage = error.message ?: "Unknown Error"
-				
+
 				val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
-					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED) {
+					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED
+				) {
 					val player = _player.value
 					if (player != null) {
 						val tracks = player.currentTracks
@@ -242,7 +227,7 @@ class PlayerViewModel @Inject constructor(
 								break
 							}
 						}
-						
+
 						if (videoMimeType != null) {
 							val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
 							buildString {
@@ -267,7 +252,7 @@ class PlayerViewModel @Inject constructor(
 				} else {
 					baseMessage
 				}
-				
+
 				_state.update {
 					it.copy(
 						isError = true,
@@ -299,7 +284,6 @@ class PlayerViewModel @Inject constructor(
 
 	private suspend fun getMimeTypeFromServer(url: String): String? = withContext(Dispatchers.IO) {
 		try {
-			Timber.tag("mimetype").d("get codec from server")
 			val request = Request.Builder()
 				.url(url)
 				.head()
@@ -322,74 +306,101 @@ class PlayerViewModel @Inject constructor(
 				return@withContext when {
 					contentType.contains("video/vp8") || contentType.contains("x-vnd.on2.vp8") ->
 						MIME_VIDEO_VP8
+
 					contentType.contains("mpegurl") || contentType.contains("m3u8") ->
 						MimeTypes.APPLICATION_M3U8
+
 					contentType.contains("dash+xml") || contentType.contains("dash") ->
 						MimeTypes.APPLICATION_MPD
+
 					contentType.contains("vnd.ms-sstr+xml") ->
 						MimeTypes.APPLICATION_SS
+
 					contentType.contains("video/x-matroska") || contentType.contains("mkv") ->
 						MimeTypes.APPLICATION_MATROSKA
+
 					contentType.contains("video/mp4") || contentType.contains("m4v") ->
 						MimeTypes.VIDEO_MP4
+
 					contentType.contains("video/webm") ->
 						MimeTypes.VIDEO_WEBM
+
 					contentType.contains("video/x-msvideo") || contentType.contains("avi") ->
 						"video/x-msvideo" // AVI
 					contentType.contains("video/quicktime") ->
 						MimeTypes.VIDEO_QUICK_TIME
+
 					contentType.contains("video/x-flv") || contentType.contains("flv") ->
 						MimeTypes.VIDEO_FLV
+
 					contentType.contains("video/mp2t") || contentType.contains("ts") ->
 						MimeTypes.VIDEO_MP2T
+
 					contentType.contains("truehd") || contentType.contains("true-hd") ->
 						MIME_AUDIO_TRUEHD
+
 					contentType.contains("alac") ->
 						MIME_AUDIO_ALAC
+
 					contentType.contains("vnd.dts.hd") ||
 							contentType.contains("dts-hd") ||
 							contentType.contains("dts_hd") ->
 						MimeTypes.AUDIO_DTS_HD
+
 					contentType.contains("audio/raw") ||
 							contentType.contains("lpcm") ||
 							contentType.contains("pcm") ||
 							contentType.contains("audio/l16") ||
 							contentType.contains("audio/l24") ->
 						MIME_AUDIO_RAW
+
 					contentType.contains("amr-wb") ->
 						MIME_AUDIO_AMR_WB
+
 					contentType.contains("audio/amr") ||
 							contentType.contains("amr") ->
 						MIME_AUDIO_AMR
+
 					contentType.contains("audio/mpeg") ||
 							contentType.contains("mp3") ->
 						MimeTypes.AUDIO_MPEG
+
 					contentType.contains("audio/aac") ||
 							contentType.contains("mp4a") ->
 						MimeTypes.AUDIO_AAC
+
 					contentType.contains("audio/eac3-joc") ||
 							(contentType.contains("eac3") && contentType.contains("joc")) ->
 						MimeTypes.AUDIO_E_AC3_JOC
+
 					contentType.contains("audio/opus") ||
 							contentType.contains("opus") ->
 						MimeTypes.AUDIO_OPUS
+
 					contentType.contains("vorbis") ->
 						MimeTypes.AUDIO_VORBIS
+
 					contentType.contains("audio/ogg") ->
 						MimeTypes.AUDIO_OGG
+
 					contentType.contains("audio/wav") ||
 							contentType.contains("wave") ->
 						MimeTypes.AUDIO_WAV
+
 					contentType.contains("audio/flac") ||
 							contentType.contains("x-flac") ->
 						MimeTypes.AUDIO_FLAC
+
 					contentType.contains("audio/ac3") ->
 						MimeTypes.AUDIO_AC3
+
 					contentType.contains("audio/eac3") ->
 						MimeTypes.AUDIO_E_AC3
+
 					contentType.contains("audio/x-dts") ||
 							contentType.contains("dts") ->
 						MimeTypes.AUDIO_DTS
+
 					contentType.contains("text/vtt") -> MimeTypes.TEXT_VTT
 					contentType.contains("application/x-subrip") -> MimeTypes.APPLICATION_SUBRIP
 					contentType.contains("application/ttml+xml") -> MimeTypes.APPLICATION_TTML
@@ -397,7 +408,6 @@ class PlayerViewModel @Inject constructor(
 				}
 			}
 		} catch (e: Exception) {
-			Timber.tag("mimetype").e(e, "Error sniffing MimeType for $url")
 			null
 		}
 	}
@@ -463,7 +473,6 @@ class PlayerViewModel @Inject constructor(
 				null
 			}
 		} catch (e: Exception) {
-			Timber.tag("mimetype").e(e, "Byte sniff failed for $url")
 			null
 		}
 	}
@@ -482,6 +491,7 @@ class PlayerViewModel @Inject constructor(
 			path.endsWith(".flac") -> MimeTypes.AUDIO_FLAC
 			path.endsWith(".wav") ||
 					path.endsWith(".wave") -> MimeTypes.AUDIO_WAV
+
 			path.endsWith(".mp3") -> MimeTypes.AUDIO_MPEG
 			path.endsWith(".aac") -> MimeTypes.AUDIO_AAC
 			path.endsWith(".opus") -> MimeTypes.AUDIO_OPUS
@@ -491,8 +501,10 @@ class PlayerViewModel @Inject constructor(
 			path.endsWith(".dts") ||
 					path.endsWith(".dtshd") ||
 					path.endsWith(".dts-hd") -> MimeTypes.AUDIO_DTS
+
 			path.contains(".hevc") ||
 					path.contains(".h265") -> MimeTypes.VIDEO_H265
+
 			path.contains(".av1") -> MimeTypes.VIDEO_AV1
 			path.contains(".h264") || path.contains(".avc") -> MimeTypes.VIDEO_H264
 			path.endsWith(".avi") -> "video/x-msvideo"
@@ -503,8 +515,6 @@ class PlayerViewModel @Inject constructor(
 			path.endsWith(".mp4") || path.endsWith(".m4v") -> MimeTypes.VIDEO_MP4
 			else -> getMimeTypeFromServer(url)
 		}
-		Timber.tag("mimetype").d("MediaItem MimeType: $mimeType")
-		Timber.tag("hevc").d("Hevc Supported: ${isHevcSupported()}")
 		val metadata = MediaMetadata.Builder()
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MOVIE)
 			.build()
@@ -530,7 +540,10 @@ class PlayerViewModel @Inject constructor(
 				sizeSubtitle = Settings.getSubtitleSize(context),
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
+				subtitleOutlineColor = Settings.getSubtitleOutlineColor(context),
+				subtitleBackgroundColor = Settings.getSubtitleBackgroundColor(context),
 				scaleMode = Settings.getScaleMode(context),
+				subtitleFont = Settings.getSubtitleFont(context),
 				isError = false,
 				messageError = ""
 			)
@@ -675,6 +688,19 @@ class PlayerViewModel @Inject constructor(
 		Settings.setSubtitlePosition(context, position)
 	}
 
+	fun updateSubtitleSettings() {
+		_state.update {
+			it.copy(
+				subtitleTextColor = Settings.getColor(context).toArgb(),
+				subtitleOutlineColor = Settings.getSubtitleOutlineColor(context),
+				subtitleBackgroundColor = Settings.getSubtitleBackgroundColor(context),
+				subtitleFont = Settings.getSubtitleFont(context),
+				sizeSubtitle = Settings.getSubtitleSize(context),
+				positionSubtitle = Settings.getSubtitlePosition(context)
+			)
+		}
+	}
+
 	fun aspect() {
 		val newAspect = when (this.state.value.scaleMode) {
 			VideoScaleMode.BEST_FIT -> VideoScaleMode.FIT_SCREEN
@@ -712,7 +738,6 @@ class PlayerViewModel @Inject constructor(
 			p.clearMediaItems()
 		}
 	}
-
 
 
 	override fun onCleared() {
