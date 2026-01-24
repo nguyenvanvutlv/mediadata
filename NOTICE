@@ -1,0 +1,49 @@
+MediaData Player
+Copyright (C) 2026  Vũ Nguyễn Văn
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+This software contains code derived from the following projects:
+
+================================================================================
+
+Media3 (ExoPlayer)
+https://github.com/androidx/media
+Copyright (C) Google LLC
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Jetpack Compose
+https://developer.android.com/jetpack/compose
+Copyright (C) The Android Open Source Project
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Kotlin Programming Language
+https://kotlinlang.org/
+Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+Android Gradle Plugin
+Copyright (C) The Android Open Source Project
+Licensed under the Apache License, Version 2.0
+
+================================================================================
+
+For full license texts, please see the LICENSE file in the root directory
+of this project or visit https://www.gnu.org/licenses/gpl-3.0.html
