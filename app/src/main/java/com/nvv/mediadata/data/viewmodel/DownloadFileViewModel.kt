@@ -17,7 +17,7 @@ class DownloadFileViewModel @Inject constructor(
 		val id: Int,
 		val fileName: String,
 		val progress: Int,
-		val status: String // "Downloading", "Success", "Failed"
+		val status: String,
 	)
 
 	private val _tasks = androidx.compose.runtime.mutableStateListOf<DownloadTask>()
@@ -33,8 +33,6 @@ class DownloadFileViewModel @Inject constructor(
 		val notificationId = System.currentTimeMillis().toInt()
 		createNotificationChannel()
 		showProgressNotification(notificationId, fileNameDisplay, 0)
-
-		// Add to tasks list
 		val taskIndex = _tasks.indexOfFirst { it.id == notificationId }
 		val newTask = DownloadTask(notificationId, fileNameDisplay, 0, "Downloading")
 		if (taskIndex == -1) {
@@ -53,18 +51,14 @@ class DownloadFileViewModel @Inject constructor(
 				val percent = if (progress.totalBytes > 0) {
 					((progress.currentBytes * 100) / progress.totalBytes).toInt()
 				} else {
-					-1 // Indeterminate
+					-1
 				}
 
-				// Update only if 1 second passed OR percentage changed significantly OR it's the first update
 				if (currentTime - lastUpdateTime > 1000 || percent != lastProgressPercent) {
-					// Still throttle slight percentage changes to at least 500ms if needed, but for now 1s is safest
 					if (currentTime - lastUpdateTime > 1000) {
 						lastUpdateTime = currentTime
 						lastProgressPercent = percent
 						showProgressNotification(notificationId, fileNameDisplay, if (percent < 0) 0 else percent, percent < 0)
-
-						// Update Task List
 						val index = _tasks.indexOfFirst { it.id == notificationId }
 						if (index != -1) {
 							_tasks[index] = _tasks[index].copy(progress = if (percent < 0) 0 else percent)
@@ -76,22 +70,17 @@ class DownloadFileViewModel @Inject constructor(
 				override fun onDownloadComplete() {
 					val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 					notificationManager.cancel(notificationId)
-
-					// Update Task List
 					val index = _tasks.indexOfFirst { it.id == notificationId }
 					if (index != -1) {
 						_tasks[index] = _tasks[index].copy(progress = 100, status = "Success")
 					}
 
-					// Trigger Worker
 					val file = java.io.File(dirPath, tempFileName)
 					enqueueFileProcessing(file.absolutePath, fileNameDisplay)
 				}
 
 				override fun onError(error: com.downloader.Error?) {
 					showErrorNotification(notificationId, fileNameDisplay)
-
-					// Update Task List
 					val index = _tasks.indexOfFirst { it.id == notificationId }
 					if (index != -1) {
 						_tasks[index] = _tasks[index].copy(status = "Failed")
@@ -102,8 +91,6 @@ class DownloadFileViewModel @Inject constructor(
 
 	fun cancelDownload(id: Int) {
 		com.downloader.PRDownloader.cancel(id)
-
-		// Update Task List
 		val index = _tasks.indexOfFirst { it.id == id }
 		if (index != -1) {
 			_tasks[index] = _tasks[index].copy(status = "Cancelled")
@@ -164,7 +151,6 @@ class DownloadFileViewModel @Inject constructor(
 		val inputData = androidx.work.Data.Builder()
 			.putString("EXTRA_LOCAL_URI", Uri.fromFile(java.io.File(localPath)).toString())
 			.putString("EXTRA_TITLE", title)
-			//.putString("EXTRA_MIME_TYPE", mimeType) // PRDownloader doesn't easily give early mimeType, let worker detect
 			.build()
 
 		val workRequest = androidx.work.OneTimeWorkRequestBuilder<FileProcessingWorker>()

@@ -1,6 +1,8 @@
 package com.nvv.mediadata.app
 
 import android.Manifest
+import android.app.PictureInPictureParams
+import android.app.UiModeManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -8,30 +10,15 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,9 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -61,12 +45,8 @@ import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberNotificationViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.data.viewmodel.Settings
-import com.nvv.mediadata.ui.theme.MediadataTheme
-import com.nvv.mediadata.view.core.KeepScreenOn
-import com.nvv.mediadata.view.core.LoadingUI
-import com.nvv.mediadata.view.player.PlayerView
-import com.nvv.mediadata.view.stream.MiniAudioPlayer
-import com.nvv.mediadata.view.topbar.DefaultTopbar
+import com.nvv.mediadata.view.mobile.MobileRoot
+import com.nvv.mediadata.view.tv.TvRoot
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -74,6 +54,7 @@ import kotlinx.coroutines.delay
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 	private var pipModeListener: ((isInPipMode: Boolean) -> Unit)? = null
+	private var shouldEnterPipOnUserLeave: Boolean = false
 
 	private val requestPermissionLauncher = registerForActivityResult(
 		ActivityResultContracts.RequestPermission()
@@ -105,12 +86,26 @@ class MainActivity : AppCompatActivity() {
 		pipModeListener = null
 	}
 
+	fun updatePipState(shouldEnterPip: Boolean) {
+		shouldEnterPipOnUserLeave = shouldEnterPip
+	}
+
 	override fun onPictureInPictureModeChanged(
 		isInPictureInPictureMode: Boolean,
 		newConfig: Configuration
 	) {
 		super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
 		pipModeListener?.invoke(isInPictureInPictureMode)
+	}
+
+	override fun onUserLeaveHint() {
+		if (shouldEnterPipOnUserLeave) {
+			val params = PictureInPictureParams.Builder()
+				.setAspectRatio(Rational(16, 9))
+				.build()
+			enterPictureInPictureMode(params)
+		}
+		super.onUserLeaveHint()
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,7 +118,17 @@ class MainActivity : AppCompatActivity() {
 			.build()
 		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
+			val isTv = remember {
+				(getSystemService(UI_MODE_SERVICE) as? UiModeManager)
+					?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+			}
 			var videoUri by remember { mutableStateOf(intent?.data) }
+			val openFromMediaNotification = remember {
+				intent?.getBooleanExtra(
+					"open_from_media_notification",
+					false,
+				) ?: false
+			}
 			val startDestination = Destination.NETWORKS
 			val fileViewModel = rememberFileViewModel()
 			val player = rememberPlayerViewModel()
@@ -138,6 +143,13 @@ class MainActivity : AppCompatActivity() {
 			val context = rememberContext()
 			var themeMode by remember { mutableStateOf(Settings.getThemeMode(context)) }
 			var isAudioPlaying by remember { mutableStateOf(false) }
+
+			LaunchedEffect(openFromMediaNotification) {
+				if (openFromMediaNotification) {
+					player.toggleVideo(true)
+					player.setPlayMode(true)
+				}
+			}
 			LaunchedEffect(player.player.collectAsStateWithLifecycle().value) {
 				while (true) {
 					player.player.value?.let { p ->
@@ -188,8 +200,11 @@ class MainActivity : AppCompatActivity() {
 
 				}
 				if (videoUri != null) {
-					videoUri.toString().substringAfterLast("/")
-						.substringBefore("?").ifBlank { "Stream Link" }
+					videoUri.toString().substringAfterLast(
+						"/",
+					)
+						.substringBefore("?")
+						.ifBlank { "Stream Link" }
 					player.setURLs(listOf(videoUri.toString()))
 					player.selectItem(0)
 				}
@@ -222,104 +237,37 @@ class MainActivity : AppCompatActivity() {
 				}
 			}
 			DisposableEffect(Unit) {
-				val prefs = context.getSharedPreferences("com.nvv.mediadata", MODE_PRIVATE)
+				val prefs = context.getSharedPreferences(
+					"com.nvv.mediadata",
+					MODE_PRIVATE,
+				)
 				prefs.registerOnSharedPreferenceChangeListener(listener)
 				onDispose {
 					prefs.unregisterOnSharedPreferenceChangeListener(listener)
 				}
 			}
-			MediadataTheme(themeMode = themeMode) {
-				Box(modifier = Modifier.fillMaxSize()) {
-					if (isPlay) {
-						KeepScreenOn()
-					}
-					Scaffold(
-						topBar = {
-							AnimatedVisibility(
-								visible = !isPlay,
-								enter = slideInVertically(initialOffsetY = { -it }),
-								exit = slideOutVertically(targetOffsetY = { -it }),
-							) {
-								DefaultTopbar(
-									destination = Destination.entries[selectedDestination],
-									openFolder = {
-										launcherSelectFolder.launch(null)
-									}
-								)
-							}
-						},
-						bottomBar = {
-							AnimatedVisibility(
-								visible = !isPlay,
-								enter = slideInVertically(initialOffsetY = { it }),
-								exit = slideOutVertically(targetOffsetY = { it }),
-							) {
-								NavigationBar(
-									windowInsets = NavigationBarDefaults.windowInsets,
-								) {
-									Destination.entries.forEachIndexed { index, destination ->
-										NavigationBarItem(
-											selected = selectedDestination == index,
-											onClick = {
-												if (selectedDestination != index) {
-													navController.navigate(route = destination.route)
-													selectedDestination = index
-												}
-											},
-											icon = {
-												Icon(
-													destination.icon,
-													contentDescription = destination.contentDescription
-												)
-											},
-										)
-									}
-								}
-							}
-						},
-						snackbarHost = {
-							SnackbarHost(snackBarHostState)
-						},
-						contentWindowInsets = WindowInsets(0, 0, 0, 0),
-					) {
-						Surface(
-							modifier = Modifier
-								.fillMaxSize()
-								.padding(it),
-						) {
-							Box(
-								Modifier.fillMaxSize()
-							) {
-								AppNavHost(navController, startDestination)
-							}
-						}
-						if (videoUri != null) LoadingUI(Modifier.fillMaxSize())
-					}
-
-					MiniAudioPlayer(
-						visible = isAudioPlaying && !isPlay,
-						onNavigateToPlayer = {
-							player.toggleVideo(true)
-							player.setPlayMode(true)
-						},
-						modifier = Modifier
-							.align(androidx.compose.ui.Alignment.BottomCenter)
-							.padding(bottom = 80.dp)
-					)
-
-					AnimatedVisibility(
-						visible = isPlay,
-						modifier = Modifier.fillMaxSize(),
-						enter = fadeIn(),
-						exit = fadeOut()
-					) {
-						PlayerView(
-							modifier = Modifier
-								.fillMaxSize()
-								.background(Color.Black),
-						)
-					}
-				}
+			val navContent: @Composable () -> Unit = {
+				AppNavHost(navController, startDestination)
+			}
+			if (isTv) {
+				TvRoot(
+					themeMode = themeMode
+				)
+			} else {
+				MobileRoot(
+					navController = navController,
+					startDestination = startDestination,
+					selectedDestination = selectedDestination,
+					onDestinationSelected = { index, _ -> selectedDestination = index },
+					onOpenFolder = { launcherSelectFolder.launch(null) },
+					isPlay = isPlay,
+					themeMode = themeMode,
+					snackBarHostState = snackBarHostState,
+					videoUri = videoUri,
+					isAudioPlaying = isAudioPlaying,
+					player = player,
+					content = navContent,
+				)
 			}
 		}
 	}

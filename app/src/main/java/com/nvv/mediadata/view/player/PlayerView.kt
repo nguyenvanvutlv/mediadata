@@ -56,8 +56,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
 import com.nvv.mediadata.R
+import com.nvv.mediadata.app.MainActivity
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberIsInPipMode
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
@@ -132,7 +134,7 @@ fun PlayerView(
 			context.findActivity()?.enterPictureInPictureMode(params)
 		}
 	}
-	val isCasting = player?.deviceInfo?.playbackType == androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE
+	val isMedia3Casting = player?.deviceInfo?.playbackType == androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE
 	LaunchedEffect(state.position) {
 		if (!isSeeking) {
 			v = state.position.toFloat() / max(1f, state.duration.toFloat())
@@ -151,6 +153,12 @@ fun PlayerView(
 				"${m.padStartWith0()}:${s.padStartWith0()}"
 			}
 		}
+		val hasVideoSelected = player?.currentTracks?.groups?.any { group ->
+			group.type == C.TRACK_TYPE_VIDEO && group.isSelected
+		} == true
+		(context.findActivity() as? MainActivity)?.updatePipState(
+			canPipMode && !isMedia3Casting && state.isPlaying && hasVideoSelected
+		)
 	}
 	LaunchedEffect(interactionSource) {
 		interactionSource.interactions.collect { interaction ->
@@ -162,15 +170,15 @@ fun PlayerView(
 
 				is DragInteraction.Stop, is DragInteraction.Cancel -> {
 					isSeeking = false
-					if (!isCasting) {
+					if (!isMedia3Casting) {
 						videoPlayerState.showControls(true)
 					}
 				}
 			}
 		}
 	}
-	LaunchedEffect(Unit, isCasting) {
-		if (isCasting) {
+	LaunchedEffect(Unit, isMedia3Casting) {
+		if (isMedia3Casting) {
 			videoPlayerState.showControls(isPlaying = false)
 		} else {
 			videoPlayerState.showControls()
@@ -187,7 +195,7 @@ fun PlayerView(
 		Box(
 			Modifier.fillMaxSize()
 		) {
-			SurfacePlayer(modifier, isPipMode, isCasting)
+			SurfacePlayer(modifier, isPipMode, isMedia3Casting)
 			Box(
 				Modifier
 					.fillMaxSize()
@@ -198,10 +206,10 @@ fun PlayerView(
 							Modifier
 						}
 					)
-					.pointerInput(Unit, isCasting) {
+					.pointerInput(Unit, isMedia3Casting) {
 						detectTapGestures(
 							onTap = {
-								if (isCasting) {
+								if (isMedia3Casting) {
 									videoPlayerState.showControls(isPlaying = false)
 								} else {
 									if (videoPlayerState.isControlsVisible) {
@@ -429,9 +437,7 @@ fun PlayerView(
 						SeekerPlayer(
 							value = v,
 							onValueChange = { v = it },
-							onValueChangeFinished = {
-								vm.seekTo(v.toDouble())
-							},
+							onValueChangeFinished = { vm.seekTo(v.toDouble()) },
 							range = 0f..1f,
 							modifier = Modifier
 								.fillMaxWidth()

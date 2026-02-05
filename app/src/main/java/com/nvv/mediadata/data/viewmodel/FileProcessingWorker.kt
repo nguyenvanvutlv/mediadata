@@ -29,7 +29,9 @@ class FileProcessingWorker(
 			if (path.isEmpty()) return@withContext Result.failure()
 
 			val extension = if (mimeType != null) {
-				android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" }
+				android.webkit.MimeTypeMap.getSingleton()
+					.getExtensionFromMimeType(mimeType)
+					?.let { ".$it" }
 			} else {
 				null
 			} ?: detectVideoExtensionFromStream(applicationContext, sourceUri)
@@ -45,7 +47,6 @@ class FileProcessingWorker(
 			val targetDir = DocumentFile.fromTreeUri(applicationContext, targetDirUri)
 
 			if (targetDir != null && targetDir.canWrite()) {
-				// Check if file exists and rename if necessary
 				var finalFile = targetDir.findFile(finalFileName)
 				var newFileName = finalFileName
 				var counter = 1
@@ -66,8 +67,6 @@ class FileProcessingWorker(
 						inputStream.copyTo(outputStream, bufferSize = 32 * 1024)
 					}
 				}
-
-				// Content Resolver update to make it visible immediately might be needed, but DocumentFile handles most.
 
 				showNotification(
 					applicationContext.getString(R.string.download_finished),
@@ -98,18 +97,19 @@ class FileProcessingWorker(
 			retriever.setDataSource(context, uri)
 			val mimeType = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
 			if (mimeType != null) {
-				android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.let { ".$it" } ?: ".mp4"
+				android.webkit.MimeTypeMap.getSingleton()
+					.getExtensionFromMimeType(mimeType)
+					?.let { ".$it" } ?: ".mp4"
 			} else {
 				".mp4"
 			}
 		} catch (e: Exception) {
 			Timber.e(e, "Error detecting extension with MediaMetadataRetriever")
-			// Fallback to manual check for common formats if retriever fails
 			try {
 				context.contentResolver.openInputStream(uri)?.use { input ->
 					val buffer = ByteArray(12)
 					if (input.read(buffer) != -1) {
-						val hexSignature = buffer.joinToString("") { "%02X".format(it) }
+						val hexSignature = buffer.joinToString(separator = "") { "%02X".format(it) }
 						val asciiSignature = String(buffer)
 						if (hexSignature.startsWith("1A45DFA3")) return ".mkv"
 						if (asciiSignature.length >= 8 && asciiSignature.substring(4, 8) == "ftyp") return ".mp4"
@@ -118,7 +118,7 @@ class FileProcessingWorker(
 				}
 			} catch (ignore: Exception) {
 			}
-			".mp4"
+			return ".mp4"
 		} finally {
 			try {
 				retriever.release()

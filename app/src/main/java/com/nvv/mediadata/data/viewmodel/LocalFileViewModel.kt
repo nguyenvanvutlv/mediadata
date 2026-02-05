@@ -16,7 +16,7 @@ data class LocalFileState(
 	val folder: Uri? = null,
 	val allFiles: List<DocumentFile> = emptyList(),
 	val files: List<DocumentFile> = emptyList(),
-	val searchQuery: String = ""
+	val searchQuery: String = "",
 )
 
 @HiltViewModel
@@ -45,7 +45,6 @@ class LocalFileViewModel @Inject constructor(
 	fun deleteFile(file: DocumentFile) {
 		val success = file.delete()
 		if (success) {
-			// Refresh file list after deletion
 			_localState.update { state ->
 				val newAllFiles = state.allFiles.filter { it.uri != file.uri }
 				val newFiltered = if (state.searchQuery.isBlank()) {
@@ -69,7 +68,7 @@ class LocalFileViewModel @Inject constructor(
 				folder = path,
 				allFiles = emptyList(),
 				files = emptyList(),
-				searchQuery = ""
+				searchQuery = "",
 			)
 		}
 		path?.let {

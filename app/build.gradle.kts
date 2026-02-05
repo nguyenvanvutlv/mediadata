@@ -18,8 +18,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 112
-		versionName = "1.1.2"
+		versionCode = 120
+		versionName = "1.2.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
@@ -55,6 +55,7 @@ android {
 
 dependencies {
 	implementation(libs.okhttp)
+	implementation(libs.nanohttpd)
 	implementation(libs.kotlinx.serialization)
 	implementation(libs.prdownloader)
 	implementation(libs.androidx.compose.foundation)
@@ -113,6 +114,7 @@ dependencies {
 	implementation(libs.androidx.material.icons.extended)
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.lifecycle.runtime.ktx)
+	implementation(libs.androidx.lifecycle.process)
 	implementation(libs.androidx.work.runtime.ktx)
 	implementation(libs.androidx.activity.compose)
 	implementation(platform(libs.androidx.compose.bom))
@@ -120,6 +122,8 @@ dependencies {
 	implementation(libs.androidx.compose.ui.graphics)
 	implementation(libs.androidx.compose.ui.tooling.preview)
 	implementation(libs.androidx.compose.material3)
+	implementation(libs.androidx.tv.material)
+	implementation(libs.androidx.tv.foundation)
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)

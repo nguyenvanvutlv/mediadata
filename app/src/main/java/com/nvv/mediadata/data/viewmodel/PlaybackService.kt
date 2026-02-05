@@ -2,7 +2,10 @@ package com.nvv.mediadata.data.viewmodel
 
 import android.app.ActivityManager
 import android.app.PendingIntent
+import android.app.UiModeManager
 import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -10,7 +13,6 @@ import androidx.annotation.OptIn
 import androidx.media3.cast.CastPlayer
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
-import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
@@ -18,27 +20,20 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
-import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.exoplayer.DecoderCounters
-import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLoadControl
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.Renderer
-import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
-import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
-import androidx.media3.exoplayer.video.VideoRendererEventListener
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
+import com.nvv.mediadata.app.MainActivity
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory
 import timber.log.Timber
 
@@ -123,7 +118,6 @@ class PlaybackService : MediaSessionService() {
 	private lateinit var castPlayer: CastPlayer
 	private lateinit var castContext: CastContext
 	private var sessionManagerListener: SessionManagerListener<CastSession>? = null
-	private lateinit var renderersFactory: DefaultRenderersFactory
 
 	private fun createPlayerConfig(): Triple<DefaultTrackSelector, DefaultLoadControl, DefaultDataSource.Factory> {
 		val trackSelector = DefaultTrackSelector(this)
@@ -203,124 +197,36 @@ class PlaybackService : MediaSessionService() {
 					}
 				}
 			}
+
+			override fun onPlaybackStateChanged(playbackState: Int) {
+				super.onPlaybackStateChanged(playbackState)
+				// When playback fully finishes, stop the service / notification.
+				if (playbackState == Player.STATE_ENDED) {
+					handlePlaybackEnded()
+				}
+			}
 		})
 	}
 
+	private fun handlePlaybackEnded() {
+		try {
+			stopForeground(STOP_FOREGROUND_REMOVE)
+		} catch (_: Exception) {
+			// Ignore and still stop the service.
+		} finally {
+			stopSelf()
+		}
+	}
+
 	private fun initializePlayers() {
-		val smartCodecSelector = MediaCodecSelector { mimeType, requiresSecureDecoder, requiresTunnelingDecoder ->
-			MediaCodecUtil.getDecoderInfos(
-				mimeType,
-				requiresSecureDecoder,
-				requiresTunnelingDecoder
-			)
-		}
-		val videoRendererEventListenerWrapper = object : VideoRendererEventListener {
-			override fun onVideoEnabled(decoderCounters: DecoderCounters) {}
-			override fun onVideoDecoderInitialized(
-				decoderName: String,
-				initializedTimestampMs: Long,
-				initializationDurationMs: Long
-			) {
-			}
-
-			override fun onVideoInputFormatChanged(format: Format, decoderReuseEvaluation: DecoderReuseEvaluation?) {}
-			override fun onVideoDisabled(decoderCounters: DecoderCounters) {}
-			override fun onDroppedFrames(count: Int, elapsedMs: Long) {}
-			override fun onVideoSizeChanged(videoSize: VideoSize) {}
-			override fun onRenderedFirstFrame(output: Any, renderTimeMs: Long) {}
-			override fun onVideoFrameProcessingOffset(totalProcessingOffsetUs: Long, frameCount: Int) {}
-		}
-		renderersFactory = object : DefaultRenderersFactory(this) {
-			override fun buildVideoRenderers(
-				context: Context,
-				extensionRendererMode: Int,
-				mediaCodecSelector: MediaCodecSelector,
-				enableDecoderFallback: Boolean,
-				eventHandler: Handler,
-				videoRendererEventListener: VideoRendererEventListener,
-				allowedVideoJoiningTimeMs: Long,
-				out: java.util.ArrayList<Renderer>
-			) {
-				val combinedListener = object : VideoRendererEventListener {
-					override fun onVideoEnabled(decoderCounters: DecoderCounters) {
-						videoRendererEventListener.onVideoEnabled(decoderCounters)
-						videoRendererEventListenerWrapper.onVideoEnabled(decoderCounters)
-					}
-
-					override fun onVideoDecoderInitialized(decoderName: String, initializedTimestampMs: Long, initializationDurationMs: Long) {
-						videoRendererEventListener.onVideoDecoderInitialized(decoderName, initializedTimestampMs, initializationDurationMs)
-						videoRendererEventListenerWrapper.onVideoDecoderInitialized(decoderName, initializedTimestampMs, initializationDurationMs)
-					}
-
-					override fun onVideoInputFormatChanged(format: Format, decoderReuseEvaluation: DecoderReuseEvaluation?) {
-						videoRendererEventListener.onVideoInputFormatChanged(format, decoderReuseEvaluation)
-						videoRendererEventListenerWrapper.onVideoInputFormatChanged(format, decoderReuseEvaluation)
-					}
-
-					override fun onVideoDisabled(decoderCounters: DecoderCounters) {
-						videoRendererEventListener.onVideoDisabled(decoderCounters)
-					}
-
-					override fun onDroppedFrames(count: Int, elapsedMs: Long) {
-						videoRendererEventListener.onDroppedFrames(count, elapsedMs)
-					}
-
-					override fun onVideoSizeChanged(videoSize: VideoSize) {
-						videoRendererEventListener.onVideoSizeChanged(videoSize)
-					}
-
-					override fun onRenderedFirstFrame(output: Any, renderTimeMs: Long) {
-						videoRendererEventListener.onRenderedFirstFrame(output, renderTimeMs)
-						videoRendererEventListenerWrapper.onRenderedFirstFrame(output, renderTimeMs)
-					}
-
-					override fun onVideoFrameProcessingOffset(totalProcessingOffsetUs: Long, frameCount: Int) {
-						videoRendererEventListener.onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount)
-					}
-				}
-				super.buildVideoRenderers(
-					context,
-					extensionRendererMode,
-					smartCodecSelector,
-					enableDecoderFallback,
-					eventHandler,
-					combinedListener,
-					allowedVideoJoiningTimeMs,
-					out
-				)
-				out.map { it.javaClass.simpleName }
-				val ffmpegRenderers = mutableListOf<Renderer>()
-				val mediaCodecRenderers = mutableListOf<Renderer>()
-				val dav1dRenderers = mutableListOf<Renderer>()
-				val otherRenderers = mutableListOf<Renderer>()
-				for (renderer in out) {
-					val className = renderer.javaClass.simpleName
-					when {
-						className.contains("Ffmpeg", ignoreCase = true) -> ffmpegRenderers.add(renderer)
-						className.contains("MediaCodec", ignoreCase = true) -> mediaCodecRenderers.add(renderer)
-						className.contains("Dav1d", ignoreCase = true) -> dav1dRenderers.add(renderer)
-						else -> otherRenderers.add(renderer)
-					}
-				}
-				out.clear()
-				if (ffmpegRenderers.isNotEmpty()) {
-					out.addAll(ffmpegRenderers)
-					out.addAll(mediaCodecRenderers)
-					out.addAll(otherRenderers)
-				} else {
-					out.addAll(mediaCodecRenderers)
-					out.addAll(dav1dRenderers)
-					out.addAll(otherRenderers)
-				}
-			}
-		}
+		val priorityRenderersFactory = PriorityRenderersFactory(this)
 			.setEnableDecoderFallback(true)
 			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
-		val ffmpegRenderFactory = NextRenderersFactory(this)
+		val nextRenderersFactory = NextRenderersFactory(this)
 			.setEnableDecoderFallback(true)
 			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
-		ffmpegPlayer = createExoPlayer(ffmpegRenderFactory)
-		defaultPlayer = createExoPlayer(renderersFactory)
+		ffmpegPlayer = createExoPlayer(priorityRenderersFactory)
+		defaultPlayer = createExoPlayer(nextRenderersFactory)
 		setupPlayerListeners(ffmpegPlayer, true)
 		setupPlayerListeners(defaultPlayer, false)
 		val preferredLang = Settings.getLanguages(this)
@@ -333,9 +239,15 @@ class PlaybackService : MediaSessionService() {
 			.setPreferredTextLanguage(preferredLang)
 			.build()
 		player = ffmpegPlayer
-		val intent = packageManager.getLaunchIntentForPackage(packageName)
+		val intent = Intent(this, MainActivity::class.java).apply {
+			flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+			putExtra("open_from_media_notification", true)
+		}
 		val pendingIntent = PendingIntent.getActivity(
-			this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+			this,
+			0,
+			intent,
+			PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 		)
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(pendingIntent)
@@ -388,6 +300,10 @@ class PlaybackService : MediaSessionService() {
 	override fun onCreate() {
 		super.onCreate()
 		initializePlayers()
+		// check is tv
+		val isTV = (getSystemService(UI_MODE_SERVICE) as? UiModeManager)
+			?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+		if (isTV) return
 		try {
 			castContext = CastContext.getSharedInstance(this)
 			castPlayer = CastPlayer.Builder(this).build()
@@ -604,7 +520,7 @@ class PlaybackService : MediaSessionService() {
 		return mediaSession
 	}
 
-	override fun onTaskRemoved(rootIntent: android.content.Intent?) {
+	override fun onTaskRemoved(rootIntent: Intent?) {
 		player.let {
 			if (it.playWhenReady) {
 				it.pause()
@@ -621,11 +537,13 @@ class PlaybackService : MediaSessionService() {
 	}
 
 	override fun onDestroy() {
+		val isTV = (getSystemService(UI_MODE_SERVICE) as? UiModeManager)
+			?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
 		mediaSession?.run {
 			player.release()
 			ffmpegPlayer.release()
 			defaultPlayer.release()
-			castPlayer.release()
+			if (!isTV) castPlayer.release()
 			release()
 			mediaSession = null
 		}

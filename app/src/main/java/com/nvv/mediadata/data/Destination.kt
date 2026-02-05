@@ -14,8 +14,28 @@ enum class Destination(
 	val contentDescription: String
 ) {
 
-	LOCAL_FILE("local", "Local File", Icons.Rounded.Folder, "file"),
-	HISTORY("history", "History", Icons.Rounded.History, "history"),
-	NETWORKS("network", "Network Stream", Icons.Rounded.Language, "network"),
-	SETTINGS("settings", "Settings", Icons.Rounded.Settings, "settings"),
+	LOCAL_FILE(
+		"local",
+		"Local File",
+		Icons.Rounded.Folder,
+		"file",
+	),
+	HISTORY(
+		"history",
+		"History",
+		Icons.Rounded.History,
+		"history",
+	),
+	NETWORKS(
+		"network",
+		"Network Stream",
+		Icons.Rounded.Language,
+		"network",
+	),
+	SETTINGS(
+		"settings",
+		"Settings",
+		Icons.Rounded.Settings,
+		"settings",
+	),
 }

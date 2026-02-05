@@ -286,11 +286,11 @@ class PlayerViewModel @Inject constructor(
 		try {
 			val request = Request.Builder()
 				.url(url)
-				.head()
+				.get()
+				.header("Range", "bytes=0-4095")
 				.build()
 			okHttpClient.newCall(request).execute().use { response ->
 				val rawContentType = response.header("Content-Type")?.lowercase()
-				Timber.tag("mimetype").d("Raw Content-Type: $rawContentType | URL: $url")
 				val contentType = rawContentType
 					?.substringBefore(";")
 					?.trim()
@@ -306,101 +306,74 @@ class PlayerViewModel @Inject constructor(
 				return@withContext when {
 					contentType.contains("video/vp8") || contentType.contains("x-vnd.on2.vp8") ->
 						MIME_VIDEO_VP8
-
 					contentType.contains("mpegurl") || contentType.contains("m3u8") ->
 						MimeTypes.APPLICATION_M3U8
-
 					contentType.contains("dash+xml") || contentType.contains("dash") ->
 						MimeTypes.APPLICATION_MPD
-
 					contentType.contains("vnd.ms-sstr+xml") ->
 						MimeTypes.APPLICATION_SS
-
 					contentType.contains("video/x-matroska") || contentType.contains("mkv") ->
 						MimeTypes.APPLICATION_MATROSKA
-
 					contentType.contains("video/mp4") || contentType.contains("m4v") ->
 						MimeTypes.VIDEO_MP4
-
 					contentType.contains("video/webm") ->
 						MimeTypes.VIDEO_WEBM
-
 					contentType.contains("video/x-msvideo") || contentType.contains("avi") ->
 						"video/x-msvideo" // AVI
 					contentType.contains("video/quicktime") ->
 						MimeTypes.VIDEO_QUICK_TIME
-
 					contentType.contains("video/x-flv") || contentType.contains("flv") ->
 						MimeTypes.VIDEO_FLV
-
 					contentType.contains("video/mp2t") || contentType.contains("ts") ->
 						MimeTypes.VIDEO_MP2T
-
 					contentType.contains("truehd") || contentType.contains("true-hd") ->
 						MIME_AUDIO_TRUEHD
-
 					contentType.contains("alac") ->
 						MIME_AUDIO_ALAC
-
 					contentType.contains("vnd.dts.hd") ||
 							contentType.contains("dts-hd") ||
 							contentType.contains("dts_hd") ->
 						MimeTypes.AUDIO_DTS_HD
-
 					contentType.contains("audio/raw") ||
 							contentType.contains("lpcm") ||
 							contentType.contains("pcm") ||
 							contentType.contains("audio/l16") ||
 							contentType.contains("audio/l24") ->
 						MIME_AUDIO_RAW
-
 					contentType.contains("amr-wb") ->
 						MIME_AUDIO_AMR_WB
-
 					contentType.contains("audio/amr") ||
 							contentType.contains("amr") ->
 						MIME_AUDIO_AMR
-
 					contentType.contains("audio/mpeg") ||
 							contentType.contains("mp3") ->
 						MimeTypes.AUDIO_MPEG
-
 					contentType.contains("audio/aac") ||
 							contentType.contains("mp4a") ->
 						MimeTypes.AUDIO_AAC
-
 					contentType.contains("audio/eac3-joc") ||
 							(contentType.contains("eac3") && contentType.contains("joc")) ->
 						MimeTypes.AUDIO_E_AC3_JOC
-
 					contentType.contains("audio/opus") ||
 							contentType.contains("opus") ->
 						MimeTypes.AUDIO_OPUS
-
 					contentType.contains("vorbis") ->
 						MimeTypes.AUDIO_VORBIS
-
 					contentType.contains("audio/ogg") ->
 						MimeTypes.AUDIO_OGG
-
 					contentType.contains("audio/wav") ||
 							contentType.contains("wave") ->
 						MimeTypes.AUDIO_WAV
-
 					contentType.contains("audio/flac") ||
 							contentType.contains("x-flac") ->
 						MimeTypes.AUDIO_FLAC
-
 					contentType.contains("audio/ac3") ->
 						MimeTypes.AUDIO_AC3
-
 					contentType.contains("audio/eac3") ->
 						MimeTypes.AUDIO_E_AC3
-
 					contentType.contains("audio/x-dts") ||
 							contentType.contains("dts") ->
 						MimeTypes.AUDIO_DTS
-
 					contentType.contains("text/vtt") -> MimeTypes.TEXT_VTT
 					contentType.contains("application/x-subrip") -> MimeTypes.APPLICATION_SUBRIP
 					contentType.contains("application/ttml+xml") -> MimeTypes.APPLICATION_TTML
@@ -416,6 +389,7 @@ class PlayerViewModel @Inject constructor(
 		return@withContext try {
 			val request = Request.Builder()
 				.url(url)
+				.get()
 				.header("Range", "bytes=0-4095")
 				.build()
 			okHttpClient.newCall(request).execute().use { response ->

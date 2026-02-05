@@ -10,6 +10,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.nvv.mediadata.R
+import timber.log.Timber
+
 
 // Font families for Compose
 val AndadaProFontFamily = FontFamily(
@@ -104,7 +106,7 @@ object Media3Typography {
 	fun getTypeface(context: Context, fontFamilyType: FontFamilyType): Typeface? {
 		return try {
 			if (fontFamilyType == FontFamilyType.DEFAULT) {
-				android.util.Log.d("Media3Typography", "Using DEFAULT font")
+				Timber.tag("Media3Typography").d("Using DEFAULT font")
 				return Typeface.DEFAULT
 			}
 
@@ -112,18 +114,18 @@ object Media3Typography {
 			if (fontResId != null) {
 				val typeface = getTypefaceFromResource(context, fontResId)
 				if (typeface != null) {
-					android.util.Log.d("Media3Typography", "Successfully loaded font: $fontFamilyType")
+					Timber.tag("Media3Typography").d("Successfully loaded font: $fontFamilyType")
 					return typeface
 				} else {
-					android.util.Log.w("Media3Typography", "Failed to load font: $fontFamilyType, falling back to DEFAULT")
+					Timber.tag("Media3Typography").w("Failed to load font: $fontFamilyType, falling back to DEFAULT")
 					return Typeface.DEFAULT
 				}
 			} else {
-				android.util.Log.w("Media3Typography", "No resource ID for font: $fontFamilyType, using DEFAULT")
+				Timber.tag("Media3Typography").w("No resource ID for font: $fontFamilyType, using DEFAULT")
 				return Typeface.DEFAULT
 			}
 		} catch (e: Exception) {
-			android.util.Log.e("Media3Typography", "Error loading font: $fontFamilyType", e)
+			Timber.tag("Media3Typography").e(e, "Error loading font: $fontFamilyType")
 			Typeface.DEFAULT
 		}
 	}
@@ -132,15 +134,15 @@ object Media3Typography {
 		return try {
 			val typeface = context.resources.getFont(fontResId)
 			// Verify typeface is not null and not default
-			if (typeface != null && typeface != Typeface.DEFAULT) {
-				android.util.Log.d("Media3Typography", "Successfully loaded font from resource: $fontResId")
+			if (typeface != Typeface.DEFAULT) {
+				Timber.tag("Media3Typography").d("Successfully loaded font from resource: $fontResId")
 				return typeface
 			} else {
-				android.util.Log.w("Media3Typography", "Font resource $fontResId returned null or DEFAULT typeface")
+				Timber.tag("Media3Typography").w("Font resource $fontResId returned null or DEFAULT typeface")
 				return null
 			}
 		} catch (e: Exception) {
-			android.util.Log.e("Media3Typography", "Failed to load font from resource: $fontResId", e)
+			Timber.tag("Media3Typography").e(e, "Failed to load font from resource: $fontResId")
 			null
 		}
 	}

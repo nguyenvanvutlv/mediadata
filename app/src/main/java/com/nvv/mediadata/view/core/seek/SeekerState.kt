@@ -11,16 +11,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 
-/**
- * A state object which can be hoisted to observe the current segment of Seeker. In most cases this
- * will be created by [rememberSeekerState]
- * */
 @Stable
 class SeekerState() {
 
-	/**
-	 * The current segment corresponding to the current seeker value.
-	 * */
+
 	var currentSegment: Segment by mutableStateOf(Segment.Unspecified)
 
 	internal var onDrag: ((Float) -> Unit)? = null
@@ -36,9 +30,7 @@ class SeekerState() {
 		?: Segment.Unspecified).also { this.currentSegment = it }
 }
 
-/**
- * Creates a SeekerState which will be remembered across compositions.
- * */
+
 @Composable
 fun rememberSeekerState(): SeekerState = remember {
 	SeekerState()

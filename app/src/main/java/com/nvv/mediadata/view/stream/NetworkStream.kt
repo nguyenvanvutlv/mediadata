@@ -1,5 +1,6 @@
 package com.nvv.mediadata.view.stream
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardBackspace
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -44,8 +46,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.nvv.mediadata.R
+import com.nvv.mediadata.data.connecttv.TvDevice
+import com.nvv.mediadata.data.connecttv.TvDiscoveryViewModel
 import com.nvv.mediadata.data.provide.rememberDownloadFileViewModel
 import com.nvv.mediadata.data.provide.rememberHistoryViewModel
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
@@ -69,7 +75,7 @@ fun NetworkStream(
 	val titles = listOf("Stream Link", "Tasks")
 
 	val scope = rememberCoroutineScope()
-
+	var showSendToTv by remember { mutableStateOf(false) }
 	Surface(
 		Modifier.fillMaxSize()
 	) {
@@ -165,6 +171,29 @@ fun NetworkStream(
 								style = MaterialTheme.typography.labelLarge
 							)
 						}
+						Spacer(Modifier.height(8.dp))
+						Button(
+							onClick = {
+								if (url.isNotBlank()) {
+									showSendToTv = true
+								}
+							},
+							modifier = Modifier.fillMaxWidth(0.8f),
+							enabled = url.isNotBlank(),
+						) {
+							Text(
+								text = "Send URL to TV",
+								style = MaterialTheme.typography.labelLarge,
+							)
+						}
+
+						if (showSendToTv) {
+							Spacer(Modifier.height(24.dp))
+							SendUrlToTvSection(
+								currentUrl = url,
+								onClose = { showSendToTv = false },
+							)
+						}
 					}
 				} else {
 					// TAB 1: TASK LIST
@@ -221,6 +250,106 @@ fun NetworkStream(
 					}
 				}
 			}
+		}
+	}
+}
+
+
+@Composable
+private fun SendUrlToTvSection(
+	currentUrl: String,
+	onClose: () -> Unit,
+	viewModel: TvDiscoveryViewModel = hiltViewModel(),
+) {
+	val devices by viewModel.devices.collectAsStateWithLifecycle()
+
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(horizontal = 16.dp),
+		verticalArrangement = Arrangement.spacedBy(12.dp),
+	) {
+		Text(
+			text = "Send URL to TV",
+			style = MaterialTheme.typography.titleMedium,
+		)
+		Text(
+			text = "Scanning for TVs on the same Wi‑Fi / LAN. Select a device to send the current URL.",
+			style = MaterialTheme.typography.bodySmall,
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+		)
+
+		if (devices.isEmpty()) {
+			Row(
+				modifier = Modifier.fillMaxWidth(),
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.spacedBy(8.dp),
+			) {
+				CircularProgressIndicator(
+					modifier = Modifier
+						.height(20.dp)
+						.width(20.dp),
+					strokeWidth = 2.dp,
+				)
+				Text(
+					text = "Searching for TVs...",
+					style = MaterialTheme.typography.bodyMedium,
+				)
+			}
+		} else {
+			Column(
+				modifier = Modifier.fillMaxWidth(),
+				verticalArrangement = Arrangement.spacedBy(8.dp),
+			) {
+				devices.forEach { device: TvDevice ->
+					Card(
+						modifier = Modifier
+							.fillMaxWidth()
+							.clickable {
+								if (currentUrl.isNotBlank()) {
+									viewModel.sendUrl(device, currentUrl)
+									onClose()
+								}
+							},
+					) {
+						Row(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(12.dp),
+							verticalAlignment = Alignment.CenterVertically,
+							horizontalArrangement = Arrangement.SpaceBetween,
+						) {
+							Column(
+								modifier = Modifier.weight(1f),
+							) {
+								Text(
+									text = device.name,
+									style = MaterialTheme.typography.bodyLarge,
+								)
+								Text(
+									text = "${device.host.hostAddress}:${device.port}",
+									style = MaterialTheme.typography.bodySmall,
+									color = MaterialTheme.colorScheme.onSurfaceVariant,
+								)
+							}
+							Text(
+								text = "Send",
+								style = MaterialTheme.typography.labelMedium,
+								color = MaterialTheme.colorScheme.primary,
+							)
+						}
+					}
+				}
+			}
+		}
+
+		Button(
+			onClick = onClose,
+			modifier = Modifier
+				.fillMaxWidth(0.6f)
+				.align(Alignment.CenterHorizontally),
+		) {
+			Text("Close")
 		}
 	}
 }

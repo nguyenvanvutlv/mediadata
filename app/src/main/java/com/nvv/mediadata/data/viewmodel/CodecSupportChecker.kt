@@ -56,9 +56,13 @@ object CodecSupportChecker {
 				val decoders = MediaCodecUtil.getDecoderInfos(mimeType, false, false)
 				val decoderNames = decoders.map { it.name }
 				codecs[mimeType] = decoderNames.toMutableList()
-				Timber.tag("CodecSupport").d("Video codec $mimeType: ${decoderNames.size} decoders")
+				Timber.tag("CodecSupport").d(
+					"Video codec $mimeType: ${decoderNames.size} decoders",
+				)
 			} catch (e: Exception) {
-				Timber.tag("CodecSupport").w("Failed to get decoders for $mimeType: ${e.message}")
+				Timber.tag("CodecSupport").w(
+					"Failed to get decoders for $mimeType: ${e.message}",
+				)
 				codecs[mimeType] = mutableListOf()
 			}
 		}
@@ -68,9 +72,13 @@ object CodecSupportChecker {
 				val decoders = MediaCodecUtil.getDecoderInfos(mimeType, false, false)
 				val decoderNames = decoders.map { it.name }
 				codecs[mimeType] = decoderNames.toMutableList()
-				Timber.tag("CodecSupport").d("Audio codec $mimeType: ${decoderNames.size} decoders")
+				Timber.tag("CodecSupport").d(
+					"Audio codec $mimeType: ${decoderNames.size} decoders",
+				)
 			} catch (e: Exception) {
-				Timber.tag("CodecSupport").w("Failed to get decoders for $mimeType: ${e.message}")
+				Timber.tag("CodecSupport").w(
+					"Failed to get decoders for $mimeType: ${e.message}",
+				)
 				codecs[mimeType] = mutableListOf()
 			}
 		}
@@ -92,13 +100,13 @@ object CodecSupportChecker {
 
 			if (decoders.isEmpty()) {
 				val errorMsg = buildString {
-					append("Codec không được hỗ trợ: $mimeType\n\n")
-					append("Thiết bị không có decoder cho format này.\n")
-					append("Các codec được hỗ trợ trên Android:\n")
+					append("Codec is not supported: $mimeType\n\n")
+					append("This device does not have a decoder for this format.\n")
+					append("Supported Android codecs:\n")
 					androidSupportedVideoCodecs.forEach { codec ->
 						append("• $codec\n")
 					}
-					append("\nVui lòng sử dụng FFmpeg extension để decode.")
+					append("\nPlease enable or install the FFmpeg extension to decode this format.")
 				}
 				return CodecSupportResult(
 					isSupported = false,
@@ -128,9 +136,13 @@ object CodecSupportChecker {
 				)
 			}
 
-			Timber.tag("CodecSupport").d("Codec $mimeType: ${supportedCodecs.size} decoders available")
+			Timber.tag("CodecSupport").d(
+				"Codec $mimeType: ${supportedCodecs.size} decoders available",
+			)
 			supportedCodecs.forEach { codec ->
-				Timber.tag("CodecSupport").d("  - ${codec.codecName} (hardware: ${codec.isHardware}, secure: ${codec.isSecure}, tunneling: ${codec.isTunneling})")
+				Timber.tag("CodecSupport").d(
+					"  - ${codec.codecName} (hardware: ${codec.isHardware}, secure: ${codec.isSecure}, tunneling: ${codec.isTunneling})",
+				)
 			}
 
 			return CodecSupportResult(
@@ -140,9 +152,9 @@ object CodecSupportChecker {
 			)
 		} catch (e: Exception) {
 			val errorMsg = buildString {
-				append("Lỗi kiểm tra codec: $mimeType\n\n")
-				append("Chi tiết: ${e.message}\n\n")
-				append("Các codec được hỗ trợ trên Android:\n")
+				append("Error while checking codec support: $mimeType\n\n")
+				append("Details: ${e.message}\n\n")
+				append("Supported Android codecs:\n")
 				androidSupportedVideoCodecs.forEach { codec ->
 					append("• $codec\n")
 				}
@@ -163,7 +175,7 @@ object CodecSupportChecker {
 			return CodecSupportResult(
 				isSupported = false,
 				availableDecoders = emptyList(),
-				errorMessage = "Không xác định được format video"
+				errorMessage = "Video format could not be determined",
 			)
 		}
 
@@ -201,7 +213,7 @@ object CodecSupportChecker {
 
 	fun getDeviceCodecInfo(): String {
 		val sb = StringBuilder()
-		sb.append("=== THÔNG TIN CODEC TRÊN THIẾT BỊ ===\n\n")
+		sb.append("=== DEVICE CODEC INFORMATION ===\n\n")
 
 		val allCodecs = getAllSupportedCodecs()
 
