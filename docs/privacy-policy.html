@@ -56,7 +56,7 @@
 <body>
     <div class="container">
         <h1>Privacy Policy</h1>
-        <p class="last-updated">Last Updated: January 2026</p>
+        <p class="last-updated">Last Updated: February 2026</p>
         
         <div class="important">
             <strong>Summary:</strong> MediaData Player does not collect, store, or share any personal data. All operations happen locally on your device.
@@ -79,7 +79,6 @@
             <li><strong>What happens on your device:</strong>
                 <ul>
                     <li>All media playback occurs locally</li>
-                    <li>File management is done within your device storage</li>
                     <li>Streaming URLs are processed in real-time and not logged</li>
                     <li>Settings and preferences are stored locally using Android SharedPreferences</li>
                 </ul>
@@ -94,17 +93,18 @@
         <p>The app requires access to your device storage solely for:</p>
         <ul>
             <li>Playing local media files you select</li>
-            <li>Saving network media to user-designated folders (including temporary parts for high-speed multi-threaded downloading)</li>
             <li>Storing app preferences (subtitle settings, language, etc.)</li>
         </ul>
         <p><strong>Important:</strong> You have full control over what files the app can access. The app only accesses files you explicitly open or folders you explicitly grant permission to.</p>
+        <div class="important">
+            <strong>No Download or Save Functionality:</strong> MediaData Player does NOT support downloading or permanently storing media files. The app is designed for streaming and playback only. No media files are saved to local storage by the app.
+        </div>
 
         <h2>3. Internet Connectivity</h2>
         <p>The app requires internet permission for:</p>
         <ul>
             <li>Streaming content from user-provided URLs</li>
             <li>Casting to Google Cast devices</li>
-            <li>Saving network media to local storage</li>
         </ul>
         <p><strong>What we DON'T do:</strong></p>
         <ul>
@@ -118,8 +118,6 @@
         <p>MediaData Player uses the following Android and Google services:</p>
         <ul>
             <li><strong>Google Cast:</strong> For casting to TV devices. Google Cast may collect device information as per Google's privacy policy</li>
-            <li><strong>PDDownloader:</strong> A custom download engine integrated into the app for accelerated, multi-threaded downloading. It operates entirely locally on your device and does not transmit data to external servers.</li>
-            <li><strong>Android DownloadManager:</strong> System service for saving files. Managed by Android OS</li>
             <li><strong>Media3 (ExoPlayer):</strong> Google's open-source media playback library. No data collection</li>
         </ul>
         <p><strong>No Analytics or Tracking:</strong> We do not use:</p>
@@ -140,20 +138,11 @@
             </tr>
             <tr>
                 <td style="padding:10px; border:1px solid #ddd;"><strong>INTERNET</strong></td>
-                <td style="padding:10px; border:1px solid #ddd;">Required for streaming and saving network media</td>
+                <td style="padding:10px; border:1px solid #ddd;">Required for streaming content from user-provided URLs</td>
             </tr>
-            <tr>
-                <td style="padding:10px; border:1px solid #ddd;"><strong>FOREGROUND_SERVICE_MEDIA_PLAYBACK</strong></td>
-                <td style="padding:10px; border:1px solid #ddd;">Maintains playback during casting and background operation to ensure uninterrupted audio/video playback when you switch to another app or turn off the screen</td>
-            </tr>
-            <tr>
-                <td style="padding:10px; border:1px solid #ddd;"><strong>POST_NOTIFICATIONS</strong></td>
-                <td style="padding:10px; border:1px solid #ddd;">Shows save progress and playback controls</td>
-            </tr>
-
             <tr>
                 <td style="padding:10px; border:1px solid #ddd;"><strong>Storage Access</strong></td>
-                <td style="padding:10px; border:1px solid #ddd;">Read and write media files (user-granted folders only)</td>
+                <td style="padding:10px; border:1px solid #ddd;">Read local media files (user-granted folders only)</td>
             </tr>
         </table>
 
