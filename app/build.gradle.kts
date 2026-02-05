@@ -18,10 +18,14 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 120
-		versionName = "1.2.0"
+		versionCode = 121
+		versionName = "1.2.1"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+		ndk {
+			//noinspection ChromeOsAbiSupport
+			abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+		}
 	}
 
 	buildTypes {
@@ -57,7 +61,6 @@ dependencies {
 	implementation(libs.okhttp)
 	implementation(libs.nanohttpd)
 	implementation(libs.kotlinx.serialization)
-	implementation(libs.prdownloader)
 	implementation(libs.androidx.compose.foundation)
 	implementation(libs.androidx.appcompat.resources)
 	implementation(libs.androidx.appcompat)

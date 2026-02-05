@@ -13,24 +13,20 @@ import com.nvv.mediadata.view.core.findActivity
 
 @Composable
 fun rememberIsInPipMode(): Boolean {
-	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-		val activity = LocalContext.current.findActivity() as? MainActivity
-		var pipMode by remember {
-			mutableStateOf(
-				activity?.isInPictureInPictureMode ?: false
-			)
-		}
-		DisposableEffect(activity) {
-			val listener: (Boolean) -> Unit = { isInPipMode ->
-				pipMode = isInPipMode
-			}
-			activity?.addOnPictureInPictureModeChangedListener(listener)
-			onDispose {
-				activity?.removeOnPictureInPictureModeChangedListener()
-			}
-		}
-		return pipMode
-	} else {
-		return false
+	val activity = LocalContext.current.findActivity() as? MainActivity
+	var pipMode by remember {
+		mutableStateOf(
+			activity?.isInPictureInPictureMode ?: false
+		)
 	}
+	DisposableEffect(activity) {
+		val listener: (Boolean) -> Unit = { isInPipMode ->
+			pipMode = isInPipMode
+		}
+		activity?.addOnPictureInPictureModeChangedListener(listener)
+		onDispose {
+			activity?.removeOnPictureInPictureModeChangedListener()
+		}
+	}
+	return pipMode
 }

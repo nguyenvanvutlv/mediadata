@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.UiModeManager
 import android.content.res.Configuration
 import androidx.annotation.OptIn
+import androidx.media3.common.util.Log
 import com.nvv.mediadata.BuildConfig
 import com.nvv.mediadata.data.connecttv.TvConnectManager
 import com.nvv.mediadata.data.connecttv.TvPlayRequestCallback
@@ -12,17 +13,21 @@ import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.UnstableApi
 import timber.log.Timber
 
-@OptIn(UnstableApi::class)
+
+@androidx.media3.common.util.UnstableApi
 @HiltAndroidApp
 class BaseApplication : Application() {
 	private var tvConnectManager: TvConnectManager? = null
+
 
 	override fun onCreate() {
 		super.onCreate()
 		if (BuildConfig.DEBUG) {
 			Timber.plant(Timber.DebugTree())
+			Log.setLogLevel(Log.LOG_LEVEL_ALL)
+		}else{
+			Log.setLogLevel(Log.LOG_LEVEL_OFF)
 		}
-
 		if (isRunningOnTv()) {
 			val callback = TvPlayRequestCallback { url ->
 				Timber.i("TvConnectManager: received remote play request url=%s", url)

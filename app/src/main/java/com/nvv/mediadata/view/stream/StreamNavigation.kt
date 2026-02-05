@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -47,20 +46,10 @@ fun StreamNavigation() {
 				navController
 			)
 		}
-		composable(route = "stream/save") {
-			SaveFileStream(navController)
-		}
 		composable(
-			route = "stream/network?tab={tab}",
-			arguments = listOf(
-				androidx.navigation.navArgument("tab") {
-					type = IntType
-					defaultValue = 0
-				}
-			)
-		) { backStackEntry ->
-			val tab = backStackEntry.arguments?.getInt("tab") ?: 0
-			NetworkStream(navController, tab)
+			route = "stream/network",
+		) {
+			NetworkStream(navController)
 		}
 		composable(route = "stream/audio") {
 			AudioStream(navController)

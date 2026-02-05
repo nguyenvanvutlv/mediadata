@@ -50,14 +50,8 @@ fun SettingNavigation() {
 		composable(route = "settings/theme") {
 			SettingTheme(navController = navController, onThemeChanged = {})
 		}
-		composable(route = "settings/privacy") {
-			PrivacyPolicy(navController)
-		}
-		composable(route = "settings/terms") {
-			TermsOfService(navController)
-		}
 		composable(route = "settings/about") {
-			AboutScreen(navController)
+			AboutScreen()
 		}
 	}
 }

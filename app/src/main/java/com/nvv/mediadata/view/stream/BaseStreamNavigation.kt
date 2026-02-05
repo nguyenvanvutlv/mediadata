@@ -8,8 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.NetworkCheck
-import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.Task
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,10 +30,6 @@ fun BaseStreamNavigation(
 	val networkStreamDescription = stringResource(R.string.stream_network_description)
 	val audioStreamTitle = stringResource(R.string.stream_audio_title)
 	val audioStreamDescription = stringResource(R.string.stream_audio_description)
-	val downloadsTitle = stringResource(R.string.stream_downloads_title)
-	val downloadsDescription = stringResource(R.string.stream_downloads_description)
-	val task = stringResource(R.string.save_task)
-	val taskContent = stringResource(R.string.save_task_content)
 
 	Surface(
 		Modifier.fillMaxSize()
@@ -109,68 +103,6 @@ fun BaseStreamNavigation(
 						}
 					) {
 						navController.navigate("stream/audio")
-					}
-				}
-				item {
-					ItemNavigation(
-						leading = {
-							Icon(
-								imageVector = Icons.Rounded.Save,
-								contentDescription = null,
-								modifier = Modifier.size(30.dp)
-							)
-						},
-						trailing = {
-							Icon(
-								imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-								contentDescription = null,
-								modifier = Modifier.size(30.dp)
-							)
-						},
-						headline = {
-							Text(
-								text = downloadsTitle,
-								style = MaterialTheme.typography.titleMedium
-							)
-						},
-						supportingContent = {
-							Text(
-								text = downloadsDescription,
-							)
-						}
-					) {
-						navController.navigate("stream/save")
-					}
-				}
-				item {
-					ItemNavigation(
-						leading = {
-							Icon(
-								imageVector = Icons.Rounded.Task,
-								contentDescription = null,
-								modifier = Modifier.size(30.dp)
-							)
-						},
-						trailing = {
-							Icon(
-								imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-								contentDescription = null,
-								modifier = Modifier.size(30.dp)
-							)
-						},
-						headline = {
-							Text(
-								text = task,
-								style = MaterialTheme.typography.titleMedium
-							)
-						},
-						supportingContent = {
-							Text(
-								text = taskContent,
-							)
-						}
-					) {
-						navController.navigate("stream/network?tab=1")
 					}
 				}
 			}

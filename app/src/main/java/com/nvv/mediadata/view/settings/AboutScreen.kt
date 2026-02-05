@@ -29,15 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.navigation.NavController
 import com.nvv.mediadata.BuildConfig
 import com.nvv.mediadata.R
 import com.nvv.mediadata.view.core.ItemNavigation
 
 @Composable
-fun AboutScreen(
-	navController: NavController
-) {
+fun AboutScreen() {
 	val context = LocalContext.current
 	val appName = stringResource(R.string.app_name)
 	val privacyPolicyTitle = stringResource(R.string.privacy_policy_title)
@@ -110,7 +107,9 @@ fun AboutScreen(
 					)
 				}
 			) {
-				navController.navigate("settings/privacy")
+				val privacyUrl = "https://nguyenvanvutlv.github.io/mediadata/privacy-policy.html"
+				val intent = Intent(Intent.ACTION_VIEW, privacyUrl.toUri())
+				context.startActivity(intent)
 			}
 			Spacer(Modifier.height(8.dp))
 			ItemNavigation(
@@ -141,7 +140,9 @@ fun AboutScreen(
 					)
 				}
 			) {
-				navController.navigate("settings/terms")
+				val termsUrl = "https://nguyenvanvutlv.github.io/mediadata/terms-of-service.html"
+				val intent = Intent(Intent.ACTION_VIEW, termsUrl.toUri())
+				context.startActivity(intent)
 			}
 
 			Spacer(Modifier.height(8.dp))

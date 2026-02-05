@@ -1,11 +1,9 @@
 package com.nvv.mediadata.app
 
-import android.Manifest
 import android.app.PictureInPictureParams
 import android.app.UiModeManager
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
@@ -27,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,8 +33,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.navigation.compose.rememberNavController
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
 import com.nvv.mediadata.data.Destination
 import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberFileViewModel
@@ -56,27 +51,6 @@ class MainActivity : AppCompatActivity() {
 	private var pipModeListener: ((isInPipMode: Boolean) -> Unit)? = null
 	private var shouldEnterPipOnUserLeave: Boolean = false
 
-	private val requestPermissionLauncher = registerForActivityResult(
-		ActivityResultContracts.RequestPermission()
-	) { isGranted: Boolean ->
-		if (isGranted) {
-
-		} else {
-
-		}
-	}
-
-	private fun checkNotificationPermission() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-			if (ContextCompat.checkSelfPermission(
-					this,
-					Manifest.permission.POST_NOTIFICATIONS
-				) != PackageManager.PERMISSION_GRANTED
-			) {
-				requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-			}
-		}
-	}
 
 	fun addOnPictureInPictureModeChangedListener(listener: (Boolean) -> Unit) {
 		pipModeListener = listener
@@ -110,13 +84,6 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		checkNotificationPermission()
-		val configPRDownloader = PRDownloaderConfig.newBuilder()
-			.setReadTimeout(30_000)
-			.setConnectTimeout(30_000)
-			.setDatabaseEnabled(true)
-			.build()
-		PRDownloader.initialize(this, configPRDownloader)
 		setContent {
 			val isTv = remember {
 				(getSystemService(UI_MODE_SERVICE) as? UiModeManager)
