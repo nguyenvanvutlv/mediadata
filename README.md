@@ -17,7 +17,7 @@ MediaData Player is a **technical tool** designed for playing local media files 
 - **Subtitle Support**: Customizable text, size, color, and position
 
 ### Casting & Connectivity
-- **Google Cast Integration**: Stream to compatible TV devices on your network
+- **Send URL to TV**: Stream to compatible TV devices on your network
 - **Automatic Format Detection**: Optimized codec delivery for best playback quality
 - **Network Stream Playback**: Play content from direct media URLs (user-provided)
 
@@ -60,18 +60,9 @@ DASH, HLS, SmoothStreaming, RTSP
 
 **Note**: You must have legal authorization to access any network content. This app does not provide, recommend, or facilitate access to any content sources.
 
-### Saving Network Media
-1. Go to "Save Media" section
-2. Enter the media URL
-3. Optionally provide a custom filename
-4. Select save location (one-time folder permission)
-5. Tap "Save Media" to save to local storage
-
-**Note**: Only save content you have legal rights to. This is a management tool for your personal media library.
-
-### Casting to TV
+### Send URL to TV
 1. Ensure your device and TV are on the same Wi-Fi network
-2. Tap the Cast icon in the player
+2. Tap the TV icon in the player
 3. Select your target device from the list
 4. Playback will transfer to your TV automatically
 
@@ -86,7 +77,6 @@ Long-press the subtitle button in the player for quick access.
 
 ## Required Permissions
 
-- **POST_NOTIFICATIONS**: Shows save progress and playback control notifications
 - **Storage Access**: Required only for reading/writing user-selected local media files (folders you explicitly grant access to)
 
 ## Privacy & Data Policy
