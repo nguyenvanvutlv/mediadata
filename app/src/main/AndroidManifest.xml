@@ -26,10 +26,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31"
         >
-        <meta-data
-            android:name=
-                "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.nvv.mediadata.data.viewmodel.CastOptionsProvider" />
         <activity
             android:name=".app.MainActivity"
             android:exported="true"
@@ -54,14 +50,6 @@
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".data.viewmodel.PlaybackService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

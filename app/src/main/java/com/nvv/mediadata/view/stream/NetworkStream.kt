@@ -54,6 +54,7 @@ fun NetworkStream(
 	navController: NavHostController,
 ) {
 	val player = rememberPlayerViewModel()
+	val currentPlayingUrl by player.currentPlayingUrl.collectAsStateWithLifecycle()
 	val historyViewModel = rememberHistoryViewModel()
 	val localKeyword = LocalSoftwareKeyboardController.current
 	val streamUrlLabel = stringResource(R.string.stream_url_label)
@@ -67,6 +68,7 @@ fun NetworkStream(
 	) {
 		Box(Modifier.fillMaxSize()) {
 			var url by remember { mutableStateOf("") }
+			val urlToSendToTv = currentPlayingUrl?.takeIf { it.isNotBlank() } ?: url
 			Column(
 				Modifier
 					.fillMaxSize()
@@ -144,7 +146,7 @@ fun NetworkStream(
 				if (showSendToTv) {
 					Spacer(Modifier.height(24.dp))
 					SendUrlToTvSection(
-						currentUrl = url,
+						currentUrl = urlToSendToTv,
 						onClose = { showSendToTv = false },
 					)
 				}
@@ -181,9 +183,10 @@ fun NetworkStream(
 
 
 @Composable
-private fun SendUrlToTvSection(
+fun SendUrlToTvSection(
 	currentUrl: String,
-	onClose: () -> Unit,
+	onClose: () -> Unit = {},
+	onSend: () -> Unit = {},
 	viewModel: TvDiscoveryViewModel = hiltViewModel(),
 ) {
 	val devices by viewModel.devices.collectAsStateWithLifecycle()
@@ -233,7 +236,7 @@ private fun SendUrlToTvSection(
 							.clickable {
 								if (currentUrl.isNotBlank()) {
 									viewModel.sendUrl(device, currentUrl)
-									onClose()
+									onSend()
 								}
 							},
 					) {

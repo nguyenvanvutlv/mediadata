@@ -138,7 +138,7 @@ fun PlayerViewTV(
 	}
 	Surface(modifier = modifier.fillMaxSize()) {
 		Box(Modifier.fillMaxSize()) {
-			SurfacePlayer(Modifier, isPipMode = false, isCasting = false)
+			SurfacePlayer(Modifier, isPipMode = false)
 			Box(
 				Modifier
 					.fillMaxSize()

@@ -1,10 +1,8 @@
 -keep class com.nvv.mediadata.data.viewmodel.PriorityRenderersFactory { *; }
 -keep class androidx.media3.** { *; }
--keep class com.nvv.mediadata.data.viewmodel.PlaybackService { *; }
 -keep class androidx.media3.decoder.ffmpeg.** { *; }
 -keep class androidx.media3.decoder.av1.** { *; }
 -keep class androidx.media3.decoder.iamf.** { *; }
--keep class androidx.media3.session.** { *; }
 
 
 -keepattributes SourceFile,LineNumberTable

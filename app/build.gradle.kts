@@ -18,8 +18,8 @@ android {
 		applicationId = "com.nvv.mediadata"
 		minSdk = 26
 		targetSdk = 36
-		versionCode = 121
-		versionName = "1.2.1"
+		versionCode = 123
+		versionName = "1.2.3"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		ndk {
@@ -69,15 +69,11 @@ dependencies {
 	implementation(libs.androidx.media3.exoplayer)
 	implementation(libs.androidx.media3.ui)
 	implementation(libs.media3.ui)
-	implementation(libs.play.services.cast.framework)
-	implementation(libs.androidx.media3.session)
 	implementation(libs.androidx.media3.datasource)
 	implementation(libs.androidx.media3.decoder)
 	implementation(libs.androidx.media3.common)
 	implementation(libs.androidx.media3.container)
 	implementation(libs.androidx.media3.extractor)
-	implementation(libs.androidx.mediarouter)
-	implementation(libs.androidx.media3.cast)
 	implementation(libs.androidx.media3.exoplayer.dash)
 	implementation(libs.androidx.media3.exoplayer.hls)
 	implementation(libs.androidx.media3.exoplayer.smoothstreaming)

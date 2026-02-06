@@ -14,7 +14,6 @@ class Settings {
 		private const val APPLICATION_ID = "com.nvv.mediadata"
 		private const val FOLDER = "folder"
 		private const val LANGUAGES = "languages"
-		private const val CAST_INDEX = "cast_index"
 
 		private const val SUBTITLE_COLOR = "subtitle_color"
 		private const val SUBTITLE_OUTLINE_COLOR = "subtitle_outline_color"

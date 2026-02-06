@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.PauseCircleFilled
 import androidx.compose.material.icons.rounded.PictureInPicture
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -69,6 +70,7 @@ import com.nvv.mediadata.view.core.ScrollableText
 import com.nvv.mediadata.view.core.findActivity
 import com.nvv.mediadata.view.core.padStartWith0
 import com.nvv.mediadata.view.core.seek.SeekerPlayer
+import com.nvv.mediadata.view.stream.SendUrlToTvSection
 import kotlinx.coroutines.withTimeout
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
@@ -78,8 +80,10 @@ import kotlin.time.Duration.Companion.milliseconds
 fun PlayerView(
 	modifier: Modifier = Modifier,
 ) {
+	var showSendToTv by remember { mutableStateOf(false) }
 	val context = rememberContext()
 	val vm = rememberPlayerViewModel()
+	val currentPlayingUrl by vm.currentPlayingUrl.collectAsStateWithLifecycle()
 	val player by vm.player.collectAsStateWithLifecycle()
 	val state by vm.state.collectAsStateWithLifecycle()
 	val fastForwardLabel = stringResource(R.string.fast_forward_label)
@@ -134,7 +138,6 @@ fun PlayerView(
 			context.findActivity()?.enterPictureInPictureMode(params)
 		}
 	}
-	val isMedia3Casting = player?.deviceInfo?.playbackType == androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE
 	LaunchedEffect(state.position) {
 		if (!isSeeking) {
 			v = state.position.toFloat() / max(1f, state.duration.toFloat())
@@ -157,7 +160,7 @@ fun PlayerView(
 			group.type == C.TRACK_TYPE_VIDEO && group.isSelected
 		} == true
 		(context.findActivity() as? MainActivity)?.updatePipState(
-			canPipMode && !isMedia3Casting && state.isPlaying && hasVideoSelected
+			canPipMode && state.isPlaying && hasVideoSelected
 		)
 	}
 	LaunchedEffect(interactionSource) {
@@ -170,18 +173,9 @@ fun PlayerView(
 
 				is DragInteraction.Stop, is DragInteraction.Cancel -> {
 					isSeeking = false
-					if (!isMedia3Casting) {
-						videoPlayerState.showControls(true)
-					}
+					videoPlayerState.showControls(true)
 				}
 			}
-		}
-	}
-	LaunchedEffect(Unit, isMedia3Casting) {
-		if (isMedia3Casting) {
-			videoPlayerState.showControls(isPlaying = false)
-		} else {
-			videoPlayerState.showControls()
 		}
 	}
 	BackHandler {
@@ -195,7 +189,7 @@ fun PlayerView(
 		Box(
 			Modifier.fillMaxSize()
 		) {
-			SurfacePlayer(modifier, isPipMode, isMedia3Casting)
+			SurfacePlayer(modifier, isPipMode)
 			Box(
 				Modifier
 					.fillMaxSize()
@@ -206,17 +200,13 @@ fun PlayerView(
 							Modifier
 						}
 					)
-					.pointerInput(Unit, isMedia3Casting) {
+					.pointerInput(Unit) {
 						detectTapGestures(
 							onTap = {
-								if (isMedia3Casting) {
-									videoPlayerState.showControls(isPlaying = false)
+								if (videoPlayerState.isControlsVisible) {
+									videoPlayerState.hideControls()
 								} else {
-									if (videoPlayerState.isControlsVisible) {
-										videoPlayerState.hideControls()
-									} else {
-										videoPlayerState.showControls(isPlaying = state.isPlaying)
-									}
+									videoPlayerState.showControls(isPlaying = state.isPlaying)
 								}
 							},
 							onPress = { offset ->
@@ -321,6 +311,21 @@ fun PlayerView(
 							Spacer(Modifier.width(8.dp))
 							IconButton(
 								onClick = {
+									showSendToTv = true
+									videoPlayerState.hideControls()
+								}
+							) {
+								Icon(
+									imageVector = Icons.Rounded.Tv,
+									contentDescription = null,
+									tint = Color.White,
+									modifier = Modifier
+										.size(30.dp)
+								)
+							}
+							Spacer(Modifier.width(10.dp))
+							IconButton(
+								onClick = {
 									vm.toggleVideo(false)
 									vm.setPlayMode(false)
 								}
@@ -333,10 +338,6 @@ fun PlayerView(
 										.size(30.dp)
 								)
 							}
-							Spacer(Modifier.width(10.dp))
-							CastButton(
-								modifier = Modifier.size(40.dp),
-							)
 							Spacer(Modifier.width(10.dp))
 							IconButton(
 								onClick = {
@@ -497,6 +498,28 @@ fun PlayerView(
 								viewModel = vm,
 							)
 						}
+					}
+				}
+				if (showSendToTv) {
+					Box(
+						modifier = Modifier
+							.fillMaxSize()
+							.background(MaterialTheme.colorScheme.background)
+							.pointerInput(Unit) {
+								detectTapGestures(onTap = { showSendToTv = false })
+							},
+						contentAlignment = Alignment.Center
+					) {
+						SendUrlToTvSection(
+							currentUrl = currentPlayingUrl ?: "",
+							onClose = { showSendToTv = false },
+							onSend = {
+								showSendToTv = false
+								canPipMode = false
+								player?.pause()
+								vm.stop()
+							}
+						)
 					}
 				}
 			}

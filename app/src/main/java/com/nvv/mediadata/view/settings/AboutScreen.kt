@@ -196,7 +196,7 @@ fun AboutScreen() {
 					)
 					Spacer(Modifier.height(8.dp))
 					Text(
-						text = "• Media3 (ExoPlayer)\n• Jetpack Compose\n• Kotlin\n• Google Cast\n• Material Design 3",
+						text = "• Media3 (ExoPlayer)\n• Jetpack Compose\n• Kotlin\n• Material Design 3",
 						style = MaterialTheme.typography.bodySmall,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)

@@ -1,6 +1,5 @@
 package com.nvv.mediadata.data.viewmodel
 
-import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -8,6 +7,7 @@ import android.os.Looper
 import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -15,14 +15,18 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import com.nvv.mediadata.data.model.PlaybackState
 import com.nvv.mediadata.data.model.VideoScaleMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,13 +66,25 @@ class PlayerViewModel @Inject constructor(
 	private val _state = MutableStateFlow(PlaybackState())
 	val state = _state.asStateFlow()
 
+	/** Playback state (alias for UI). */
+	val playbackState = _state.asStateFlow()
+
+	private val _errorState = MutableStateFlow<String?>(null)
+	val errorState = _errorState.asStateFlow()
+
+	private val _currentPlayingUrl = MutableStateFlow<String?>(null)
+	val currentPlayingUrl = _currentPlayingUrl.asStateFlow()
+
 	private val _index = MutableStateFlow(0)
 	val currentMediaIndex = _index.asStateFlow()
 
 	private val _items = MutableStateFlow<List<MediaItem>>(emptyList())
+	private var _currentUrls = emptyList<String>()
 
 	private val handler = Handler(Looper.getMainLooper())
-	private var controllerFuture: ListenableFuture<MediaController>
+
+	private var ffmpegPlayer: ExoPlayer? = null
+	private var defaultPlayer: ExoPlayer? = null
 
 	private fun String.toMediaUri(): Uri {
 		return when {
@@ -83,26 +99,170 @@ class PlayerViewModel @Inject constructor(
 		}
 	}
 
-	init {
-		val sessionToken = SessionToken(
-			context.applicationContext,
-			ComponentName(context.applicationContext, PlaybackService::class.java)
+	private fun createPlayerConfig(): Triple<DefaultTrackSelector, DefaultLoadControl, DefaultDataSource.Factory> {
+		val trackSelector = DefaultTrackSelector(context)
+		val bufferConfig = BufferCalculator.calculateBufferConfig(context)
+		val loadControl = DefaultLoadControl.Builder()
+			.setBufferDurationsMs(
+				bufferConfig.minBuffer,
+				bufferConfig.maxBuffer,
+				bufferConfig.bufferForPlayback,
+				bufferConfig.bufferForPlaybackAfterRebuffer
+			)
+			.setBackBuffer(
+				bufferConfig.maxBuffer.coerceAtMost(30_000),
+				false
+			)
+			.build()
+		val dataSourceFactory = DefaultDataSource.Factory(
+			context, DefaultHttpDataSource.Factory()
 		)
-		controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-		controllerFuture.addListener({
-			try {
-				val controller = controllerFuture.get()
-				_player.value = controller
-				controller.addListener(createListener())
-				syncStateWithController(controller)
-			} catch (e: Exception) {
-				Timber.e(e)
-			}
-		}, MoreExecutors.directExecutor())
+		return Triple(trackSelector, loadControl, dataSourceFactory)
 	}
 
-	private fun syncStateWithController(controller: Player) {
-		if (controller.isPlaying) handler.post(progressRunnable)
+	private fun createExoPlayer(renderersFactory: androidx.media3.exoplayer.RenderersFactory): ExoPlayer {
+		val (trackSelector, loadControl, dataSourceFactory) = createPlayerConfig()
+		return ExoPlayer.Builder(context)
+			.setRenderersFactory(renderersFactory)
+			.setTrackSelector(trackSelector)
+			.setLoadControl(loadControl)
+			.setMediaSourceFactory(
+				DefaultMediaSourceFactory(context)
+					.setDataSourceFactory(dataSourceFactory)
+			)
+			.setAudioAttributes(
+				AudioAttributes.Builder()
+					.setUsage(C.USAGE_MEDIA)
+					.setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+					.build(),
+				true
+			)
+			.setHandleAudioBecomingNoisy(true)
+			.setWakeMode(C.WAKE_MODE_NETWORK)
+			.build()
+	}
+
+	private fun setupPlayerListeners(targetPlayer: ExoPlayer, isFfmpegPlayer: Boolean) {
+		targetPlayer.addListener(object : Player.Listener {
+			override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+				if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED) {
+					val current = _player.value
+					if (current is ExoPlayer && !isFfmpegPlayer && current == defaultPlayer && targetPlayer.mediaItemCount > 0) {
+						handler.postDelayed({
+							if (_player.value == defaultPlayer) {
+								switchToFfmpegPlayer()
+							}
+						}, 100)
+					}
+				}
+				updateCurrentPlayingUrlFromPlayer(targetPlayer)
+			}
+
+			override fun onPlayerError(error: PlaybackException) {
+				if (isFfmpegPlayer && _player.value == ffmpegPlayer) {
+					val errorMessage = error.message ?: ""
+					val cause = error.cause
+					val isFfmpegError = errorMessage.contains("Ffmpeg", ignoreCase = true) ||
+							errorMessage.contains("FfmpegVideoRenderer", ignoreCase = true) ||
+							errorMessage.contains("FfmpegDecoderException", ignoreCase = true)
+					val isOutOfMemoryError = cause is OutOfMemoryError ||
+							(cause?.cause is OutOfMemoryError) ||
+							errorMessage.contains("OutOfMemoryError", ignoreCase = true)
+					if (isFfmpegError) {
+						Timber.tag("PlayerViewModel").w("FFmpeg player error: $errorMessage")
+						if (isOutOfMemoryError) {
+							Timber.tag("PlayerViewModel").w("OutOfMemoryError - switching to default player")
+						}
+						handler.post { switchToDefaultPlayer() }
+					}
+				}
+			}
+
+			override fun onPlaybackStateChanged(playbackState: Int) {
+				super.onPlaybackStateChanged(playbackState)
+				if (playbackState == Player.STATE_ENDED) {
+					_state.update { it.copy(isPlaying = false) }
+				}
+			}
+		})
+	}
+
+	private fun updateCurrentPlayingUrlFromPlayer(p: Player) {
+		val idx = p.currentMediaItemIndex
+		val url = _currentUrls.getOrNull(idx) ?: p.currentMediaItem?.localConfiguration?.uri?.toString()
+		_currentPlayingUrl.value = url
+	}
+
+	private fun switchToFfmpegPlayer() {
+		val ff = ffmpegPlayer ?: return
+		if (_player.value == ff) return
+		swapPlayer(ff)
+	}
+
+	private fun switchToDefaultPlayer() {
+		val def = defaultPlayer ?: return
+		if (_player.value == def) return
+		swapPlayer(def)
+	}
+
+	private fun swapPlayer(newPlayer: ExoPlayer) {
+		val oldPlayer = _player.value as? ExoPlayer ?: return
+		if (oldPlayer == newPlayer) return
+		val playWhenReady = oldPlayer.playWhenReady
+		val currentItemIndex = oldPlayer.currentMediaItemIndex
+		val playbackPositionMs = oldPlayer.currentPosition
+		val trackSelectionParams = oldPlayer.trackSelectionParameters
+		val mediaItems = mutableListOf<MediaItem>()
+		for (i in 0 until oldPlayer.mediaItemCount) {
+			mediaItems.add(oldPlayer.getMediaItemAt(i))
+		}
+		oldPlayer.stop()
+		oldPlayer.clearMediaItems()
+		val preferredLang = Settings.getLanguages(context)
+		newPlayer.trackSelectionParameters = trackSelectionParams.buildUpon()
+			.setPreferredAudioLanguage(preferredLang)
+			.setPreferredTextLanguage(preferredLang)
+			.build()
+		_player.value = newPlayer
+		if (mediaItems.isNotEmpty()) {
+			val currentIndex = currentItemIndex.coerceIn(0, mediaItems.size - 1)
+			newPlayer.setMediaItems(mediaItems, currentIndex, playbackPositionMs)
+			newPlayer.prepare()
+			newPlayer.playWhenReady = playWhenReady
+		}
+		updateCurrentPlayingUrlFromPlayer(newPlayer)
+	}
+
+	init {
+		val priorityRenderersFactory = PriorityRenderersFactory(context)
+			.setEnableDecoderFallback(true)
+			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
+		val nextRenderersFactory = NextRenderersFactory(context)
+			.setEnableDecoderFallback(true)
+			.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
+		val ff = createExoPlayer(priorityRenderersFactory)
+		val def = createExoPlayer(nextRenderersFactory)
+		setupPlayerListeners(ff, true)
+		setupPlayerListeners(def, false)
+		val preferredLang = Settings.getLanguages(context)
+		ff.trackSelectionParameters = ff.trackSelectionParameters.buildUpon()
+			.setPreferredAudioLanguage(preferredLang)
+			.setPreferredTextLanguage(preferredLang)
+			.build()
+		def.trackSelectionParameters = def.trackSelectionParameters.buildUpon()
+			.setPreferredAudioLanguage(preferredLang)
+			.setPreferredTextLanguage(preferredLang)
+			.build()
+		ffmpegPlayer = ff
+		defaultPlayer = def
+		_player.value = ff
+		ff.addListener(createListener())
+		def.addListener(createListener())
+		handler.post { syncStateWithPlayer(ff) }
+	}
+
+	private fun syncStateWithPlayer(p: Player) {
+		if (p.isPlaying) handler.post(progressRunnable)
 	}
 
 	private val progressRunnable = object : Runnable {
@@ -122,7 +282,6 @@ class PlayerViewModel @Inject constructor(
 				if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED) ||
 					events.contains(Player.EVENT_IS_PLAYING_CHANGED)
 				) {
-
 					val isPlaying = player.isPlaying
 					_state.update {
 						it.copy(
@@ -130,7 +289,6 @@ class PlayerViewModel @Inject constructor(
 							isBuffering = player.playbackState == Player.STATE_BUFFERING
 						)
 					}
-
 					if (isPlaying) {
 						handler.removeCallbacks(progressRunnable)
 						handler.post(progressRunnable)
@@ -141,57 +299,17 @@ class PlayerViewModel @Inject constructor(
 
 				if (events.contains(Player.EVENT_PLAYER_ERROR)) {
 					player.playerError?.let { error ->
-						val errorCode = error.errorCode
-						val baseMessage = error.message ?: "Unknown Error"
-
-						val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
-							errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED
-						) {
-							val tracks = player.currentTracks
-							var videoMimeType: String? = null
-							var videoCodecs: String? = null
-							for (group in tracks.groups) {
-								if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
-									val format = group.getTrackFormat(0)
-									videoMimeType = format.sampleMimeType
-									videoCodecs = format.codecs
-									break
-								}
-							}
-
-							if (videoMimeType != null) {
-								val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
-								buildString {
-									append("Can't play video\n\n")
-									append("Format: $videoMimeType\n")
-									if (videoCodecs != null) {
-										append("Codec: $videoCodecs\n")
-									}
-									append("Error: $baseMessage\n\n")
-									if (!supportResult.isSupported && supportResult.errorMessage != null) {
-										append(supportResult.errorMessage)
-									} else if (supportResult.availableDecoders.isEmpty()) {
-										append("can't found decoder suitable in this device.\n")
-									}
-								}
-							} else {
-								baseMessage
-							}
-						} else {
-							baseMessage
-						}
-
+						val detailedMessage = buildDetailedErrorMessage(player, error)
 						_state.update {
-							it.copy(
-								isError = true,
-								messageError = detailedMessage
-							)
+							it.copy(isError = true, messageError = detailedMessage)
 						}
+						_errorState.value = detailedMessage
 					}
 				}
 
 				if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
 					_index.value = player.currentMediaItemIndex
+					updateCurrentPlayingUrlFromPlayer(player)
 				}
 
 				if (events.contains(Player.EVENT_TRACKS_CHANGED)) {
@@ -208,57 +326,12 @@ class PlayerViewModel @Inject constructor(
 			}
 
 			override fun onPlayerError(error: PlaybackException) {
-				val errorCode = error.errorCode
-				val baseMessage = error.message ?: "Unknown Error"
-
-				val detailedMessage = if (errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
-					errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED
-				) {
-					val player = _player.value
-					if (player != null) {
-						val tracks = player.currentTracks
-						var videoMimeType: String? = null
-						var videoCodecs: String? = null
-						for (group in tracks.groups) {
-							if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
-								val format = group.getTrackFormat(0)
-								videoMimeType = format.sampleMimeType
-								videoCodecs = format.codecs
-								break
-							}
-						}
-
-						if (videoMimeType != null) {
-							val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
-							buildString {
-								append("Can't play video\n\n")
-								append("Format: $videoMimeType\n")
-								if (videoCodecs != null) {
-									append("Codec: $videoCodecs\n")
-								}
-								append("Error: $baseMessage\n\n")
-								if (!supportResult.isSupported && supportResult.errorMessage != null) {
-									append(supportResult.errorMessage)
-								} else if (supportResult.availableDecoders.isEmpty()) {
-									append("Can't found decoder suitable in this device.\n")
-								}
-							}
-						} else {
-							baseMessage
-						}
-					} else {
-						baseMessage
-					}
-				} else {
-					baseMessage
-				}
-
+				val p = _player.value
+				val detailedMessage = if (p != null) buildDetailedErrorMessage(p, error) else (error.message ?: "Unknown Error")
 				_state.update {
-					it.copy(
-						isError = true,
-						messageError = detailedMessage
-					)
+					it.copy(isError = true, messageError = detailedMessage)
 				}
+				_errorState.value = detailedMessage
 			}
 
 			override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
@@ -266,9 +339,9 @@ class PlayerViewModel @Inject constructor(
 				val title = mediaMetadata.title ?: mediaMetadata.displayTitle
 				if (title != null) {
 					Timber.d("Detected Title from Stream: $title")
-					val p = _player.value ?: return
-					val currentIndex = p.currentMediaItemIndex
-					val currentItem = p.getMediaItemAt(currentIndex)
+					val current = _player.value ?: return
+					val currentIndex = current.currentMediaItemIndex
+					val currentItem = current.getMediaItemAt(currentIndex)
 					val newMetadata = currentItem.mediaMetadata.buildUpon()
 						.setTitle(title)
 						.setDisplayTitle(title)
@@ -276,8 +349,42 @@ class PlayerViewModel @Inject constructor(
 					val newItem = currentItem.buildUpon()
 						.setMediaMetadata(newMetadata)
 						.build()
-					p.replaceMediaItem(currentIndex, newItem)
+					current.replaceMediaItem(currentIndex, newItem)
 				}
+			}
+		}
+	}
+
+	private fun buildDetailedErrorMessage(player: Player, error: PlaybackException): String {
+		val errorCode = error.errorCode
+		val baseMessage = error.message ?: "Unknown Error"
+		if (errorCode != PlaybackException.ERROR_CODE_DECODER_INIT_FAILED &&
+			errorCode != PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED
+		) {
+			return baseMessage
+		}
+		val tracks = player.currentTracks
+		var videoMimeType: String? = null
+		var videoCodecs: String? = null
+		for (group in tracks.groups) {
+			if (group.type == C.TRACK_TYPE_VIDEO && group.length > 0) {
+				val format = group.getTrackFormat(0)
+				videoMimeType = format.sampleMimeType
+				videoCodecs = format.codecs
+				break
+			}
+		}
+		if (videoMimeType == null) return baseMessage
+		val supportResult = CodecSupportChecker.checkVideoFormatSupport(videoMimeType, videoCodecs)
+		return buildString {
+			append("Can't play video\n\n")
+			append("Format: $videoMimeType\n")
+			if (videoCodecs != null) append("Codec: $videoCodecs\n")
+			append("Error: $baseMessage\n\n")
+			if (!supportResult.isSupported && supportResult.errorMessage != null) {
+				append(supportResult.errorMessage)
+			} else if (supportResult.availableDecoders.isEmpty()) {
+				append("Can't found decoder suitable in this device.\n")
 			}
 		}
 	}
@@ -531,13 +638,15 @@ class PlayerViewModel @Inject constructor(
 	suspend fun setURLs(links: List<String>) {
 		val mediaItems = links.map { buildMediaItem(it) }
 		_items.value = mediaItems
+		_currentUrls = links
+		_currentPlayingUrl.value = links.firstOrNull()
+		_errorState.value = null
 		_player.value?.setMediaItems(mediaItems)
-		/// update state
 		_state.update {
 			it.copy(
 				position = 0L,
 				duration = 1L,
-				speed = 1f, // Default speed
+				speed = 1f,
 				sizeSubtitle = Settings.getSubtitleSize(context),
 				positionSubtitle = Settings.getSubtitlePosition(context),
 				subtitleTextColor = Settings.getColor(context).toArgb(),
@@ -734,17 +843,26 @@ class PlayerViewModel @Inject constructor(
 
 	fun stop() {
 		_isPlay.value = false
+		_currentPlayingUrl.value = null
+		_currentUrls = emptyList()
+		_errorState.value = null
 		_player.value?.let { p ->
 			p.stop()
 			p.clearMediaItems()
 		}
 	}
 
-
 	override fun onCleared() {
 		super.onCleared()
 		_isPlay.value = false
+		_currentPlayingUrl.value = null
+		_currentUrls = emptyList()
+		_errorState.value = null
 		handler.removeCallbacks(progressRunnable)
-		MediaController.releaseFuture(controllerFuture)
+		_player.value = null
+		ffmpegPlayer?.release()
+		ffmpegPlayer = null
+		defaultPlayer?.release()
+		defaultPlayer = null
 	}
 }

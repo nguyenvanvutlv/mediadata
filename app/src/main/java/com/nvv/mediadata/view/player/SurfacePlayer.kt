@@ -10,27 +10,14 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.annotation.OptIn
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CastConnected
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.toColor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -42,7 +29,6 @@ import com.nvv.mediadata.data.provide.rememberContext
 import com.nvv.mediadata.data.provide.rememberPlayerViewModel
 import com.nvv.mediadata.ui.theme.Media3Typography
 import com.nvv.mediadata.view.core.findActivity
-import com.nvv.mediadata.view.core.toComposeColor
 import kotlin.math.roundToInt
 
 @OptIn(UnstableApi::class)
@@ -50,7 +36,6 @@ import kotlin.math.roundToInt
 fun SurfacePlayer(
 	modifier: Modifier = Modifier,
 	isPipMode: Boolean = false,
-	isCasting: Boolean = false,
 ) {
 	val vm = rememberPlayerViewModel()
 	val p by vm.player.collectAsStateWithLifecycle()
@@ -79,88 +64,62 @@ fun SurfacePlayer(
 	LaunchedEffect(Unit) {
 		hideSystemBars()
 	}
-	if (isCasting) {
-		Box(
-			modifier = modifier
-				.fillMaxSize()
-				.background(Color.BLACK.toColor().toComposeColor()),
-			contentAlignment = Alignment.Center
-		) {
-			androidx.compose.foundation.layout.Column(
-				horizontalAlignment = Alignment.CenterHorizontally
-			) {
-				Icon(
-					imageVector = Icons.Rounded.CastConnected,
-					contentDescription = "Casting",
-					tint = Color.WHITE.toColor().toComposeColor(),
-					modifier = Modifier.size(100.dp)
+	AndroidView(
+		modifier = modifier
+			.fillMaxSize(),
+		factory = {
+			PlayerView(context).apply {
+				useController = false
+				player = p
+				resizeMode = state.scaleMode.scaleType
+				setShutterBackgroundColor(Color.BLACK)
+				setKeepContentOnPlayerReset(true)
+				layoutParams = ViewGroup.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT
 				)
-				Spacer(Modifier.height(16.dp))
-				Text(
-					text = "Casting to TV",
-					style = MaterialTheme.typography.headlineMedium,
-					color = Color.WHITE.toColor().toComposeColor()
+			}
+		},
+		update = { view ->
+			if (view.player != p) {
+				view.player = p
+			}
+			val subView = view.subtitleView
+			view.resizeMode = state.scaleMode.scaleType
+			val opacity = 0.coerceAtLeast(
+				state.opacity.coerceAtMost(100)
+			)
+			val alpha = (opacity * 255f / 100f).roundToInt()
+			val fontFamilyType = try {
+				Media3Typography.FontFamilyType.valueOf(state.subtitleFont)
+			} catch (e: Exception) {
+				Media3Typography.FontFamilyType.DEFAULT
+			}
+			val typeface = Media3Typography.getTypeface(context, fontFamilyType) ?: Typeface.DEFAULT
+			val windowColor = if (state.subtitleBackgroundColor == Color.TRANSPARENT) {
+				Color.TRANSPARENT
+			} else {
+				ColorUtils.setAlphaComponent(state.subtitleBackgroundColor, alpha)
+			}
+			val style = CaptionStyleCompat(
+				state.subtitleTextColor,
+				Color.TRANSPARENT,
+				windowColor,
+				CaptionStyleCompat.EDGE_TYPE_OUTLINE,
+				state.subtitleOutlineColor,
+				typeface
+			)
+			subView?.setStyle(style)
+			subView?.invalidate()
+			if (!isPipMode) {
+				subView?.setFixedTextSize(
+					TypedValue.COMPLEX_UNIT_SP,
+					state.sizeSubtitle
 				)
+				subView?.setBottomPaddingFraction(state.positionSubtitle)
 			}
 		}
-	} else {
-		AndroidView(
-			modifier = modifier
-				.fillMaxSize(),
-			factory = {
-				PlayerView(context).apply {
-					useController = false
-					player = p
-					resizeMode = state.scaleMode.scaleType
-					setShutterBackgroundColor(Color.BLACK)
-					setKeepContentOnPlayerReset(true)
-					layoutParams = ViewGroup.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT
-					)
-				}
-			},
-			update = { view ->
-				if (view.player != p) {
-					view.player = p
-				}
-				val subView = view.subtitleView
-				view.resizeMode = state.scaleMode.scaleType
-				val opacity = 0.coerceAtLeast(
-					state.opacity.coerceAtMost(100)
-				)
-				val alpha = (opacity * 255f / 100f).roundToInt()
-				val fontFamilyType = try {
-					Media3Typography.FontFamilyType.valueOf(state.subtitleFont)
-				} catch (e: Exception) {
-					Media3Typography.FontFamilyType.DEFAULT
-				}
-				val typeface = Media3Typography.getTypeface(context, fontFamilyType) ?: Typeface.DEFAULT
-				val windowColor = if (state.subtitleBackgroundColor == Color.TRANSPARENT) {
-					Color.TRANSPARENT
-				} else {
-					ColorUtils.setAlphaComponent(state.subtitleBackgroundColor, alpha)
-				}
-				val style = CaptionStyleCompat(
-					state.subtitleTextColor,
-					Color.TRANSPARENT,
-					windowColor,
-					CaptionStyleCompat.EDGE_TYPE_OUTLINE,
-					state.subtitleOutlineColor,
-					typeface
-				)
-				subView?.setStyle(style)
-				subView?.invalidate()
-				if (!isPipMode) {
-					subView?.setFixedTextSize(
-						TypedValue.COMPLEX_UNIT_SP,
-						state.sizeSubtitle
-					)
-					subView?.setBottomPaddingFraction(state.positionSubtitle)
-				}
-			}
-		)
-	}
+	)
 	DisposableEffect(Unit) {
 		activity?.requestedOrientation =
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE

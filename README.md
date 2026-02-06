@@ -86,7 +86,6 @@ Long-press the subtitle button in the player for quick access.
 
 ## Required Permissions
 
-- **FOREGROUND_SERVICE_MEDIA_PLAYBACK**: Maintains playback during casting and background operation
 - **POST_NOTIFICATIONS**: Shows save progress and playback control notifications
 - **Storage Access**: Required only for reading/writing user-selected local media files (folders you explicitly grant access to)
 
