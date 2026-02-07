@@ -1,6 +1,26 @@
 # MediaData Player
 
-[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="75">](https://play.google.com/store/apps/details?id=com.nvv.mediadata)
+<table>
+<tr>
+
+<td valign="middle">
+<a href="https://play.google.com/store/apps/details?id=com.nvv.mediadata">
+<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="75">
+</a>
+</td>
+
+<td valign="middle">
+<a href="https://apkpure.com/p/com.nvv.mediadata">
+<img src="https://static.apkpures.xyz/www/static/imgs/logo_new@2x.png"
+     height="40"
+     style="border:2px solid black;border-radius:6px;padding:16px;background:white;">
+</a>
+</td>
+
+</tr>
+</table>
+
+
 
 A professional media player application for Android, built on [Media3](https://github.com/androidx/media) framework. Compatible with Android 8+.
 
