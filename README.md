@@ -1,5 +1,7 @@
 # MediaData Player
 
+[![Google Play](https://img.shields.io/endpoint?color=green&logo=google-play&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.nvv.mediadata%26l%3DGoogle%2520Play%26m%3Dv%24version)](https://play.google.com/store/apps/details?id=com.nvv.mediadata)
+
 A professional media player application for Android, built on [Media3](https://github.com/androidx/media) framework. Compatible with Android 8+.
 
 ## Overview
