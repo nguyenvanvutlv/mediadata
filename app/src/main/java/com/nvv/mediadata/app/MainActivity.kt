@@ -44,6 +44,7 @@ import com.nvv.mediadata.view.mobile.MobileRoot
 import com.nvv.mediadata.view.tv.TvRoot
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import androidx.activity.enableEdgeToEdge
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		enableEdgeToEdge()
 		setContent {
 			val isTv = remember {
 				(getSystemService(UI_MODE_SERVICE) as? UiModeManager)

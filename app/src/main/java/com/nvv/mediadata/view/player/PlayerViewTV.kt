@@ -109,13 +109,13 @@ fun PlayerViewTV(
 	}
 	var currentTitle by remember {
 		mutableStateOf(
-			"0:00"
+			"---"
 		)
 	}
 	LaunchedEffect(player?.currentMediaItem) {
 		currentTitle = player?.currentMediaItem?.mediaMetadata?.title?.toString()
 			?: player?.currentMediaItem?.mediaMetadata?.displayTitle?.toString()
-					?: "0:00"
+					?: "---"
 	}
 	LaunchedEffect(state.position, state.duration) {
 		if (!isSeeking) {
